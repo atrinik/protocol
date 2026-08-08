@@ -38,7 +38,7 @@ jobs:
       - name: Install pinned validation dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends --yes gcc-mingw-w64-x86-64 unzip
+          sudo apt-get install --no-install-recommends --yes gcc-mingw-w64-x86-64 ripgrep unzip
           tools/install-ci-dependencies.sh
 
       - name: Validate schemas, bindings, consumers, and release

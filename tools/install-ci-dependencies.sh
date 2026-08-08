@@ -25,5 +25,5 @@ printf '%s  %s\n' bf7b29ff57f06da30918266a0e1c2885a8f99784798d1bdb1628886aa015d7
   "${RUNNER_TEMP}/syft.tar.gz" | sha256sum --check --strict
 tar -xzf "${RUNNER_TEMP}/syft.tar.gz" -C "${RUNNER_TEMP}/bin" syft
 
-printf '%s\n' "$(go env GOPATH)/bin" "${HOME}/.cargo/bin" \
+printf '%s\n' "$(go env GOPATH)/bin" "${CARGO_HOME:-${HOME}/.cargo}/bin" \
   "${RUNNER_TEMP}/protoc/bin" "${RUNNER_TEMP}/bin" >>"${GITHUB_PATH}"
