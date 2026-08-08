@@ -8,9 +8,10 @@ These instructions apply to the entire `atrinik/protocol` repository.
   Protobuf schemas, Buf policy, normative specifications, descriptor sets,
   generated Go/Rust contracts, and language-neutral conformance fixtures.
 - Game Protocol 1 is a new contract, not an extension or source port of the
-  numeric C/Python registry in `atrinik/legacy-protocol`. Do not add classic
-  packet IDs, MAP2/ADS compatibility, C/Python bindings, or a dual protocol
-  path.
+  numeric C/Python registry in the
+  [`protocol/` module of `atrinik/classic`](https://github.com/atrinik/classic/tree/main/protocol).
+  Do not add classic packet IDs, MAP2/ADS compatibility, C/Python bindings, or
+  a dual protocol path.
 - Use [atrinik/atrinik#168](https://github.com/atrinik/atrinik/issues/168) as
   the cross-repository roadmap. The issue owning a contract is authoritative
   for its product semantics; protocol work does not reopen established
