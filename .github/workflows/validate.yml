@@ -18,7 +18,7 @@ jobs:
   validate:
     name: Protocol validation
     runs-on: ubuntu-24.04
-    container: ghcr.io/atrinik/linux-build:ubuntu-26.04
+    container: ghcr.io/atrinik/linux-build:ubuntu-26.04@sha256:6e128d58125dfa0f4553c112ba76616f84aa448728dfc0fc235eb52a1024a53d
     timeout-minutes: 20
     env:
       BUF_CACHE_DIR: /tmp/atrinik-protocol-buf-cache
