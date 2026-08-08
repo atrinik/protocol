@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "root_policy": {
+    "repository": "atrinik/atrinik",
+    "revision": "d64a8e958ca2adad783ad8912493d468a805f3fd",
+    "path": "AGENTS.md",
+    "registry_entry": "Approved historical MIT provenance grantors"
+  },
+  "records": [
+    {
+      "id": "protocol-generated-bindings-v1",
+      "decision": "admitted",
+      "source_repository": "atrinik/protocol",
+      "source_revision": "this-change",
+      "source_paths": [
+        "proto/atrinik/game/v1/common.proto",
+        "proto/atrinik/game/v1/transport.proto"
+      ],
+      "history_evidence": "New MIT schemas introduced by this change; no historical source import.",
+      "verified_identity": "Destination pull-request authorship and complete repository history.",
+      "embedded_material_review": "No copied fixtures, classic IDs, or third-party schema text.",
+      "destination_paths": ["gen/go", "gen/rust", "gen/descriptor"],
+      "transformation": "Pinned protoc-gen-go/protoc-gen-prost generation and Buf descriptor build.",
+      "copyright": "Copyright 2026 The Atrinik Project",
+      "grant": "Not required; independently authored MIT input.",
+      "reviewer": "Destination pull-request reviewer"
+    },
+    {
+      "id": "classic-command-registry",
+      "decision": "excluded",
+      "source_repository": "atrinik/classic",
+      "source_revision": "main",
+      "source_paths": ["protocol/schema/game-commands.json"],
+      "history_evidence": "GPL classic interoperability registry; not audited as an independently separable approved-grantor work.",
+      "verified_identity": "Not applicable because exclusion fails closed before reuse.",
+      "embedded_material_review": "Potential mixed historical implementation provenance.",
+      "destination_paths": [],
+      "transformation": "None. Game Protocol 1 defines fresh Protobuf contracts.",
+      "copyright": "Retained only in the classic repository.",
+      "grant": "No grant asserted.",
+      "reviewer": "Destination pull-request reviewer"
+    }
+  ]
+}

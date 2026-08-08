@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "encoding": "lowercase hexadecimal",
+  "golden": [
+    {
+      "id": "gp1-stream-control-epoch-1",
+      "message": "atrinik.game.v1.StreamHeader",
+      "protobuf_hex": "08011001",
+      "frame_hex": "0408011001"
+    },
+    {
+      "id": "gp1-control-ping-1",
+      "message": "atrinik.game.v1.ControlEnvelope",
+      "protobuf_hex": "08012a020801",
+      "frame_hex": "0608012a020801"
+    }
+  ],
+  "negative": [
+    {
+      "id": "gp1-frame-empty",
+      "frame_hex": "00",
+      "error": "empty_frame"
+    },
+    {
+      "id": "gp1-frame-length-noncanonical",
+      "frame_hex": "860008012a020801",
+      "error": "noncanonical_length"
+    },
+    {
+      "id": "gp1-frame-length-overflow",
+      "frame_hex": "ffffffff1f",
+      "error": "length_overflow"
+    },
+    {
+      "id": "gp1-frame-truncated",
+      "frame_hex": "0608012a02",
+      "error": "truncated"
+    }
+  ]
+}

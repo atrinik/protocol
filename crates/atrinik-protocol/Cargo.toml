@@ -1,0 +1,12 @@
+[package]
+name = "atrinik-protocol"
+description = "Generated Game Protocol 1 contracts and bounded framing"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[dependencies]
+bytes.workspace = true
+prost.workspace = true

@@ -1,0 +1,36 @@
+name: Protocol validation
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: protocol-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Protocol validation
+    runs-on: ubuntu-24.04
+    container: ghcr.io/atrinik/linux-build:ubuntu-26.04
+    timeout-minutes: 20
+    env:
+      BUF_CACHE_DIR: /tmp/atrinik-protocol-buf-cache
+      CARGO_HOME: /tmp/atrinik-protocol-cargo
+      CARGO_TARGET_DIR: /tmp/atrinik-protocol-target
+      GOCACHE: /tmp/atrinik-protocol-go-build
+      GOMODCACHE: /tmp/atrinik-protocol-go-modules
+    steps:
+      - name: Check out complete history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Validate schemas, bindings, consumers, and release
+        run: tools/validate.sh
