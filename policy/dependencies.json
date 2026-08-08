@@ -18,6 +18,13 @@
     "GPL-3.0-only",
     "GPL-3.0-or-later"
   ],
+  "ci_tools": [
+    {"name":"actions/setup-go","version":"6.0.0","revision":"924ae3a1cded613372ab5595356fb5720e22ba16","source":"https://github.com/actions/setup-go"},
+    {"name":"protoc","version":"35.0","source":"https://github.com/protocolbuffers/protobuf","linux_amd64_sha256":"a45cda0989c17dd950db55f6fbe1e5814c50fda08e87aa422980ac1f89dddbbc"},
+    {"name":"Syft","version":"1.50.0","source":"https://github.com/anchore/syft","linux_amd64_sha256":"bf7b29ff57f06da30918266a0e1c2885a8f99784798d1bdb1628886aa015d788"},
+    {"name":"actions/setup-node","version":"7.0.0","revision":"820762786026740c76f36085b0efc47a31fe5020","source":"https://github.com/actions/setup-node"},
+    {"name":"semantic-release","version":"25.0.9","source":"https://github.com/semantic-release/semantic-release"}
+  ],
   "direct_dependencies": [
     {
       "ecosystem": "cargo",

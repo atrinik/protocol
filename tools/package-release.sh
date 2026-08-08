@@ -5,13 +5,17 @@ repository=$(git rev-parse --show-toplevel)
 cd "${repository}"
 
 output=${1:-dist}
+version=${2:-$(git describe --tags --always --dirty)}
+if [[ ! ${version} =~ ^[0-9A-Za-z][0-9A-Za-z.+-]*$ ]]; then
+  echo "Invalid release version: ${version}" >&2
+  exit 2
+fi
 if [[ -e ${output} ]]; then
   echo "Release output already exists: ${output}" >&2
   exit 1
 fi
 install -d "${output}"
 
-version=$(git describe --tags --always --dirty)
 archive="atrinik-protocol-${version}.tar.gz"
 git archive --format=tar --prefix="atrinik-protocol-${version}/" HEAD \
   | gzip -n >"${output}/${archive}"
