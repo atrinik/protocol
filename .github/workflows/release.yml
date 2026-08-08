@@ -1,55 +1,54 @@
-name: Release protocol contracts
+name: Semantic Release
 
 on:
+  workflow_dispatch:
   push:
-    tags:
-      - "v*"
+    branches: [main]
 
 permissions:
   contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: protocol-semantic-release
+  cancel-in-progress: false
 
 jobs:
   release:
     name: Release protocol contracts
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       BUF_CACHE_DIR: /tmp/atrinik-protocol-buf-cache
       CARGO_HOME: /tmp/atrinik-protocol-cargo
       CARGO_TARGET_DIR: /tmp/atrinik-protocol-target
-      GH_TOKEN: ${{ github.token }}
       GOCACHE: /tmp/atrinik-protocol-go-build
       GOMODCACHE: /tmp/atrinik-protocol-go-modules
     steps:
-      - name: Check out release revision
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-
       - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.0.0
         with:
           go-version: 1.26.5
           cache: true
-
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.18.1
       - name: Install pinned release dependencies
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends --yes gcc-mingw-w64-x86-64 ripgrep unzip
           tools/install-ci-dependencies.sh
-
-      - name: Validate release tag
-        run: |
-          if [[ ! ${GITHUB_REF_NAME} =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Release tag must be vMAJOR.MINOR.PATCH." >&2
-            exit 1
-          fi
-
-      - name: Validate and package
-        run: |
-          tools/validate.sh
-          tools/package-release.sh dist
-
-      - name: Publish immutable GitHub release
+      - name: Revalidate exact release revision
+        run: tools/validate.sh
+      - name: Analyze commits, package, and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: >-
-          gh release create "${GITHUB_REF_NAME}" dist/*
-          --verify-tag --generate-notes
+          npx --yes
+          --package=semantic-release@25.0.9
+          --package=@semantic-release/exec@7.1.0
+          --package=conventional-changelog-conventionalcommits@9.3.1
+          semantic-release
