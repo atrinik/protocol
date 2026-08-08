@@ -7,7 +7,7 @@ package validation
 
 import (
 	"errors"
-	"regexp"
+	"strings"
 	"unicode/utf8"
 
 	gamev1 "github.com/atrinik/protocol/gen/go/atrinik/game/v1"
@@ -22,7 +22,6 @@ const (
 
 var (
 	ErrInvalidBound = errors.New("game protocol value violates a semantic bound")
-	idPart          = regexp.MustCompile(`^[a-z0-9._/-]+$`)
 )
 
 func Opaque16(value []byte) error {
@@ -40,9 +39,14 @@ func Digest(value []byte) error {
 }
 
 func ContentID(value *gamev1.ContentId) error {
-	if value == nil || len(value.Namespace) < 1 || len(value.Namespace) > 32 ||
-		len(value.Value) < 1 || len(value.Value) > 160 ||
-		!idPart.MatchString(value.Namespace) || !idPart.MatchString(value.Value) {
+	if value == nil || !stableID(value.Namespace, value.Value) {
+		return ErrInvalidBound
+	}
+	return nil
+}
+
+func ResourceID(value *gamev1.ResourceId) error {
+	if value == nil || !stableID(value.Namespace, value.Value) {
 		return ErrInvalidBound
 	}
 	return nil
@@ -78,4 +82,35 @@ func allZero(value []byte) bool {
 		combined |= current
 	}
 	return combined == 0
+}
+
+func stableID(namespace string, value string) bool {
+	if len(namespace) < 1 || len(namespace) > 32 ||
+		len(value) < 1 || len(value) > 160 || !identifierSegment(namespace) {
+		return false
+	}
+	for _, segment := range strings.Split(value, "/") {
+		if !identifierSegment(segment) {
+			return false
+		}
+	}
+	return true
+}
+
+func identifierSegment(value string) bool {
+	if len(value) == 0 || !lowerAlphanumeric(value[0]) ||
+		!lowerAlphanumeric(value[len(value)-1]) {
+		return false
+	}
+	for index := 1; index < len(value)-1; index++ {
+		current := value[index]
+		if !lowerAlphanumeric(current) && current != '.' && current != '_' && current != '-' {
+			return false
+		}
+	}
+	return true
+}
+
+func lowerAlphanumeric(value byte) bool {
+	return value >= 'a' && value <= 'z' || value >= '0' && value <= '9'
 }

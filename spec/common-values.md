@@ -14,11 +14,15 @@ complete message before changing live state.
 | `MapInstanceId` | exactly 16 opaque bytes | one loaded map-instance lifecycle |
 | `RequestId`, `TransactionId` | exactly 16 unpredictable bytes | one session; duplicates are idempotently rejected or replay the recorded result |
 | `ActionId`, `EntityId` | nonzero 64-bit slot plus nonzero 32-bit generation | one server process; generation changes before slot reuse |
-| `ContentId`, `ResourceId` | namespace 1–32 lowercase ASCII characters; value 1–160 lowercase ASCII characters from `[a-z0-9._/-]` | stable within the named catalog/resource contract |
+| `ContentId`, `ResourceId` | namespace 1–32 lowercase ASCII characters; value 1–160 characters in slash-separated lowercase ASCII segments | stable within the named catalog/resource contract |
 | `Digest256`, `DiagnosticId` | exactly 32 and 16 bytes respectively | digest algorithm is SHA-256; diagnostics are opaque and safe to disclose |
 
 Database primary keys, filesystem paths, localized names, pointers, renderer
 handles, GPU slots, and enum positions never cross the wire as identities.
+Namespaces and value segments start and end with `[a-z0-9]`; interior
+characters may additionally be `._-`. Namespaces contain no slash. Values use
+single slashes between nonempty segments, so leading/trailing slash, empty
+segments, `.`/`..`, and hidden/path-confusable segments are invalid.
 
 ## Revisions, clocks, and numeric values
 

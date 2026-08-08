@@ -1,7 +1,7 @@
 // Copyright 2026 The Atrinik Project
 // SPDX-License-Identifier: MIT
 
-use crate::game::v1::{ContentId, TilePosition};
+use crate::game::v1::{ContentId, ResourceId, TilePosition};
 
 pub const MAXIMUM_TEXT_BYTES: usize = 4096;
 pub const MAXIMUM_SAFE_MESSAGE_BYTES: usize = 512;
@@ -23,11 +23,14 @@ pub fn digest(value: &[u8]) -> Result<(), InvalidBound> {
 }
 
 pub fn content_id(value: &ContentId) -> Result<(), InvalidBound> {
-    if !(1..=32).contains(&value.namespace.len())
-        || !(1..=160).contains(&value.value.len())
-        || !identifier_part(&value.namespace)
-        || !identifier_part(&value.value)
-    {
+    if !stable_id(&value.namespace, &value.value) {
+        return Err(InvalidBound);
+    }
+    Ok(())
+}
+
+pub fn resource_id(value: &ResourceId) -> Result<(), InvalidBound> {
+    if !stable_id(&value.namespace, &value.value) {
         return Err(InvalidBound);
     }
     Ok(())
@@ -53,12 +56,31 @@ pub fn text(value: &str, maximum: usize) -> Result<(), InvalidBound> {
     Ok(())
 }
 
-fn identifier_part(value: &str) -> bool {
-    value.bytes().all(|current| {
-        current.is_ascii_lowercase()
-            || current.is_ascii_digit()
-            || matches!(current, b'.' | b'_' | b'/' | b'-')
-    })
+fn stable_id(namespace: &str, value: &str) -> bool {
+    (1..=32).contains(&namespace.len())
+        && (1..=160).contains(&value.len())
+        && identifier_segment(namespace)
+        && value.split('/').all(identifier_segment)
+}
+
+fn identifier_segment(value: &str) -> bool {
+    let bytes = value.as_bytes();
+    let Some((first, remainder)) = bytes.split_first() else {
+        return false;
+    };
+    let Some(last) = bytes.last() else {
+        return false;
+    };
+    lower_alphanumeric(*first)
+        && lower_alphanumeric(*last)
+        && remainder
+            .iter()
+            .take(remainder.len().saturating_sub(1))
+            .all(|current| lower_alphanumeric(*current) || matches!(current, b'.' | b'_' | b'-'))
+}
+
+fn lower_alphanumeric(value: u8) -> bool {
+    value.is_ascii_lowercase() || value.is_ascii_digit()
 }
 
 #[cfg(test)]
@@ -68,7 +90,7 @@ mod tests {
     use super::{
         MAXIMUM_COORDINATE, MINIMUM_COORDINATE, content_id, opaque_16, text, tile_position,
     };
-    use crate::game::v1::{ContentId, MapInstanceId, TilePosition};
+    use crate::game::v1::{ContentId, MapInstanceId, ResourceId, TilePosition};
 
     #[test]
     fn validates_identity_and_coordinate_edges() {
@@ -107,6 +129,28 @@ mod tests {
                 value: "map/clearhaven".into(),
             })
             .is_err()
+        );
+        for value in [
+            "/map/clearhaven",
+            "map/clearhaven/",
+            "map//clearhaven",
+            "map/../private",
+            ".hidden",
+        ] {
+            assert!(
+                content_id(&ContentId {
+                    namespace: "world".into(),
+                    value: value.into(),
+                })
+                .is_err()
+            );
+        }
+        assert_eq!(
+            super::resource_id(&ResourceId {
+                namespace: "graphics".into(),
+                value: "tiles/floor-1".into(),
+            }),
+            Ok(())
         );
     }
 }

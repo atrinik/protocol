@@ -18,7 +18,8 @@ git archive --format=tar --prefix="atrinik-protocol-${version}/" HEAD \
 cp gen/descriptor/atrinik-game-v1.binpb "${output}/"
 cp fixtures/framing.json THIRD_PARTY_NOTICES.md LICENSE "${output}/"
 
-syft dir:. --source-name atrinik-protocol --source-version "${version}" \
+SYFT_CHECK_FOR_APP_UPDATE=false syft dir:. \
+  --source-name atrinik-protocol --source-version "${version}" \
   --output "cyclonedx-json=${output}/sbom.cdx.json"
 
 jq -n \

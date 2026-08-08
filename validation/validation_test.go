@@ -41,3 +41,33 @@ func TestTextBounds(t *testing.T) {
 		t.Fatal("invalid UTF-8 was accepted")
 	}
 }
+
+func TestStableIDsRejectPathConfusion(t *testing.T) {
+	valid := &gamev1.ContentId{Namespace: "world.maps", Value: "clearhaven/level-1"}
+	if err := validation.ContentID(valid); err != nil {
+		t.Fatal(err)
+	}
+
+	invalid := []struct {
+		namespace string
+		value     string
+	}{
+		{"world/maps", "clearhaven"},
+		{"world", "/clearhaven"},
+		{"world", "clearhaven/"},
+		{"world", "clearhaven//level-1"},
+		{"world", "clearhaven/../private"},
+		{"world", ".hidden"},
+	}
+	for _, value := range invalid {
+		candidate := &gamev1.ContentId{Namespace: value.namespace, Value: value.value}
+		if err := validation.ContentID(candidate); err == nil {
+			t.Fatalf("unsafe content ID accepted: %q:%q", value.namespace, value.value)
+		}
+	}
+
+	resource := &gamev1.ResourceId{Namespace: "graphics", Value: "tiles/floor-1"}
+	if err := validation.ResourceID(resource); err != nil {
+		t.Fatal(err)
+	}
+}
