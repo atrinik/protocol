@@ -1,0 +1,137 @@
+// Copyright 2026 The Atrinik Project
+// SPDX-License-Identifier: MIT
+
+syntax = "proto3";
+
+package atrinik.game.v1;
+
+option go_package = "github.com/atrinik/protocol/gen/go/atrinik/game/v1;gamev1";
+
+// ProtocolVersion identifies a Game Protocol contract generation. Minor
+// versions are additive; an incompatible contract requires a new major
+// package and ALPN.
+message ProtocolVersion {
+  uint32 major = 1;
+  uint32 minor = 2;
+}
+
+message AccountId {
+  bytes value = 1;
+}
+
+message CharacterId {
+  bytes value = 1;
+}
+
+message SessionId {
+  bytes value = 1;
+}
+
+message MapInstanceId {
+  bytes value = 1;
+}
+
+message RequestId {
+  bytes value = 1;
+}
+
+message TransactionId {
+  bytes value = 1;
+}
+
+message ActionId {
+  fixed64 value = 1;
+  uint32 generation = 2;
+}
+
+message EntityId {
+  fixed64 value = 1;
+  uint32 generation = 2;
+}
+
+message ContentId {
+  string namespace = 1;
+  string value = 2;
+}
+
+message ResourceId {
+  string namespace = 1;
+  string value = 2;
+}
+
+message Digest256 {
+  bytes value = 1;
+}
+
+message Revision {
+  uint64 value = 1;
+}
+
+message SimulationTick {
+  uint64 value = 1;
+}
+
+message WallTimestamp {
+  int64 unix_seconds = 1;
+  uint32 nanoseconds = 2;
+}
+
+message DurationMillis {
+  uint64 value = 1;
+}
+
+message TilePosition {
+  MapInstanceId map_instance = 1;
+  sint32 x = 2;
+  sint32 y = 3;
+  sint32 physical_level = 4;
+  uint32 surface = 5;
+}
+
+message TileOffset {
+  sint32 x = 1;
+  sint32 y = 2;
+  sint32 physical_level = 3;
+}
+
+enum Direction {
+  DIRECTION_UNSPECIFIED = 0;
+  DIRECTION_NORTH = 1;
+  DIRECTION_NORTHEAST = 2;
+  DIRECTION_EAST = 3;
+  DIRECTION_SOUTHEAST = 4;
+  DIRECTION_SOUTH = 5;
+  DIRECTION_SOUTHWEST = 6;
+  DIRECTION_WEST = 7;
+  DIRECTION_NORTHWEST = 8;
+}
+
+message BoundedText {
+  string value = 1;
+}
+
+message DiagnosticId {
+  bytes value = 1;
+}
+
+message Money {
+  int64 minor_units = 1;
+}
+
+message Quantity {
+  uint32 value = 1;
+}
+
+message PageCursor {
+  bytes value = 1;
+}
+
+enum SemanticColor {
+  SEMANTIC_COLOR_UNSPECIFIED = 0;
+  SEMANTIC_COLOR_DEFAULT = 1;
+  SEMANTIC_COLOR_INFORMATION = 2;
+  SEMANTIC_COLOR_SUCCESS = 3;
+  SEMANTIC_COLOR_WARNING = 4;
+  SEMANTIC_COLOR_DANGER = 5;
+  SEMANTIC_COLOR_DISABLED = 6;
+}

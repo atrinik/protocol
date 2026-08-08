@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "allowed_spdx": [
+    "Apache-2.0",
+    "BSD-3-Clause",
+    "MIT",
+    "Unicode-3.0"
+  ],
+  "forbidden_spdx": [
+    "AGPL-1.0-only",
+    "AGPL-1.0-or-later",
+    "AGPL-3.0-only",
+    "AGPL-3.0-or-later",
+    "GPL-1.0-only",
+    "GPL-1.0-or-later",
+    "GPL-2.0-only",
+    "GPL-2.0-or-later",
+    "GPL-3.0-only",
+    "GPL-3.0-or-later"
+  ],
+  "direct_dependencies": [
+    {
+      "ecosystem": "cargo",
+      "name": "bytes",
+      "version": "1.12.1",
+      "license": "MIT",
+      "source": "https://crates.io/crates/bytes",
+      "owner": "protocol maintainers",
+      "review_cadence": "monthly and on every dependency update",
+      "eol_response": "upgrade, replace, or remove before the unsupported release ships",
+      "validation": "Cargo.lock, cargo metadata, Clippy, tests, Syft SBOM"
+    },
+    {
+      "ecosystem": "cargo",
+      "name": "prost",
+      "version": "0.14.4",
+      "license": "Apache-2.0",
+      "source": "https://crates.io/crates/prost",
+      "owner": "protocol maintainers",
+      "review_cadence": "monthly and on every dependency update",
+      "eol_response": "upgrade, replace, or remove before the unsupported release ships",
+      "validation": "Cargo.lock, generated-binding drift, Clippy, tests, Syft SBOM"
+    },
+    {
+      "ecosystem": "go",
+      "name": "google.golang.org/protobuf",
+      "version": "1.36.11",
+      "license": "BSD-3-Clause",
+      "source": "https://pkg.go.dev/google.golang.org/protobuf",
+      "owner": "protocol maintainers",
+      "review_cadence": "monthly and on every dependency update",
+      "eol_response": "upgrade, replace, or remove before the unsupported release ships",
+      "validation": "go.sum, go list, vet, race/fuzz tests, Syft SBOM"
+    }
+  ]
+}
