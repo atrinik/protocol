@@ -7,13 +7,11 @@ on:
 
 permissions:
   contents: write
-  packages: read
 
 jobs:
   release:
     name: Release protocol contracts
     runs-on: ubuntu-24.04
-    container: ghcr.io/atrinik/linux-build:ubuntu-26.04@sha256:ab467b9573f7727a6ded9e6e0518fa87af68c340f73f03be41c192a98a34a633
     timeout-minutes: 20
     env:
       BUF_CACHE_DIR: /tmp/atrinik-protocol-buf-cache
@@ -27,6 +25,17 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.0.0
+        with:
+          go-version: 1.26.5
+          cache: true
+
+      - name: Install pinned release dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends --yes gcc-mingw-w64-x86-64 unzip
+          tools/install-ci-dependencies.sh
 
       - name: Validate release tag
         run: |
