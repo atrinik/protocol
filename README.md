@@ -12,7 +12,8 @@ or GPL compatibility path.
 - `spec` owns bounds, units, ordering, state, authorization, privacy, framing,
   stream, close, and compatibility rules that Protobuf cannot express.
 - `gen` contains reproducible generated Go/Rust bindings and descriptors.
-- `framing` and `validation` are the small Go consumer support packages.
+- `framing`, `validation`, and `metaserver` are the small Go consumer support
+  packages.
 - `crates/atrinik-protocol` is the Rust consumer package.
 - `fixtures` is language-neutral conformance input; negative cases must leave
   previously committed consumer state unchanged.
@@ -22,7 +23,9 @@ or GPL compatibility path.
 The current ALPN is `atrinik-game/1`. Frames use canonical unsigned LEB128
 lengths and are capped at 1 MiB for gameplay/control or 4 MiB for resources.
 See [the transport specification](spec/transport.md) and
-[common-value specification](spec/common-values.md).
+[common-value specification](spec/common-values.md). Certificate-bound
+metaserver publishers use the strict RFC 9421/RFC 9530 profile in
+[the publisher specification](spec/metaserver-publisher.md).
 
 ## Toolchain and validation
 
