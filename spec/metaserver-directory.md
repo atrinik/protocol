@@ -107,6 +107,9 @@ The strong ETag is the quoted ASCII value
 hexadecimal SHA-256 of the complete canonical JSON bytes including the final
 LF. HTML and XML have their own representation-specific ETags and MUST NOT
 reuse the JSON ETag. `Last-Modified` corresponds to `generatedAt`.
+The media types are `application/json; charset=utf-8`,
+`text/html; charset=utf-8`, and `application/xml; charset=utf-8` for their
+respective fixed paths.
 
 Cache freshness MUST NOT extend beyond `expiresAt`. A conditional 304 is valid
 only for the same representation and exact generation. Builders publish a new
@@ -143,6 +146,12 @@ transient candidates, passwords/verifiers, accounts, character state, and
 private client or player data are forbidden in every representation, cache
 key, log field, and metrics label. The certificate bytes themselves are not
 published; only their bound digest is public.
+
+Operational metrics labels are limited to fixed representation/profile names,
+bounded outcome codes, and schema versions. Server IDs, names, descriptions,
+regions, content IDs/revisions, hostnames, ports, counts, timestamps, ETags,
+and arbitrary input never become labels. Diagnostics report only bounded error
+classes such as those in the shared fixture and never echo rejected input.
 
 An endpoint is operator-supplied opt-in routing metadata. Publishing it neither
 proves control of the DNS name nor changes certificate identity. A server with

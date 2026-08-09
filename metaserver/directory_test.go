@@ -21,9 +21,10 @@ type directoryFixtureManifest struct {
 	FixtureVersion int    `json:"fixture_version"`
 	Schema         string `json:"schema"`
 	Positive       struct {
-		JSON string `json:"json"`
-		XML  string `json:"xml"`
-		ETag string `json:"etag"`
+		JSON                string `json:"json"`
+		XML                 string `json:"xml"`
+		ProjectionSemantics string `json:"projection_semantics"`
+		ETag                string `json:"etag"`
 	} `json:"positive"`
 	Negative []struct {
 		File  string `json:"file"`
@@ -74,6 +75,9 @@ func TestDirectoryLanguageNeutralFixtures(t *testing.T) {
 	}
 	if len(readDirectoryFixture(t, manifest.Positive.XML)) == 0 {
 		t.Fatal("XML semantic projection fixture is empty")
+	}
+	if len(readDirectoryFixture(t, manifest.Positive.ProjectionSemantics)) == 0 {
+		t.Fatal("HTML/XML semantic projection fixture is empty")
 	}
 
 	for _, fixture := range manifest.Negative {

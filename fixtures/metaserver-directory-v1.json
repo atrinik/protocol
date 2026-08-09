@@ -4,6 +4,7 @@
   "positive": {
     "json": "metaserver-directory-v1/canonical.json",
     "xml": "metaserver-directory-v1/projection.xml",
+    "projection_semantics": "metaserver-directory-v1/projection-semantics.json",
     "etag": "\"atrinik-directory-v1-sha256-ed9f1c42e898df5e3b3d7eb22b562af33a6802cf52c88684589528aa522ee11f\""
   },
   "negative": [
