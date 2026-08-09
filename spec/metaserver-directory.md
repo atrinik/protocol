@@ -91,6 +91,10 @@ players, status, passwordRequired[, endpoint]
   nothing. Port is 1–65,535. The hostname is a lowercase ASCII DNS name of
   1–253 bytes with at least two 1–63-byte labels, no trailing dot, and only
   letters, digits, and interior hyphens. It MUST contain at least one letter.
+  A label beginning with `xn--` MUST be a canonical IDNA A-label:
+  non-transitional UTS #46 ToASCII processing with STD3 ASCII, hyphen, joiner,
+  bidirectional, and DNS-length checks enabled MUST succeed and return the
+  exact same lowercase ASCII label. Unicode U-label input is never accepted.
   IPv4, IPv6, integer, hexadecimal, octal, bracketed, zone-qualified, and
   otherwise numeric IP literals are invalid even if a platform resolver would
   accept them. In particular, a name whose every label is a decimal/octal

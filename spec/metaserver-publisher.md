@@ -61,10 +61,13 @@ solidus require escaping. `playersCount` is a canonical JSON integer from 0 thro
 `hostname` and `port` are either both absent or both present. The hostname is
 a lowercase ASCII DNS name of 1–253 bytes, has at least two labels, uses only
 letters, digits, and interior hyphens, and has neither a trailing dot nor a
-port. Each label is 1–63 bytes. The port is a canonical JSON integer from 1
-through 65535. A publisher that has not explicitly opted into a DNS endpoint
-omits both fields; request-source and discovered numeric addresses are never
-substituted.
+port. Each label is 1–63 bytes. A label beginning with `xn--` satisfies the
+canonical IDNA A-label rule in the
+[static directory specification](metaserver-directory.md), including
+byte-identical non-transitional UTS #46 ToASCII validation. The port is a
+canonical JSON integer from 1 through 65535. A publisher that has not explicitly
+opted into a DNS endpoint omits both fields; request-source and discovered
+numeric addresses are never substituted.
 
 The covered components occur in this exact order:
 

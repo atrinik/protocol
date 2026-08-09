@@ -317,6 +317,11 @@ fn valid_endpoint(endpoint: &DirectEndpoint) -> bool {
                 return false;
             }
         }
+        if label.starts_with("xn--")
+            && idna::domain_to_ascii_strict(label).map_or(true, |canonical| canonical != label)
+        {
+            return false;
+        }
         has_non_numeric_label |= !numeric_host_label(label);
     }
     has_letter && has_non_numeric_label
@@ -660,6 +665,13 @@ mod tests {
         (
             include_bytes!(concat!(
                 env!("CARGO_MANIFEST_DIR"),
+                "/../../fixtures/metaserver-directory-v1/negative-invalid-alabel.json"
+            )),
+            DirectoryError::InvalidEndpoint,
+        ),
+        (
+            include_bytes!(concat!(
+                env!("CARGO_MANIFEST_DIR"),
                 "/../../fixtures/metaserver-directory-v1/negative-status-count.json"
             )),
             DirectoryError::InvalidStatus,
@@ -703,6 +715,14 @@ mod tests {
         assert!(snapshot.servers[0].endpoint.is_some());
         assert!(snapshot.servers[1].region.is_none());
         assert!(snapshot.servers[1].endpoint.is_none());
+        assert_eq!(
+            snapshot.servers[0]
+                .endpoint
+                .as_ref()
+                .expect("fixture endpoint")
+                .hostname,
+            "xn--bcher-kva.example.org"
+        );
         assert_eq!(
             marshal_directory_json(&snapshot).expect("render fixture"),
             CANONICAL
@@ -830,6 +850,9 @@ mod tests {
             "localhost",
             "Example.org",
             "example.org.",
+            "xn--a.example.org",
+            "xn--0.example.org",
+            "xn--0ca24w.example.org",
         ] {
             let mut value = valid_snapshot();
             value.servers[0]

@@ -8,7 +8,7 @@ jq -e '
   .schema_version == 1
   and (.allowed_spdx | length > 0)
   and (.forbidden_spdx | length > 0)
-  and (.direct_dependencies | length == 3)
+  and (.direct_dependencies | length == 5)
   and all(.direct_dependencies[];
     (.ecosystem == "cargo" or .ecosystem == "go")
     and ([.name, .version, .license, .source, .owner, .review_cadence,

@@ -9,4 +9,5 @@ version.workspace = true
 
 [dependencies]
 bytes.workspace = true
+idna.workspace = true
 prost.workspace = true

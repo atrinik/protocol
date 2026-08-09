@@ -39,6 +39,17 @@
     },
     {
       "ecosystem": "cargo",
+      "name": "idna",
+      "version": "1.1.0",
+      "license": "MIT OR Apache-2.0",
+      "source": "https://crates.io/crates/idna",
+      "owner": "protocol maintainers",
+      "review_cadence": "monthly and on every dependency update",
+      "eol_response": "upgrade, replace, or remove before the unsupported release ships",
+      "validation": "Cargo.lock, cargo metadata, Clippy, cross-language fixtures, tests, Syft SBOM"
+    },
+    {
+      "ecosystem": "cargo",
       "name": "prost",
       "version": "0.14.4",
       "license": "Apache-2.0",
@@ -47,6 +58,17 @@
       "review_cadence": "monthly and on every dependency update",
       "eol_response": "upgrade, replace, or remove before the unsupported release ships",
       "validation": "Cargo.lock, generated-binding drift, Clippy, tests, Syft SBOM"
+    },
+    {
+      "ecosystem": "go",
+      "name": "golang.org/x/net",
+      "version": "0.57.0",
+      "license": "BSD-3-Clause",
+      "source": "https://pkg.go.dev/golang.org/x/net",
+      "owner": "protocol maintainers",
+      "review_cadence": "monthly and on every dependency update",
+      "eol_response": "upgrade, replace, or remove before the unsupported release ships",
+      "validation": "go.sum, go list, vet, race/fuzz tests, cross-language fixtures, Syft SBOM"
     },
     {
       "ecosystem": "go",
