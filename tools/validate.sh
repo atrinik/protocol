@@ -8,12 +8,13 @@ tools/generate.sh
 buf breaking --against compatibility/baseline.binpb
 git diff --exit-code -- proto gen
 
-test -z "$(gofmt -l framing validation)"
+test -z "$(gofmt -l framing metaserver validation)"
 go mod verify
 go vet ./...
 go test ./...
 go test -race ./...
 go test -run '^$' -fuzz '^Fuzz' -fuzztime=2s ./framing
+go test -run '^$' -fuzz '^FuzzPublisher$' -fuzztime=2s ./metaserver
 
 cargo fmt --all --check
 cargo clippy --workspace --all-targets -- -D warnings
@@ -22,7 +23,11 @@ cargo test --workspace --doc
 cargo build --workspace --target x86_64-pc-windows-gnu
 
 tools/check-dependencies.sh
-jq empty fixtures/framing.json provenance/reuse.json policy/dependencies.json
+jq empty \
+  fixtures/framing.json \
+  fixtures/metaserver-publisher-v1.json \
+  provenance/reuse.json \
+  policy/dependencies.json
 
 release_output=$(mktemp -d /tmp/atrinik-protocol-release.XXXXXX)
 rmdir "${release_output}"
