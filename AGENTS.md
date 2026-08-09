@@ -1,10 +1,11 @@
-# Atrinik Game Protocol 1 repository guide
+# Atrinik protocol repository guide
 
 ## Authority and boundaries
 
-- This fresh MIT repository is the source of truth for Game Protocol 1:
-  Protobuf schemas, Buf policy, normative specifications, descriptors,
-  generated Go/Rust contracts, and language-neutral conformance fixtures.
+- This fresh MIT repository is the source of truth for Game Protocol 1 and the
+  shared metaserver publisher/public-directory contracts: Protobuf schemas,
+  Buf policy, normative specifications, descriptors, generated Go/Rust
+  contracts, and language-neutral conformance fixtures.
 - GP1 is not the numeric C/Python registry in `atrinik/classic/protocol`. Do
   not add classic IDs, MAP2/ADS compatibility, C/Python bindings, or a dual
   protocol path here.
