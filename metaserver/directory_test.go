@@ -6,6 +6,7 @@ package metaserver_test
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"os"
@@ -44,6 +45,30 @@ type directoryFixtureManifest struct {
 	} `json:"maximum_bounds"`
 }
 
+type directoryProjectionFixture struct {
+	Schema      string   `json:"schema"`
+	Generation  string   `json:"generation"`
+	GeneratedAt string   `json:"generated_at"`
+	ExpiresAt   string   `json:"expires_at"`
+	ServerOrder []string `json:"server_order"`
+	TextValues  []struct {
+		Name        string  `json:"name"`
+		Description string  `json:"description"`
+		Region      *string `json:"region"`
+	} `json:"text_values"`
+	EndpointPresence []bool `json:"endpoint_presence"`
+	PasswordRequired []bool `json:"password_required"`
+	HTML             struct {
+		AllDirectoryStringsAreText       bool `json:"all_directory_strings_are_text"`
+		ActiveContentFromDirectoryValues bool `json:"active_content_from_directory_values"`
+		AbsentValuesAreNotSynthesized    bool `json:"absent_values_are_not_synthesized"`
+	} `json:"html"`
+	XML struct {
+		Fixture                string `json:"fixture"`
+		AbsentValuesAreOmitted bool   `json:"absent_values_are_omitted"`
+	} `json:"xml"`
+}
+
 func TestDirectoryLanguageNeutralFixtures(t *testing.T) {
 	manifest := loadDirectoryManifest(t)
 	if manifest.FixtureVersion != 1 || manifest.Schema != metaserver.DirectorySchema {
@@ -76,9 +101,7 @@ func TestDirectoryLanguageNeutralFixtures(t *testing.T) {
 	if len(readDirectoryFixture(t, manifest.Positive.XML)) == 0 {
 		t.Fatal("XML semantic projection fixture is empty")
 	}
-	if len(readDirectoryFixture(t, manifest.Positive.ProjectionSemantics)) == 0 {
-		t.Fatal("HTML/XML semantic projection fixture is empty")
-	}
+	assertDirectoryProjection(t, manifest, snapshot)
 
 	for _, fixture := range manifest.Negative {
 		t.Run(filepath.Base(fixture.File), func(t *testing.T) {
@@ -358,4 +381,49 @@ func assertDirectoryLimitsMatch(t *testing.T, manifest directoryFixtureManifest)
 		bounds.SnapshotLifetimeSeconds != metaserver.MaximumDirectoryLifetimeSeconds {
 		t.Fatal("fixture maximum bounds differ from the Go contract")
 	}
+}
+
+func assertDirectoryProjection(
+	t *testing.T,
+	manifest directoryFixtureManifest,
+	snapshot *metaserverv1.DirectorySnapshot,
+) {
+	t.Helper()
+	encoded := readDirectoryFixture(t, manifest.Positive.ProjectionSemantics)
+	var projection directoryProjectionFixture
+	if err := json.Unmarshal(encoded, &projection); err != nil {
+		t.Fatal(err)
+	}
+	if projection.Schema != snapshot.Schema || projection.Generation != "42" ||
+		projection.GeneratedAt != "1786219200" || projection.ExpiresAt != "1786233600" ||
+		len(projection.ServerOrder) != len(snapshot.Servers) ||
+		len(projection.TextValues) != len(snapshot.Servers) ||
+		len(projection.EndpointPresence) != len(snapshot.Servers) ||
+		len(projection.PasswordRequired) != len(snapshot.Servers) {
+		t.Fatal("projection metadata differs from the canonical fixture")
+	}
+	for index, server := range snapshot.Servers {
+		text := projection.TextValues[index]
+		if projection.ServerOrder[index] != hex.EncodeToString(server.ServerId) ||
+			text.Name != server.Name || text.Description != server.Description ||
+			!equalOptionalString(text.Region, server.Region) ||
+			projection.EndpointPresence[index] != (server.Endpoint != nil) ||
+			projection.PasswordRequired[index] != server.PasswordRequired {
+			t.Fatalf("projection server %d differs from the canonical fixture", index)
+		}
+	}
+	if !projection.HTML.AllDirectoryStringsAreText ||
+		projection.HTML.ActiveContentFromDirectoryValues ||
+		!projection.HTML.AbsentValuesAreNotSynthesized ||
+		!projection.XML.AbsentValuesAreOmitted ||
+		projection.XML.Fixture != filepath.Base(manifest.Positive.XML) {
+		t.Fatal("projection safety requirements changed")
+	}
+}
+
+func equalOptionalString(left *string, right *string) bool {
+	if left == nil || right == nil {
+		return left == nil && right == nil
+	}
+	return *left == *right
 }
