@@ -99,6 +99,7 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 253,
+          "$comment": "Labels beginning xn-- additionally require canonical non-transitional UTS #46 A-label validation; JSON Schema cannot express that semantic check.",
           "pattern": "^(?=.*[a-z])(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$"
         },
         "port": {"type": "integer", "minimum": 1, "maximum": 65535}

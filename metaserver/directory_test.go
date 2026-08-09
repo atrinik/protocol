@@ -98,6 +98,9 @@ func TestDirectoryLanguageNeutralFixtures(t *testing.T) {
 		snapshot.Servers[1].Endpoint != nil {
 		t.Fatal("positive fixture presence semantics changed")
 	}
+	if snapshot.Servers[0].Endpoint.Hostname != "xn--bcher-kva.example.org" {
+		t.Fatal("positive fixture no longer exercises a canonical IDNA A-label")
+	}
 	if len(readDirectoryFixture(t, manifest.Positive.XML)) == 0 {
 		t.Fatal("XML semantic projection fixture is empty")
 	}
@@ -265,6 +268,9 @@ func TestDirectoryRejectsUnsafeBoundaries(t *testing.T) {
 		"localhost",
 		"Example.org",
 		"example.org.",
+		"xn--a.example.org",
+		"xn--0.example.org",
+		"xn--0ca24w.example.org",
 	} {
 		t.Run(hostname, func(t *testing.T) {
 			value := validDirectorySnapshot()

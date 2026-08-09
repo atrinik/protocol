@@ -17,6 +17,7 @@ import (
 	"unicode/utf8"
 
 	metaserverv1 "github.com/atrinik/protocol/gen/go/atrinik/metaserver/v1"
+	"golang.org/x/net/idna"
 )
 
 const (
@@ -31,6 +32,16 @@ const (
 	MaximumDirectoryRegionBytes      = 32
 	MaximumDirectoryContentIDBytes   = 64
 	MaximumDirectoryPlayers          = 100_000
+)
+
+var directoryIDNAProfile = idna.New(
+	idna.MapForLookup(),
+	idna.Transitional(false),
+	idna.BidiRule(),
+	idna.CheckHyphens(true),
+	idna.CheckJoiners(true),
+	idna.StrictDomainName(true),
+	idna.VerifyDNSLength(true),
 )
 
 // DirectoryErrorCode is a stable, bounded conformance failure class. It never
@@ -459,6 +470,12 @@ func validDirectoryEndpoint(endpoint *metaserverv1.DirectEndpoint) bool {
 				hasLetter = true
 			}
 			if !lowerDirectoryAlphanumeric(current) && current != '-' {
+				return false
+			}
+		}
+		if strings.HasPrefix(label, "xn--") {
+			canonical, err := directoryIDNAProfile.ToASCII(label)
+			if err != nil || canonical != label {
 				return false
 			}
 		}

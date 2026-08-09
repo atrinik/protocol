@@ -7,7 +7,7 @@
     <protocol major="1" minor="0"/>
     <content id="atrinik-main" revision-sha256="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"/>
     <players online="3" capacity="64"/>
-    <endpoint hostname="alpha.example.org" port="13327"/>
+    <endpoint hostname="xn--bcher-kva.example.org" port="13327"/>
   </server>
   <server id="2222222222222222222222222222222222222222222222222222222222222222" certificate-sha256="2222222222222222222222222222222222222222222222222222222222222222" status="full" password-required="true">
     <name>Beta</name>
