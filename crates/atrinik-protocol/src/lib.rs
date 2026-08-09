@@ -4,6 +4,7 @@
 #![forbid(unsafe_code)]
 
 pub mod framing;
+pub mod metaserver;
 pub mod validation;
 
 pub mod game {

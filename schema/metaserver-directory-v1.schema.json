@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://protocol.atrinik.org/schema/metaserver-directory-v1.schema.json",
+  "title": "Atrinik metaserver static directory v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "generation", "generatedAt", "expiresAt", "servers"],
+  "properties": {
+    "schema": {"const": "atrinik-directory-v1"},
+    "generation": {"type": "string", "pattern": "^[1-9][0-9]{0,19}$"},
+    "generatedAt": {"$ref": "#/$defs/unixSeconds"},
+    "expiresAt": {"$ref": "#/$defs/unixSeconds"},
+    "servers": {
+      "type": "array",
+      "maxItems": 512,
+      "items": {"$ref": "#/$defs/server"}
+    }
+  },
+  "$defs": {
+    "unixSeconds": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,11})$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "server": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "serverId",
+        "certificateSha256",
+        "name",
+        "description",
+        "protocol",
+        "content",
+        "players",
+        "status",
+        "passwordRequired"
+      ],
+      "properties": {
+        "serverId": {"$ref": "#/$defs/digest"},
+        "certificateSha256": {"$ref": "#/$defs/digest"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 80},
+        "description": {"type": "string", "maxLength": 512},
+        "region": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^[a-z0-9](?:[a-z0-9-]{0,30}[a-z0-9])?$"
+        },
+        "protocol": {"$ref": "#/$defs/protocol"},
+        "content": {"$ref": "#/$defs/content"},
+        "players": {"$ref": "#/$defs/players"},
+        "status": {"enum": ["online", "full", "maintenance"]},
+        "passwordRequired": {"type": "boolean"},
+        "endpoint": {"$ref": "#/$defs/endpoint"}
+      }
+    },
+    "protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["major", "minor"],
+      "properties": {
+        "major": {"const": 1},
+        "minor": {"type": "integer", "minimum": 0, "maximum": 65535}
+      }
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "revisionSha256"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,62}[a-z0-9])?$"
+        },
+        "revisionSha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "players": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["online", "capacity"],
+      "properties": {
+        "online": {"type": "integer", "minimum": 0, "maximum": 100000},
+        "capacity": {"type": "integer", "minimum": 1, "maximum": 100000}
+      }
+    },
+    "endpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hostname", "port"],
+      "properties": {
+        "hostname": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 253,
+          "pattern": "^(?=.*[a-z])(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$"
+        },
+        "port": {"type": "integer", "minimum": 1, "maximum": 65535}
+      }
+    }
+  }
+}
