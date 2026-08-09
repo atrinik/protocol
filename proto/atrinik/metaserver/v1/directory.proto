@@ -1,0 +1,50 @@
+// Copyright 2026 The Atrinik Project
+// SPDX-License-Identifier: MIT
+
+syntax = "proto3";
+
+package atrinik.metaserver.v1;
+
+option go_package = "github.com/atrinik/protocol/gen/go/atrinik/metaserver/v1;metaserverv1";
+
+// DirectoryServerStatus is the bounded public availability state of a server.
+enum DirectoryServerStatus {
+  DIRECTORY_SERVER_STATUS_UNSPECIFIED = 0;
+  DIRECTORY_SERVER_STATUS_ONLINE = 1;
+  DIRECTORY_SERVER_STATUS_FULL = 2;
+  DIRECTORY_SERVER_STATUS_MAINTENANCE = 3;
+}
+
+// DirectorySnapshot is one complete, immutable static directory generation.
+message DirectorySnapshot {
+  string schema = 1;
+  uint64 generation = 2;
+  uint64 generated_at_unix_seconds = 3;
+  uint64 expires_at_unix_seconds = 4;
+  repeated DirectoryServer servers = 5;
+}
+
+// DirectoryServer contains only public operator-supplied and aggregate state.
+message DirectoryServer {
+  bytes server_id = 1;
+  bytes certificate_sha256 = 2;
+  string name = 3;
+  string description = 4;
+  optional string region = 5;
+  uint32 protocol_major = 6;
+  uint32 protocol_minor = 7;
+  string content_id = 8;
+  bytes content_revision_sha256 = 9;
+  uint32 players_online = 10;
+  uint32 players_capacity = 11;
+  DirectoryServerStatus status = 12;
+  bool password_required = 13;
+  DirectEndpoint endpoint = 14;
+}
+
+// DirectEndpoint is optional operator-published routing metadata. It is not an
+// identity proof and never derives from a request-source address.
+message DirectEndpoint {
+  string hostname = 1;
+  uint32 port = 2;
+}

@@ -8,7 +8,8 @@ or GPL compatibility path.
 
 ## Repository contract
 
-- `proto/atrinik/game/v1` owns versioned schemas.
+- `proto/atrinik/game/v1` owns gameplay schemas;
+  `proto/atrinik/metaserver/v1` owns the adjacent public directory model.
 - `spec` owns bounds, units, ordering, state, authorization, privacy, framing,
   stream, close, and compatibility rules that Protobuf cannot express.
 - `gen` contains reproducible generated Go/Rust bindings and descriptors.
@@ -26,6 +27,10 @@ See [the transport specification](spec/transport.md) and
 [common-value specification](spec/common-values.md). Certificate-bound
 metaserver publishers use the strict RFC 9421/RFC 9530 profile in
 [the publisher specification](spec/metaserver-publisher.md).
+The replacement server directory uses the independently versioned bounded
+model and canonical static JSON contract in
+[the directory specification](spec/metaserver-directory.md), with generated
+Go/Rust model types and byte-identical conformance fixtures.
 
 ## Toolchain and validation
 
