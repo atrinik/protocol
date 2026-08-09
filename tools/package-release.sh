@@ -20,7 +20,10 @@ archive="atrinik-protocol-${version}.tar.gz"
 git archive --format=tar --prefix="atrinik-protocol-${version}/" HEAD \
   | gzip -n >"${output}/${archive}"
 cp gen/descriptor/atrinik-game-v1.binpb "${output}/"
-cp fixtures/framing.json THIRD_PARTY_NOTICES.md LICENSE "${output}/"
+cp fixtures/framing.json fixtures/metaserver-directory-v1.json \
+  schema/metaserver-directory-v1.schema.json \
+  spec/metaserver-directory.md THIRD_PARTY_NOTICES.md LICENSE "${output}/"
+cp -R fixtures/metaserver-directory-v1 "${output}/"
 
 SYFT_CHECK_FOR_APP_UPDATE=false syft dir:. \
   --source-name atrinik-protocol --source-version "${version}" \
@@ -42,7 +45,12 @@ jq -n \
 
 (
   cd "${output}"
+  mapfile -t directory_fixtures < <(
+    find metaserver-directory-v1 -type f -print | LC_ALL=C sort
+  )
   sha256sum "${archive}" atrinik-game-v1.binpb framing.json \
-    sbom.cdx.json provenance.json THIRD_PARTY_NOTICES.md LICENSE \
+    metaserver-directory-v1.json metaserver-directory-v1.schema.json \
+    metaserver-directory.md "${directory_fixtures[@]}" sbom.cdx.json \
+    provenance.json THIRD_PARTY_NOTICES.md LICENSE \
     >SHA256SUMS
 )
