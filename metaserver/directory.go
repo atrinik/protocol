@@ -32,6 +32,7 @@ const (
 	MaximumDirectoryRegionBytes      = 32
 	MaximumDirectoryContentIDBytes   = 64
 	MaximumDirectoryPlayers          = 100_000
+	MaximumDirectoryETagBytes        = 128
 )
 
 var directoryIDNAProfile = idna.New(
@@ -234,15 +235,41 @@ func DirectoryFreshAt(snapshot *metaserverv1.DirectorySnapshot, now uint64) bool
 	return now < snapshot.ExpiresAtUnixSeconds
 }
 
-// DirectoryETag returns the strong representation-specific ETag for canonical
-// JSON bytes, including their final LF.
-func DirectoryETag(snapshot *metaserverv1.DirectorySnapshot) (string, error) {
+// DirectoryJSONSHA256 returns lowercase SHA-256 of canonical JSON bytes,
+// including their final LF. It is a body-integrity value, not an HTTP ETag.
+func DirectoryJSONSHA256(snapshot *metaserverv1.DirectorySnapshot) (string, error) {
 	encoded, err := MarshalDirectoryJSON(snapshot)
 	if err != nil {
 		return "", err
 	}
 	digest := sha256.Sum256(encoded)
-	return `"` + DirectorySchema + "-sha256-" + hex.EncodeToString(digest[:]) + `"`, nil
+	return hex.EncodeToString(digest[:]), nil
+}
+
+// DirectoryETag retains the former application-derived label for source
+// compatibility. Deprecated: HTTP origins select an opaque strong ETag;
+// consumers must not require this value on the wire.
+func DirectoryETag(snapshot *metaserverv1.DirectorySnapshot) (string, error) {
+	digest, err := DirectoryJSONSHA256(snapshot)
+	if err != nil {
+		return "", err
+	}
+	return `"` + DirectorySchema + "-sha256-" + digest + `"`, nil
+}
+
+// ValidDirectoryStrongETag reports whether value is the bounded opaque strong
+// HTTP validator accepted by the directory contract.
+func ValidDirectoryStrongETag(value string) bool {
+	if len(value) < 3 || len(value) > MaximumDirectoryETagBytes ||
+		value[0] != '"' || value[len(value)-1] != '"' {
+		return false
+	}
+	for _, current := range []byte(value[1 : len(value)-1]) {
+		if current < 0x21 || current > 0x7e || current == '"' || current == '\\' {
+			return false
+		}
+	}
+	return true
 }
 
 // DirectoryServerCompatible applies the exact GP1/content filter. Invalid

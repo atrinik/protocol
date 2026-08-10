@@ -25,7 +25,8 @@ type directoryFixtureManifest struct {
 		JSON                string `json:"json"`
 		XML                 string `json:"xml"`
 		ProjectionSemantics string `json:"projection_semantics"`
-		ETag                string `json:"etag"`
+		BodySHA256          string `json:"body_sha256"`
+		HTTPStrongETag      string `json:"http_strong_etag"`
 	} `json:"positive"`
 	Negative []struct {
 		File  string `json:"file"`
@@ -42,6 +43,7 @@ type directoryFixtureManifest struct {
 		HostnameBytes           int `json:"hostname_bytes"`
 		Port                    int `json:"port"`
 		SnapshotLifetimeSeconds int `json:"snapshot_lifetime_seconds"`
+		HTTPETagBytes           int `json:"http_etag_bytes"`
 	} `json:"maximum_bounds"`
 }
 
@@ -71,7 +73,7 @@ type directoryProjectionFixture struct {
 
 func TestDirectoryLanguageNeutralFixtures(t *testing.T) {
 	manifest := loadDirectoryManifest(t)
-	if manifest.FixtureVersion != 1 || manifest.Schema != metaserver.DirectorySchema {
+	if manifest.FixtureVersion != 2 || manifest.Schema != metaserver.DirectorySchema {
 		t.Fatal("fixture manifest does not describe directory v1")
 	}
 	canonical := readDirectoryFixture(t, manifest.Positive.JSON)
@@ -86,12 +88,15 @@ func TestDirectoryLanguageNeutralFixtures(t *testing.T) {
 	if !bytes.Equal(rendered, canonical) {
 		t.Fatal("canonical JSON fixture did not round-trip byte-identically")
 	}
-	etag, err := metaserver.DirectoryETag(snapshot)
+	digest, err := metaserver.DirectoryJSONSHA256(snapshot)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if etag != manifest.Positive.ETag {
-		t.Fatalf("ETag %q differs from fixture %q", etag, manifest.Positive.ETag)
+	if digest != manifest.Positive.BodySHA256 {
+		t.Fatalf("body SHA-256 %q differs from fixture %q", digest, manifest.Positive.BodySHA256)
+	}
+	if !metaserver.ValidDirectoryStrongETag(manifest.Positive.HTTPStrongETag) {
+		t.Fatal("fixture HTTP ETag is not a valid opaque strong validator")
 	}
 	if len(snapshot.Servers) != 2 || snapshot.Servers[0].Region == nil ||
 		snapshot.Servers[0].Endpoint == nil || snapshot.Servers[1].Region != nil ||
@@ -117,6 +122,24 @@ func TestDirectoryLanguageNeutralFixtures(t *testing.T) {
 				t.Fatalf("negative fixture returned %v, want %s", err, fixture.Error)
 			}
 		})
+	}
+}
+
+func TestDirectoryStrongETag(t *testing.T) {
+	maximum := `"` + strings.Repeat("a", metaserver.MaximumDirectoryETagBytes-2) + `"`
+	for _, value := range []string{`"r2-object-validator"`, `"0123456789abcdef"`, maximum} {
+		if !metaserver.ValidDirectoryStrongETag(value) {
+			t.Fatalf("valid strong ETag rejected: %q", value)
+		}
+	}
+	for _, value := range []string{
+		"", `W/"weak"`, `""`, `"unterminated`, `unquoted`, "\"line\nbreak\"",
+		`"back\\slash"`, `"embedded"quote"`,
+		`"` + strings.Repeat("a", metaserver.MaximumDirectoryETagBytes-1) + `"`,
+	} {
+		if metaserver.ValidDirectoryStrongETag(value) {
+			t.Fatalf("invalid strong ETag accepted: %q", value)
+		}
 	}
 }
 
@@ -387,7 +410,8 @@ func assertDirectoryLimitsMatch(t *testing.T, manifest directoryFixtureManifest)
 		bounds.ContentIDBytes != metaserver.MaximumDirectoryContentIDBytes ||
 		bounds.Players != metaserver.MaximumDirectoryPlayers ||
 		bounds.HostnameBytes != 253 || bounds.Port != 65_535 ||
-		bounds.SnapshotLifetimeSeconds != metaserver.MaximumDirectoryLifetimeSeconds {
+		bounds.SnapshotLifetimeSeconds != metaserver.MaximumDirectoryLifetimeSeconds ||
+		bounds.HTTPETagBytes != metaserver.MaximumDirectoryETagBytes {
 		t.Fatal("fixture maximum bounds differ from the Go contract")
 	}
 }

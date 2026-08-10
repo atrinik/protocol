@@ -108,20 +108,40 @@ parse into a typed model and require byte-identical canonical re-encoding.
 
 ## Cache identity and conditional retrieval
 
-The strong ETag is the quoted ASCII value
-`"atrinik-directory-v1-sha256-{digest}"`, where `digest` is lowercase
-hexadecimal SHA-256 of the complete canonical JSON bytes including the final
-LF. HTML and XML have their own representation-specific ETags and MUST NOT
-reuse the JSON ETag. `Last-Modified` corresponds to `generatedAt`.
-The media types are `application/json; charset=utf-8`,
+The canonical JSON body digest is lowercase hexadecimal SHA-256 of the complete
+canonical JSON bytes including the final LF. Consumers MUST compute and retain
+that digest independently when they need local cache-corruption detection. The
+body digest is not the public HTTP validator and MUST NOT be inferred from an
+origin-specific `ETag`.
+
+Each representation has its own origin-selected strong HTTP `ETag`. It is an
+opaque quoted value of 1 through 126 visible ASCII characters, for a total
+header value length of 3 through 128 bytes. The value is not weak, contains no
+double quote or backslash inside the quotes, and is compared byte-for-byte.
+HTML, XML, and JSON MUST NOT reuse one another's validator unless their complete
+representation bytes are identical. Consumers MUST NOT require an ETag to use a
+particular hash algorithm or naming convention.
+
+`Last-Modified` is the origin publication time for that exact alias object,
+not the model's `generatedAt`. A publisher MUST NOT expose an alias whose
+publication time is before `generatedAt` or at/after `expiresAt`. The media
+types are `application/json; charset=utf-8`,
 `text/html; charset=utf-8`, and `application/xml; charset=utf-8` for their
 respective fixed paths.
 
 Cache freshness MUST NOT extend beyond `expiresAt`. A conditional 304 is valid
-only for the same representation and exact generation. Builders publish a new
-generation atomically only after every representation is complete; aliases
-never expose a partially written generation. Consumers discard a body whose
-computed ETag disagrees with a supplied strong ETag.
+only for the same representation and byte-identical strong ETag. Consumers
+discard a malformed or weak validator, a stale body, or a body whose
+independently computed digest disagrees with their retained local digest.
+
+Builders write and verify every immutable representation in a generation
+before replacing any fixed alias. Each individual object replacement is
+atomic, but a static object store is not required to replace the HTML, XML, and
+JSON aliases in one transaction. The aliases therefore converge monotonically
+within a documented bound and may temporarily name adjacent generations. A
+builder never replaces a newer alias with an older generation, and every
+representation remains self-describing and complete while the cohort
+converges. Reconciliation repairs interrupted convergence.
 
 ## HTML and XML semantic projections
 
