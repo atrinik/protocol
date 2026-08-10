@@ -77,13 +77,16 @@
   fails closed.
 - `atrinik/atrinik#168` is the program roadmap; owning issues define product
   semantics and milestone gates. Do not copy M1-M6 schedules into this guide.
-- Treat first registry publication as an irreversible external operation. It
-  requires a fixed reviewed release revision, version, and digest; a protected
-  environment with required reviewers; a one-use bootstrap token exposed only
-  to the publish step; post-upload checksum verification; immediate token
-  revocation; and a follow-up removal/scoped-release review. Never publish from
-  a pull request, moving branch, dirty tree, unreviewed artifact, or automatic
-  semantic-release side effect.
+- Treat registry publication as an irreversible external operation. Version
+  `0.1.0` completed the one-use bootstrap and the bootstrap workflow, secret,
+  and token are retired. Future versions require crates.io Trusted Publishing
+  bound to the exact repository, reviewed workflow, and protected
+  `crates-io-release` environment. Pin the immutable release revision, version,
+  asset, and digest; reproduce bytes before authorization; expose the exchanged
+  short-lived token only to the upload step; and verify the public checksum.
+  Never publish from a pull request, moving branch, dirty tree, unreviewed
+  artifact, long-lived registry secret, or automatic semantic-release side
+  effect. Keep publication disabled until a separate policy activation review.
 - Run the aggregate contract now present:
 
   ```sh
