@@ -12,7 +12,9 @@ or GPL compatibility path.
   `proto/atrinik/metaserver/v1` owns the adjacent public directory model.
 - `spec` owns bounds, units, ordering, state, authorization, privacy, framing,
   stream, close, and compatibility rules that Protobuf cannot express.
-- `gen` contains reproducible generated Go/Rust bindings and descriptors.
+- `gen` contains reproducible generated Go bindings and descriptors. Generated
+  Rust bindings live inside `crates/atrinik-protocol/src/generated` so the
+  registry package is self-contained.
 - `framing`, `validation`, and `metaserver` are the small Go consumer support
   packages.
 - `crates/atrinik-protocol` is the Rust consumer package.
@@ -52,8 +54,11 @@ generated drift, Go vet/unit/race/fuzz compilation, Rust format/Clippy/tests/doc
 tests/Windows cross-build, dependency licenses, fixtures, and release dry-run.
 
 The aggregate required check is `Protocol validation`. Release tags create a
-source/bindings/schema archive, descriptor, fixtures, checksums, CycloneDX
-SBOM, build provenance, notices, and MIT license.
+source/bindings/schema archive, a self-contained registry-ready Rust `.crate`,
+descriptor, fixtures, checksums, CycloneDX SBOM, build provenance, notices,
+and MIT license. The repository release version and the pre-freeze Rust crate
+version are independently explicit in `provenance.json`; a release never
+silently rewrites either coordinate.
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) and [PROVENANCE.md](PROVENANCE.md)
 before proposing contract material. The cross-repository roadmap is

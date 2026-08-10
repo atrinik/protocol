@@ -1,11 +1,16 @@
 [package]
 name = "atrinik-protocol"
 description = "Generated Game Protocol 1 contracts and bounded framing"
+documentation = "https://docs.rs/atrinik-protocol"
 edition.workspace = true
+homepage = "https://github.com/atrinik/protocol"
+keywords = ["atrinik", "game-protocol", "quic", "protobuf"]
 license.workspace = true
+readme = "README.md"
 repository.workspace = true
 rust-version.workspace = true
 version.workspace = true
+publish = ["crates-io"]
 
 [dependencies]
 bytes.workspace = true

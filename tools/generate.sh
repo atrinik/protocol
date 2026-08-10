@@ -14,7 +14,7 @@ export BUF_CACHE_DIR=${BUF_CACHE_DIR:-/tmp/atrinik-protocol-buf-cache}
 buf format --write
 buf lint
 buf generate
-find gen/rust -type f -name '*.rs' -exec sed -i \
+find crates/atrinik-protocol/src/generated -type f -name '*.rs' -exec sed -i \
   '1i// Copyright 2026 The Atrinik Project\n// SPDX-License-Identifier: MIT\n' \
   {} +
 install -d gen/descriptor
