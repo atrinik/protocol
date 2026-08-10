@@ -54,11 +54,15 @@ generated drift, Go vet/unit/race/fuzz compilation, Rust format/Clippy/tests/doc
 tests/Windows cross-build, dependency licenses, fixtures, and release dry-run.
 
 The aggregate required check is `Protocol validation`. Release tags create a
-source/bindings/schema archive, a self-contained registry-ready Rust `.crate`,
-descriptor, fixtures, checksums, CycloneDX SBOM, build provenance, notices,
-and MIT license. The repository release version and the pre-freeze Rust crate
-version are independently explicit in `provenance.json`; a release never
-silently rewrites either coordinate.
+source/bindings/schema archive, descriptor, fixtures, checksums, CycloneDX
+SBOM, build provenance, notices, and MIT license. A Rust crate version has
+exactly one policy-owned repository release, revision, asset name, and digest
+in `policy/rust-crate-release.json`. Only that owning release may include the
+self-contained registry-ready `.crate`; later repository releases omit it
+until a separately reviewed policy assigns a new crate version. Provenance
+records both coordinates and whether the crate is included, so a repository
+release never silently regenerates a published crate version from a different
+Git revision.
 
 ## First Rust registry publication
 
@@ -68,6 +72,13 @@ The one-time `Register Rust crate` workflow is deliberately fixed to release
 cannot publish a different source or version. It is manual-only and requires a
 protected `crates-io-bootstrap` GitHub environment whose only secret is
 `CARGO_REGISTRY_BOOTSTRAP_TOKEN`.
+
+Release `v1.4.0` is the sole owning repository release for crate `0.1.0`.
+Release `v1.5.0` predates the one-owner enforcement and contains a second,
+noncanonical asset with the same crate version but different revision-derived
+bytes. That historical asset must never be published or substituted for the
+policy digest. It is retained as immutable release history; ordinary future
+repository releases omit crate `0.1.0` rather than regenerating it.
 
 The bootstrap token must be created by an authorized crates.io owner, permit
 new-crate creation only for this reviewed operation, and never be placed in a
