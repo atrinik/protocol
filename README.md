@@ -60,6 +60,28 @@ and MIT license. The repository release version and the pre-freeze Rust crate
 version are independently explicit in `provenance.json`; a release never
 silently rewrites either coordinate.
 
+## First Rust registry publication
+
+The one-time `Register Rust crate` workflow is deliberately fixed to release
+`v1.4.0`, revision `47b821a16ba955bebc79fc31e3b3bada8d74b33e`, crate
+`atrinik-protocol` version `0.1.0`, and the reviewed release-asset SHA-256. It
+cannot publish a different source or version. It is manual-only and requires a
+protected `crates-io-bootstrap` GitHub environment whose only secret is
+`CARGO_REGISTRY_BOOTSTRAP_TOKEN`.
+
+The bootstrap token must be created by an authorized crates.io owner, permit
+new-crate creation only for this reviewed operation, and never be placed in a
+repository secret or local file. Configure required environment reviewers,
+approve one run only after checking the immutable coordinates above, then
+revoke the broad bootstrap token and delete the environment secret immediately
+after the exact registry checksum is visible. A follow-up change must remove
+the bootstrap workflow and establish a crate-scoped future-release policy.
+Publishing is permanent and is never implied by merging ordinary protocol
+changes. The workflow builds and byte-compares the crate offline before the
+secret-bearing step. The upload deliberately skips Cargo's duplicate build so
+dependency build scripts never inherit the bootstrap token, unsets the token
+immediately after Cargo returns, and then verifies the public registry checksum.
+
 Read [CONTRIBUTING.md](CONTRIBUTING.md) and [PROVENANCE.md](PROVENANCE.md)
 before proposing contract material. The cross-repository roadmap is
 [atrinik/atrinik#168](https://github.com/atrinik/atrinik/issues/168).

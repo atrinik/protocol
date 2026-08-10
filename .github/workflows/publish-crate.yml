@@ -1,0 +1,138 @@
+name: Register Rust crate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: protocol-crates-io-bootstrap
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Register atrinik-protocol 0.1.0
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: crates-io-bootstrap
+    env:
+      CRATE_ASSET: atrinik-protocol-0.1.0.crate
+      CRATE_NAME: atrinik-protocol
+      CRATE_SHA256: 413c4da6c1b304d4a622065efe0d36c3f591041972f1a5ee76c538926f3c0b6b
+      CRATE_VERSION: 0.1.0
+      RELEASE_REVISION: 47b821a16ba955bebc79fc31e3b3bada8d74b33e
+      RELEASE_TAG: v1.4.0
+    steps:
+      - name: Check out the immutable release revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: 47b821a16ba955bebc79fc31e3b3bada8d74b33e
+
+      - name: Verify the immutable release and crate asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${RELEASE_REVISION}"
+          test "$(git rev-list -n 1 "${RELEASE_TAG}")" = "${RELEASE_REVISION}"
+          release_json=$(gh release view "${RELEASE_TAG}" \
+            --json isDraft,isPrerelease,tagName)
+          jq -e --arg tag "${RELEASE_TAG}" \
+            '.tagName == $tag and (.isDraft | not) and (.isPrerelease | not)' \
+            <<<"${release_json}" >/dev/null
+          install -d /tmp/atrinik-protocol-release
+          gh release download "${RELEASE_TAG}" \
+            --pattern "${CRATE_ASSET}" \
+            --pattern provenance.json \
+            --pattern SHA256SUMS \
+            --dir /tmp/atrinik-protocol-release
+          test "$(sha256sum "/tmp/atrinik-protocol-release/${CRATE_ASSET}" \
+            | cut -d ' ' -f 1)" = "${CRATE_SHA256}"
+          grep -Fqx "${CRATE_SHA256}  ${CRATE_ASSET}" \
+            /tmp/atrinik-protocol-release/SHA256SUMS
+          jq -e \
+            --arg asset "${CRATE_ASSET}" \
+            --arg crate_version "${CRATE_VERSION}" \
+            --arg release_version "${RELEASE_TAG#v}" \
+            --arg revision "${RELEASE_REVISION}" \
+            '.version == $release_version and .revision == $revision
+              and .rust_crate.name == "atrinik-protocol"
+              and .rust_crate.version == $crate_version
+              and .rust_crate.asset == $asset' \
+            /tmp/atrinik-protocol-release/provenance.json >/dev/null
+
+      - name: Reproduce the reviewed crate bytes
+        run: |
+          set -euo pipefail
+          cargo fetch --locked
+          cargo package --locked --offline \
+            --manifest-path crates/atrinik-protocol/Cargo.toml \
+            --target-dir /tmp/atrinik-protocol-package
+          cmp "/tmp/atrinik-protocol-package/package/${CRATE_ASSET}" \
+            "/tmp/atrinik-protocol-release/${CRATE_ASSET}"
+
+      - name: Inspect existing registry state
+        id: registry
+        run: |
+          set -euo pipefail
+          registry_response=/tmp/atrinik-protocol-registry.json
+          status=$(curl --silent --show-error --location \
+            --proto '=https' --tlsv1.2 \
+            --connect-timeout 5 --max-time 15 \
+            --user-agent "atrinik-protocol-release/${GITHUB_RUN_ID}" \
+            --output "${registry_response}" --write-out '%{http_code}' \
+            "https://crates.io/api/v1/crates/${CRATE_NAME}/${CRATE_VERSION}")
+          case "${status}" in
+            200)
+              test "$(jq -er '.version.checksum' "${registry_response}")" \
+                = "${CRATE_SHA256}"
+              echo 'already_published=true' >>"${GITHUB_OUTPUT}"
+              ;;
+            404)
+              echo 'already_published=false' >>"${GITHUB_OUTPUT}"
+              ;;
+            *)
+              echo "Unexpected crates.io response: ${status}" >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Publish and verify the exact crate
+        if: steps.registry.outputs.already_published != 'true'
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_BOOTSTRAP_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "${CARGO_REGISTRY_TOKEN}"
+          publish_status=0
+          cargo publish --locked --no-verify --registry crates-io \
+            --manifest-path crates/atrinik-protocol/Cargo.toml \
+            || publish_status=$?
+          unset CARGO_REGISTRY_TOKEN
+          registry_response=/tmp/atrinik-protocol-registry.json
+          for _ in $(seq 1 60); do
+            status=$(curl --silent --show-error --location \
+              --proto '=https' --tlsv1.2 \
+              --connect-timeout 5 --max-time 15 \
+              --user-agent "atrinik-protocol-release/${GITHUB_RUN_ID}" \
+              --output "${registry_response}" --write-out '%{http_code}' \
+              "https://crates.io/api/v1/crates/${CRATE_NAME}/${CRATE_VERSION}")
+            if [[ ${status} == 200 ]]; then
+              test "$(jq -er '.version.checksum' "${registry_response}")" \
+                = "${CRATE_SHA256}"
+              exit 0
+            fi
+            if [[ ${status} != 404 ]]; then
+              echo "Unexpected crates.io response: ${status}" >&2
+              exit 1
+            fi
+            sleep 2
+          done
+          if ((publish_status != 0)); then
+            exit "${publish_status}"
+          fi
+          echo 'Published crate did not become visible before timeout.' >&2
+          exit 1
