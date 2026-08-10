@@ -18,7 +18,8 @@
     {"file": "metaserver-directory-v1/negative-unordered-servers.json", "error": "unordered_servers"},
     {"file": "metaserver-directory-v1/negative-duplicate-server.json", "error": "unordered_servers"},
     {"file": "metaserver-directory-v1/negative-noncanonical-whitespace.json", "error": "noncanonical_json"},
-    {"file": "metaserver-directory-v1/negative-private-field.json", "error": "noncanonical_json"}
+    {"file": "metaserver-directory-v1/negative-private-field.json", "error": "noncanonical_json"},
+    {"file": "metaserver-directory-v1/negative-xml-noncharacter.json", "error": "invalid_text"}
   ],
   "maximum_bounds": {
     "body_bytes": 262144,
