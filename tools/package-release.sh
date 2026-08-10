@@ -21,8 +21,12 @@ git archive --format=tar --prefix="atrinik-protocol-${version}/" HEAD \
   | gzip -n >"${output}/${archive}"
 cp gen/descriptor/atrinik-game-v1.binpb "${output}/"
 cp fixtures/framing.json fixtures/metaserver-directory-v1.json \
+  fixtures/metaserver-game-publisher-v1.json \
+  fixtures/metaserver-publisher-v1.json \
   schema/metaserver-directory-v1.schema.json \
-  spec/metaserver-directory.md THIRD_PARTY_NOTICES.md LICENSE "${output}/"
+  schema/metaserver-game-publisher-v1.schema.json \
+  spec/metaserver-directory.md spec/metaserver-publisher.md \
+  THIRD_PARTY_NOTICES.md LICENSE "${output}/"
 cp -R fixtures/metaserver-directory-v1 "${output}/"
 
 SYFT_CHECK_FOR_APP_UPDATE=false syft dir:. \
@@ -49,8 +53,10 @@ jq -n \
     find metaserver-directory-v1 -type f -print | LC_ALL=C sort
   )
   sha256sum "${archive}" atrinik-game-v1.binpb framing.json \
-    metaserver-directory-v1.json metaserver-directory-v1.schema.json \
-    metaserver-directory.md "${directory_fixtures[@]}" sbom.cdx.json \
+    metaserver-directory-v1.json metaserver-game-publisher-v1.json \
+    metaserver-publisher-v1.json metaserver-directory-v1.schema.json \
+    metaserver-game-publisher-v1.schema.json metaserver-directory.md \
+    metaserver-publisher.md "${directory_fixtures[@]}" sbom.cdx.json \
     provenance.json THIRD_PARTY_NOTICES.md LICENSE \
     >SHA256SUMS
 )

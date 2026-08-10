@@ -26,7 +26,9 @@ lengths and are capped at 1 MiB for gameplay/control or 4 MiB for resources.
 See [the transport specification](spec/transport.md) and
 [common-value specification](spec/common-values.md). Certificate-bound
 metaserver publishers use the strict RFC 9421/RFC 9530 profile in
-[the publisher specification](spec/metaserver-publisher.md).
+[the publisher specification](spec/metaserver-publisher.md), including exact
+canonical classic and Game Protocol 1 body fixtures and the Game publisher
+JSON Schema.
 The replacement server directory uses the independently versioned bounded
 model and canonical static JSON contract in
 [the directory specification](spec/metaserver-directory.md), with generated
