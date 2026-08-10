@@ -3,30 +3,13 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
 WORKFLOW = ROOT / ".github" / "workflows" / "publish-crate.yml"
-EXPECTED = (
-    "name: Register Rust crate",
-    "  workflow_dispatch:",
-    "  contents: read",
-    "  cancel-in-progress: false",
-    "    environment: crates-io-bootstrap",
-    "      CRATE_ASSET: atrinik-protocol-0.1.0.crate",
-    "      CRATE_NAME: atrinik-protocol",
-    "      CRATE_SHA256: 413c4da6c1b304d4a622065efe0d36c3f591041972f1a5ee76c538926f3c0b6b",
-    "      CRATE_VERSION: 0.1.0",
-    "      RELEASE_REVISION: 47b821a16ba955bebc79fc31e3b3bada8d74b33e",
-    "      RELEASE_TAG: v1.4.0",
-    "        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
-    "          persist-credentials: false",
-    "          ref: 47b821a16ba955bebc79fc31e3b3bada8d74b33e",
-    "          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_BOOTSTRAP_TOKEN }}",
-    "          cargo publish --locked --no-verify --registry crates-io",
-    "          unset CARGO_REGISTRY_TOKEN",
-)
+POLICY = ROOT / "policy" / "rust-crate-release.json"
 FORBIDDEN = (
     "permissions: write-all",
     "--allow-dirty",
@@ -44,10 +27,42 @@ permissions:
 
 
 def main() -> None:
+    policy = json.loads(POLICY.read_text(encoding="utf-8"))
+    expected_policy = {
+        "schema_version": 1,
+        "name": "atrinik-protocol",
+        "version": "0.1.0",
+        "repository_release": "1.4.0",
+        "revision": "47b821a16ba955bebc79fc31e3b3bada8d74b33e",
+        "asset": "atrinik-protocol-0.1.0.crate",
+        "sha256": "413c4da6c1b304d4a622065efe0d36c3f591041972f1a5ee76c538926f3c0b6b",
+    }
+    if policy != expected_policy:
+        raise SystemExit("reviewed Rust crate release policy changed")
+
+    expected = (
+        "name: Register Rust crate",
+        "  workflow_dispatch:",
+        "  contents: read",
+        "  cancel-in-progress: false",
+        "    environment: crates-io-bootstrap",
+        f"      CRATE_ASSET: {policy['asset']}",
+        f"      CRATE_NAME: {policy['name']}",
+        f"      CRATE_SHA256: {policy['sha256']}",
+        f"      CRATE_VERSION: {policy['version']}",
+        f"      RELEASE_REVISION: {policy['revision']}",
+        f"      RELEASE_TAG: v{policy['repository_release']}",
+        "        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "          persist-credentials: false",
+        f"          ref: {policy['revision']}",
+        "          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_BOOTSTRAP_TOKEN }}",
+        "          cargo publish --locked --no-verify --registry crates-io",
+        "          unset CARGO_REGISTRY_TOKEN",
+    )
     workflow = WORKFLOW.read_text(encoding="utf-8")
     if not workflow.startswith(EXPECTED_HEADER):
         raise SystemExit("bootstrap workflow trigger or permissions changed")
-    for fragment in EXPECTED:
+    for fragment in expected:
         if fragment not in workflow:
             raise SystemExit(f"missing crates.io workflow contract: {fragment}")
     for fragment in FORBIDDEN:

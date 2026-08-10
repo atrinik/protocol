@@ -36,18 +36,27 @@ jq empty \
   schema/metaserver-game-publisher-v1.schema.json \
   schema/metaserver-directory-v1.schema.json \
   provenance/reuse.json \
-  policy/dependencies.json
+  policy/dependencies.json \
+  policy/rust-crate-release.json
 test -s fixtures/metaserver-directory-v1/projection.xml
 
 release_output=
 protocol_crate_listing=
 protocol_crate_extract=
+protocol_crate_target=
+wrong_revision_release_output=
 cleanup_release_validation() {
   if [[ -n ${protocol_crate_listing} ]]; then
     rm -f -- "${protocol_crate_listing}"
   fi
   if [[ -n ${protocol_crate_extract} ]]; then
     rm -rf -- "${protocol_crate_extract}"
+  fi
+  if [[ -n ${protocol_crate_target} ]]; then
+    rm -rf -- "${protocol_crate_target}"
+  fi
+  if [[ -n ${wrong_revision_release_output} ]]; then
+    rm -rf -- "${wrong_revision_release_output}"
   fi
   if [[ -n ${release_output} ]]; then
     rm -rf -- "${release_output}"
@@ -57,7 +66,7 @@ trap cleanup_release_validation EXIT
 
 release_output=$(mktemp -d /tmp/atrinik-protocol-release.XXXXXX)
 rmdir "${release_output}"
-tools/package-release.sh "${release_output}"
+tools/package-release.sh "${release_output}" 999.0.0-validation
 test -s "${release_output}/SHA256SUMS"
 (
   cd "${release_output}"
@@ -67,18 +76,58 @@ protocol_crate_version=$(cargo metadata --locked --offline --no-deps \
   --format-version 1 \
   | jq -er '.packages[] | select(.name == "atrinik-protocol") | .version')
 protocol_crate_asset="atrinik-protocol-${protocol_crate_version}.crate"
-test "$(jq -er '.rust_crate.version' "${release_output}/provenance.json")" \
+test "$(jq -er '.schema_version' "${release_output}/provenance.json")" = 2
+jq -e --slurpfile policy policy/rust-crate-release.json '
+  .rust_crate == {
+    name: $policy[0].name,
+    version: $policy[0].version,
+    asset: $policy[0].asset,
+    repository_release: $policy[0].repository_release,
+    revision: $policy[0].revision,
+    sha256: $policy[0].sha256,
+    included: false
+  }
+' "${release_output}/provenance.json" >/dev/null
+test ! -e "${release_output}/${protocol_crate_asset}"
+if grep -Fq "  ${protocol_crate_asset}" "${release_output}/SHA256SUMS"; then
+  echo "Non-owning repository release unexpectedly contains Rust crate." >&2
+  exit 1
+fi
+
+test "$(jq -er '.version' policy/rust-crate-release.json)" \
   = "${protocol_crate_version}"
-test "$(jq -er '.rust_crate.asset' "${release_output}/provenance.json")" \
+test "$(jq -er '.asset' policy/rust-crate-release.json)" \
   = "${protocol_crate_asset}"
-test -s "${release_output}/${protocol_crate_asset}"
+protocol_crate_release=$(jq -er '.repository_release' \
+  policy/rust-crate-release.json)
+protocol_crate_revision=$(jq -er '.revision' policy/rust-crate-release.json)
+test "$(git rev-list -n 1 "v${protocol_crate_release}")" \
+  = "${protocol_crate_revision}"
+
+if [[ $(git rev-parse HEAD) != "${protocol_crate_revision}" ]]; then
+  wrong_revision_release_output=$(mktemp -d \
+    /tmp/atrinik-protocol-wrong-revision-release.XXXXXX)
+  rmdir "${wrong_revision_release_output}"
+  if tools/package-release.sh "${wrong_revision_release_output}" \
+    "${protocol_crate_release}" >/dev/null 2>&1; then
+    echo "Non-owning revision emitted the policy-owned Rust crate." >&2
+    exit 1
+  fi
+  test ! -e "${wrong_revision_release_output}/${protocol_crate_asset}"
+fi
+
+protocol_crate_target=$(mktemp -d /tmp/atrinik-protocol-crate.XXXXXX)
+cargo package --locked --offline --allow-dirty \
+  --manifest-path crates/atrinik-protocol/Cargo.toml \
+  --target-dir "${protocol_crate_target}"
+test -s "${protocol_crate_target}/package/${protocol_crate_asset}"
 protocol_crate_listing=$(mktemp /tmp/atrinik-protocol-crate-files.XXXXXX)
 protocol_crate_extract=$(mktemp -d /tmp/atrinik-protocol-crate-extract.XXXXXX)
-tar -tzf "${release_output}/${protocol_crate_asset}" \
+tar -tzf "${protocol_crate_target}/package/${protocol_crate_asset}" \
   | sed "s#^atrinik-protocol-${protocol_crate_version}/##" \
   | LC_ALL=C sort >"${protocol_crate_listing}"
 diff -u policy/rust-crate-files.txt "${protocol_crate_listing}"
-tar -xzf "${release_output}/${protocol_crate_asset}" \
+tar -xzf "${protocol_crate_target}/package/${protocol_crate_asset}" \
   -C "${protocol_crate_extract}"
 if ! cargo metadata --locked --offline --no-deps --format-version 1 \
   --manifest-path \

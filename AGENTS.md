@@ -49,9 +49,12 @@
   and deterministic descriptors are authoritative. Never hand-edit generated
   output; clean regeneration must be byte-identical and released consumers must
   build without sibling checkouts. Keep generated Rust bindings inside the
-  `atrinik-protocol` crate root, and require the aggregate release check to
-  build the packaged `.crate`, verify its checksum inventory, and prove that it
-  contains no path or Git dependency.
+  `atrinik-protocol` crate root. Give every crate version exactly one
+  policy-owned repository release, immutable revision, asset, and digest;
+  later repository releases must omit that crate rather than regenerate the
+  same version with different VCS metadata. Require the aggregate release
+  check to build the packaged `.crate`, verify its file inventory, and prove
+  that it contains no path or Git dependency.
 - Reserve removed fields/values. A semantic change to units, bounds, defaults,
   identity, or state machines requires explicit compatibility review even when
   wire-compatible. Incompatible changes need an issue, consumer inventory,
