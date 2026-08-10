@@ -6,6 +6,6 @@ plugins:
     opt:
       - paths=source_relative
   - local: protoc-gen-prost
-    out: gen/rust
+    out: crates/atrinik-protocol/src/generated
     opt:
       - bytes=.

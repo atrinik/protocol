@@ -11,7 +11,7 @@ pub mod game {
     pub mod v1 {
         include!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/../../gen/rust/atrinik/game/v1/atrinik.game.v1.rs"
+            "/src/generated/atrinik/game/v1/atrinik.game.v1.rs"
         ));
     }
 }

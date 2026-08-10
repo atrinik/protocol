@@ -1,0 +1,13 @@
+.cargo_vcs_info.json
+Cargo.lock
+Cargo.toml
+Cargo.toml.orig
+LICENSE
+README.md
+src/framing.rs
+src/generated/atrinik/game/v1/atrinik.game.v1.rs
+src/generated/atrinik/metaserver/v1/atrinik.metaserver.v1.rs
+src/lib.rs
+src/metaserver.rs
+src/metaserver/directory.rs
+src/validation.rs

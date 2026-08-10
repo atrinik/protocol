@@ -4,7 +4,7 @@
 pub mod v1 {
     include!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/../../gen/rust/atrinik/metaserver/v1/atrinik.metaserver.v1.rs"
+        "/src/generated/atrinik/metaserver/v1/atrinik.metaserver.v1.rs"
     ));
 }
 

@@ -16,6 +16,16 @@ if [[ -e ${output} ]]; then
 fi
 install -d "${output}"
 
+crate_version=$(cargo metadata --locked --offline --no-deps --format-version 1 \
+  | jq -er '.packages[] | select(.name == "atrinik-protocol") | .version')
+crate_asset="atrinik-protocol-${crate_version}.crate"
+crate_target=$(mktemp -d /tmp/atrinik-protocol-crate.XXXXXX)
+trap 'rm -rf -- "${crate_target}"' EXIT
+cargo package --locked --offline --allow-dirty \
+  --manifest-path crates/atrinik-protocol/Cargo.toml \
+  --target-dir "${crate_target}"
+cp "${crate_target}/package/${crate_asset}" "${output}/${crate_asset}"
+
 archive="atrinik-protocol-${version}.tar.gz"
 git archive --format=tar --prefix="atrinik-protocol-${version}/" HEAD \
   | gzip -n >"${output}/${archive}"
@@ -35,6 +45,8 @@ SYFT_CHECK_FOR_APP_UPDATE=false syft dir:. \
 
 jq -n \
   --arg version "${version}" \
+  --arg crate_version "${crate_version}" \
+  --arg crate_asset "${crate_asset}" \
   --arg revision "$(git rev-parse HEAD)" \
   --arg go "$(go version)" \
   --arg rust "$(rustc --version)" \
@@ -44,6 +56,8 @@ jq -n \
     schema_version: 1,
     version: $version,
     revision: $revision,
+    rust_crate: {name: "atrinik-protocol", version: $crate_version,
+      asset: $crate_asset},
     tools: {go: $go, rust: $rust, buf: $buf, protoc: $protoc}
   }' >"${output}/provenance.json"
 
@@ -52,7 +66,7 @@ jq -n \
   mapfile -t directory_fixtures < <(
     find metaserver-directory-v1 -type f -print | LC_ALL=C sort
   )
-  sha256sum "${archive}" atrinik-game-v1.binpb framing.json \
+  sha256sum "${archive}" "${crate_asset}" atrinik-game-v1.binpb framing.json \
     metaserver-directory-v1.json metaserver-game-publisher-v1.json \
     metaserver-publisher-v1.json metaserver-directory-v1.schema.json \
     metaserver-game-publisher-v1.schema.json metaserver-directory.md \
