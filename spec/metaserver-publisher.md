@@ -69,6 +69,46 @@ canonical JSON integer from 1 through 65535. A publisher that has not explicitly
 opted into a DNS endpoint omits both fields; request-source and discovered
 numeric addresses are never substituted.
 
+### Game Protocol 1 body
+
+The Game Protocol 1 body is UTF-8 JSON subject to the same no-BOM,
+no-whitespace, no-trailing-byte, no-duplicate-key, and exact-key-order rules as
+the classic body. Its keys occur exactly in this order:
+
+```text
+schema, serverId, certificate, name, description[, region], protocol, content,
+players, status, public, passwordRequired[, endpoint]
+```
+
+`schema` is `atrinik-game-publish-v1`; `serverId` and `certificate` use the
+same identity and certificate encoding as the classic body. `name`,
+`description`, optional `region`, `protocol`, `content`, `players`, `status`,
+`passwordRequired`, and optional `endpoint` have exactly the scalar,
+relationship, canonical hostname, and Unicode rules of one `DirectoryServer`
+in the [static directory specification](metaserver-directory.md). `public` is
+a JSON boolean. The publisher body deliberately omits directory generation and
+freshness values: the directory publisher assigns those independently after a
+successful atomic state transition.
+
+`region` is omitted when absent. `endpoint` is omitted when no explicit DNS
+endpoint is configured; it is an object whose keys occur exactly in the order
+`hostname, port`. Request-source and discovered numeric addresses are never
+substituted. Nested object key order is exactly `major, minor` for `protocol`,
+`id, revisionSha256` for `content`, and `online, capacity` for `players`.
+
+A private body (`public: false`) is authenticated and advances replay and
+presence state, but the receiver deletes any public directory entry and stores
+none of its display, region, player, status, content, or direct-endpoint fields
+as public directory state. A later public body must republish the complete
+public model.
+
+The language-neutral Game Protocol 1 body, signature, private-publication, and
+negative conformance vectors are in
+`fixtures/metaserver-game-publisher-v1.json`. The normative JSON Schema is
+`schema/metaserver-game-publisher-v1.schema.json`; canonical ordering, UTF-8
+byte limits, certificate identity, status/player relationships, and IDNA
+semantics remain requirements even where JSON Schema cannot express them.
+
 The covered components occur in this exact order:
 
 ```text
@@ -149,7 +189,7 @@ with equivalent public content refreshes presence but does not advance the
 visible directory revision. A public-content change or expiry does.
 
 Successful responses and all 409/429 responses use `Cache-Control: no-store`.
-The classic success body is exactly
+The success body for both profiles is exactly
 `{"status":"ok","rendezvousToken":"{64-lower-hex}"}`. A replay conflict is
 exactly
 `{"error":{"code":"publish_replay","minimumNextSequence":"{uint64}"}}`.

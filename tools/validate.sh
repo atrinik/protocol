@@ -16,6 +16,7 @@ go test -race ./...
 go test -run '^$' -fuzz '^Fuzz' -fuzztime=2s ./framing
 go test -run '^$' -fuzz '^FuzzPublisher$' -fuzztime=2s ./metaserver
 go test -run '^$' -fuzz '^FuzzDirectoryJSON$' -fuzztime=2s ./metaserver
+go test -run '^$' -fuzz '^FuzzGamePublishJSON$' -fuzztime=2s ./metaserver
 
 cargo fmt --all --check
 cargo clippy --workspace --all-targets -- -D warnings
@@ -28,7 +29,9 @@ jq empty \
   fixtures/framing.json \
   fixtures/metaserver-directory-v1.json \
   fixtures/metaserver-directory-v1/*.json \
+  fixtures/metaserver-game-publisher-v1.json \
   fixtures/metaserver-publisher-v1.json \
+  schema/metaserver-game-publisher-v1.schema.json \
   schema/metaserver-directory-v1.schema.json \
   provenance/reuse.json \
   policy/dependencies.json
