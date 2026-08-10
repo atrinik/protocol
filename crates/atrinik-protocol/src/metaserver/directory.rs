@@ -18,6 +18,7 @@ pub const MAXIMUM_DIRECTORY_DESCRIPTION_BYTES: usize = 512;
 pub const MAXIMUM_DIRECTORY_REGION_BYTES: usize = 32;
 pub const MAXIMUM_DIRECTORY_CONTENT_ID_BYTES: usize = 64;
 pub const MAXIMUM_DIRECTORY_PLAYERS: u32 = 100_000;
+pub const MAXIMUM_DIRECTORY_ETAG_BYTES: usize = 128;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum DirectoryError {
@@ -193,6 +194,23 @@ pub fn directory_fresh_at(snapshot: &DirectorySnapshot, now: u64) -> bool {
         return false;
     }
     now < snapshot.expires_at_unix_seconds
+}
+
+/// Reports whether `value` is the bounded opaque strong HTTP validator
+/// accepted by the directory contract.
+#[must_use]
+pub fn valid_directory_strong_etag(value: &str) -> bool {
+    let bytes = value.as_bytes();
+    if bytes.len() < 3
+        || bytes.len() > MAXIMUM_DIRECTORY_ETAG_BYTES
+        || bytes[0] != b'"'
+        || bytes[bytes.len() - 1] != b'"'
+    {
+        return false;
+    }
+    bytes[1..bytes.len() - 1]
+        .iter()
+        .all(|current| (0x21..=0x7e).contains(current) && !matches!(current, b'"' | b'\\'))
 }
 
 /// Applies exact GP1/content compatibility matching. Invalid server models
@@ -613,10 +631,11 @@ mod tests {
     use super::{
         DIRECTORY_SCHEMA, DirectoryError, MAXIMUM_DIRECTORY_BODY_BYTES,
         MAXIMUM_DIRECTORY_CONTENT_ID_BYTES, MAXIMUM_DIRECTORY_DESCRIPTION_BYTES,
-        MAXIMUM_DIRECTORY_LIFETIME_SECONDS, MAXIMUM_DIRECTORY_NAME_BYTES,
-        MAXIMUM_DIRECTORY_PLAYERS, MAXIMUM_DIRECTORY_REGION_BYTES, MAXIMUM_DIRECTORY_SERVERS,
-        MAXIMUM_DIRECTORY_UNIX_SECONDS, directory_fresh_at, directory_server_compatible,
-        marshal_directory_json, parse_directory_json, validate_directory,
+        MAXIMUM_DIRECTORY_ETAG_BYTES, MAXIMUM_DIRECTORY_LIFETIME_SECONDS,
+        MAXIMUM_DIRECTORY_NAME_BYTES, MAXIMUM_DIRECTORY_PLAYERS, MAXIMUM_DIRECTORY_REGION_BYTES,
+        MAXIMUM_DIRECTORY_SERVERS, MAXIMUM_DIRECTORY_UNIX_SECONDS, directory_fresh_at,
+        directory_server_compatible, marshal_directory_json, parse_directory_json,
+        valid_directory_strong_etag, validate_directory,
     };
     use crate::metaserver::v1::{
         DirectEndpoint, DirectoryServer, DirectoryServerStatus, DirectorySnapshot,
@@ -837,6 +856,28 @@ mod tests {
             "other",
             &server.content_revision_sha256,
         ));
+    }
+
+    #[test]
+    fn validates_opaque_strong_etags() {
+        let maximum = format!("\"{}\"", "a".repeat(MAXIMUM_DIRECTORY_ETAG_BYTES - 2));
+        for value in ["\"r2-object-validator\"", "\"0123456789abcdef\"", &maximum] {
+            assert!(valid_directory_strong_etag(value), "{value:?}");
+        }
+        let oversized = format!("\"{}\"", "a".repeat(MAXIMUM_DIRECTORY_ETAG_BYTES - 1));
+        for value in [
+            "",
+            "W/\"weak\"",
+            "\"\"",
+            "\"unterminated",
+            "unquoted",
+            "\"line\nbreak\"",
+            "\"back\\\\slash\"",
+            "\"embedded\"quote\"",
+            &oversized,
+        ] {
+            assert!(!valid_directory_strong_etag(value), "{value:?}");
+        }
     }
 
     #[test]
