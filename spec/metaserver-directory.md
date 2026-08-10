@@ -25,12 +25,14 @@ The canonical top-level representation is:
 The actual bytes have exactly one trailing LF and no other insignificant
 whitespace or BOM. Object keys occur in the order shown in this specification.
 Strings contain literal UTF-8 except for the JSON-required `\"` and `\\`
-escapes. Display strings containing a Unicode control scalar, U+2028, or U+2029
-are invalid. No Unicode normalization is performed: the received Unicode scalar
-sequence is authoritative and consumers MUST NOT normalize before comparison
-or re-encoding. Numbers are base-10 JSON integers without a sign, fraction,
-exponent, or leading zero. Values represented as decimal strings follow the
-same spelling rule.
+escapes. Display strings containing a Unicode control scalar, U+2028, U+2029,
+U+FFFE, or U+FFFF are invalid. U+FFFE and U+FFFF are excluded because every
+valid snapshot must have an XML 1.0 projection, where those scalars cannot be
+represented. No Unicode normalization is performed: the received Unicode
+scalar sequence is authoritative and consumers MUST NOT normalize before
+comparison or re-encoding. Numbers are base-10 JSON integers without a sign,
+fraction, exponent, or leading zero. Values represented as decimal strings
+follow the same spelling rule.
 
 `schema` is exactly `atrinik-directory-v1`. Receivers reject the complete body
 when it is absent or unknown. `generation` is a canonical decimal string from

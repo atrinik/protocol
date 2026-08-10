@@ -266,9 +266,10 @@ fn validate_server(server: &DirectoryServer) -> Result<(), DirectoryError> {
 
 fn valid_text(value: &str, minimum: usize, maximum: usize) -> bool {
     (minimum..=maximum).contains(&value.len())
-        && value
-            .chars()
-            .all(|current| !current.is_control() && !matches!(current, '\u{2028}' | '\u{2029}'))
+        && value.chars().all(|current| {
+            !current.is_control()
+                && !matches!(current, '\u{2028}' | '\u{2029}' | '\u{fffe}' | '\u{ffff}')
+        })
 }
 
 fn valid_identifier(value: &str, maximum: usize, interior: &[u8]) -> bool {
@@ -704,6 +705,13 @@ mod tests {
             )),
             DirectoryError::NonCanonicalJson,
         ),
+        (
+            include_bytes!(concat!(
+                env!("CARGO_MANIFEST_DIR"),
+                "/../../fixtures/metaserver-directory-v1/negative-xml-noncharacter.json"
+            )),
+            DirectoryError::InvalidText,
+        ),
     ];
 
     #[test]
@@ -880,6 +888,14 @@ mod tests {
             validate_directory(&unsafe_text),
             Err(DirectoryError::InvalidText)
         );
+        for unsafe_scalar in ['\u{2028}', '\u{2029}', '\u{fffe}', '\u{ffff}'] {
+            let mut unsafe_text = valid_snapshot();
+            unsafe_text.servers[0].description = format!("unsafe{unsafe_scalar}text");
+            assert_eq!(
+                validate_directory(&unsafe_text),
+                Err(DirectoryError::InvalidText)
+            );
+        }
         let mut unsafe_content = valid_snapshot();
         unsafe_content.servers[0].content_id = "../private".into();
         assert_eq!(

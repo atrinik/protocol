@@ -430,7 +430,8 @@ func validDirectoryText(value string, minimum int, maximum int) bool {
 		return false
 	}
 	for _, current := range value {
-		if unicode.IsControl(current) || current == '\u2028' || current == '\u2029' {
+		if unicode.IsControl(current) || current == '\u2028' || current == '\u2029' ||
+			current == '\ufffe' || current == '\uffff' {
 			return false
 		}
 	}
