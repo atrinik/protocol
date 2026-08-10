@@ -26,7 +26,8 @@ cargo build --workspace --target x86_64-pc-windows-gnu
 cmp LICENSE crates/atrinik-protocol/LICENSE
 
 tools/check-dependencies.sh
-python3 tools/check-crate-publication.py
+python3 tools/check-crate-release-policy.py
+python3 -m unittest tools/test_crate_release_policy.py
 jq empty \
   fixtures/framing.json \
   fixtures/metaserver-directory-v1.json \
@@ -37,7 +38,8 @@ jq empty \
   schema/metaserver-directory-v1.schema.json \
   provenance/reuse.json \
   policy/dependencies.json \
-  policy/rust-crate-release.json
+  policy/rust-crate-release.json \
+  policy/rust-crate-publishing.json
 test -s fixtures/metaserver-directory-v1/projection.xml
 
 release_output=

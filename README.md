@@ -64,14 +64,15 @@ records both coordinates and whether the crate is included, so a repository
 release never silently regenerates a published crate version from a different
 Git revision.
 
-## First Rust registry publication
+## Rust registry publication
 
-The one-time `Register Rust crate` workflow is deliberately fixed to release
-`v1.4.0`, revision `47b821a16ba955bebc79fc31e3b3bada8d74b33e`, crate
-`atrinik-protocol` version `0.1.0`, and the reviewed release-asset SHA-256. It
-cannot publish a different source or version. It is manual-only and requires a
-protected `crates-io-bootstrap` GitHub environment whose only secret is
-`CARGO_REGISTRY_BOOTSTRAP_TOKEN`.
+Crate `atrinik-protocol` version `0.1.0` is registered on crates.io with
+SHA-256
+`413c4da6c1b304d4a622065efe0d36c3f591041972f1a5ee76c538926f3c0b6b`.
+That checksum is the reviewed asset from release `v1.4.0`, revision
+`47b821a16ba955bebc79fc31e3b3bada8d74b33e`. The one-use bootstrap workflow
+has been removed, its GitHub environment secret was deleted, and its API token
+was revoked after the public registry checksum was independently verified.
 
 Release `v1.4.0` is the sole owning repository release for crate `0.1.0`.
 Release `v1.5.0` predates the one-owner enforcement and contains a second,
@@ -80,18 +81,21 @@ bytes. That historical asset must never be published or substituted for the
 policy digest. It is retained as immutable release history; ordinary future
 repository releases omit crate `0.1.0` rather than regenerating it.
 
-The bootstrap token must be created by an authorized crates.io owner, permit
-new-crate creation only for this reviewed operation, and never be placed in a
-repository secret or local file. Configure required environment reviewers,
-approve one run only after checking the immutable coordinates above, then
-revoke the broad bootstrap token and delete the environment secret immediately
-after the exact registry checksum is visible. A follow-up change must remove
-the bootstrap workflow and establish a crate-scoped future-release policy.
-Publishing is permanent and is never implied by merging ordinary protocol
-changes. The workflow builds and byte-compares the crate offline before the
-secret-bearing step. The upload deliberately skips Cargo's duplicate build so
-dependency build scripts never inherit the bootstrap token, unsets the token
-immediately after Cargo returns, and then verifies the public registry checksum.
+`policy/rust-crate-publishing.json` records the registered coordinates and
+keeps future publication `disabled-until-reviewed-activation`. Publishing is
+permanent and is never implied by merging ordinary protocol changes or by the
+semantic-release workflow.
+
+A future crate version requires a separate reviewed activation after its
+policy-owned repository release exists. The crates.io owner must configure
+Trusted Publishing for GitHub repository `atrinik/protocol`, workflow filename
+`publish-crate.yml`, and protected environment `crates-io-release`. That change
+must add a workflow pinned to the immutable release revision and digest, grant
+`id-token: write` only to its publish job, expose the exchanged short-lived
+token only to the upload step, require environment review, reproduce the crate
+bytes before authorization, and verify the public checksum afterward. No
+long-lived crates.io token or repository secret is permitted. Activation also
+updates the machine-readable policy and its fail-closed validation together.
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) and [PROVENANCE.md](PROVENANCE.md)
 before proposing contract material. The cross-repository roadmap is

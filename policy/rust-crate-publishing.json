@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "registry": "crates-io",
+  "crate": "atrinik-protocol",
+  "published": {
+    "version": "0.1.0",
+    "repository_release": "1.4.0",
+    "revision": "47b821a16ba955bebc79fc31e3b3bada8d74b33e",
+    "asset": "atrinik-protocol-0.1.0.crate",
+    "sha256": "413c4da6c1b304d4a622065efe0d36c3f591041972f1a5ee76c538926f3c0b6b"
+  },
+  "future": {
+    "status": "disabled-until-reviewed-activation",
+    "authentication": "trusted-publishing",
+    "repository_owner": "atrinik",
+    "repository": "protocol",
+    "workflow_filename": "publish-crate.yml",
+    "environment": "crates-io-release"
+  }
+}
