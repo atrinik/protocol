@@ -26,6 +26,7 @@ cargo build --workspace --target x86_64-pc-windows-gnu
 cmp LICENSE crates/atrinik-protocol/LICENSE
 
 tools/check-dependencies.sh
+python3 tools/check-crate-publication.py
 jq empty \
   fixtures/framing.json \
   fixtures/metaserver-directory-v1.json \
