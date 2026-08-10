@@ -38,6 +38,22 @@ jq empty \
   policy/dependencies.json
 test -s fixtures/metaserver-directory-v1/projection.xml
 
+release_output=
+protocol_crate_listing=
+protocol_crate_extract=
+cleanup_release_validation() {
+  if [[ -n ${protocol_crate_listing} ]]; then
+    rm -f -- "${protocol_crate_listing}"
+  fi
+  if [[ -n ${protocol_crate_extract} ]]; then
+    rm -rf -- "${protocol_crate_extract}"
+  fi
+  if [[ -n ${release_output} ]]; then
+    rm -rf -- "${release_output}"
+  fi
+}
+trap cleanup_release_validation EXIT
+
 release_output=$(mktemp -d /tmp/atrinik-protocol-release.XXXXXX)
 rmdir "${release_output}"
 tools/package-release.sh "${release_output}"
@@ -56,20 +72,24 @@ test "$(jq -er '.rust_crate.asset' "${release_output}/provenance.json")" \
   = "${protocol_crate_asset}"
 test -s "${release_output}/${protocol_crate_asset}"
 protocol_crate_listing=$(mktemp /tmp/atrinik-protocol-crate-files.XXXXXX)
-protocol_crate_manifest=$(mktemp /tmp/atrinik-protocol-crate-manifest.XXXXXX)
+protocol_crate_extract=$(mktemp -d /tmp/atrinik-protocol-crate-extract.XXXXXX)
 tar -tzf "${release_output}/${protocol_crate_asset}" \
   | sed "s#^atrinik-protocol-${protocol_crate_version}/##" \
   | LC_ALL=C sort >"${protocol_crate_listing}"
 diff -u policy/rust-crate-files.txt "${protocol_crate_listing}"
-tar -xOf "${release_output}/${protocol_crate_asset}" \
-  "atrinik-protocol-${protocol_crate_version}/Cargo.toml" \
-  >"${protocol_crate_manifest}"
-if rg -n '^[[:space:]]*(path|git)[[:space:]]*=' \
-  "${protocol_crate_manifest}"; then
+tar -xzf "${release_output}/${protocol_crate_asset}" \
+  -C "${protocol_crate_extract}"
+if ! cargo metadata --locked --offline --no-deps --format-version 1 \
+  --manifest-path \
+  "${protocol_crate_extract}/atrinik-protocol-${protocol_crate_version}/Cargo.toml" \
+  | jq -e --arg name atrinik-protocol '
+      (.packages | map(select(.name == $name))) as $packages
+      | (($packages | length) == 1)
+        and (all($packages[0].dependencies[];
+          ((.source // "") | startswith("registry+"))))
+    ' >/dev/null; then
   echo "Packaged Rust protocol contains a path or Git dependency." >&2
   exit 1
 fi
-rm -f -- "${protocol_crate_listing}" "${protocol_crate_manifest}"
-rm -rf -- "${release_output}"
 
 git diff --check
