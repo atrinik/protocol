@@ -1,5 +1,9 @@
 # Contributing
 
+Direct human-written code and specification contributions are welcome. They
+follow the same maintainer review, provenance, licensing, testing, and
+validation requirements as changes developed through agentic workflows.
+
 Use Conventional Commits for commits and pull-request titles. New wire fields
 must identify the authoritative schema/specification, producers, consumers,
 bounds, state/authorization validation, failure behavior, compatibility

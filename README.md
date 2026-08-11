@@ -6,6 +6,29 @@ generated Go and Rust contracts, descriptors, and language-neutral fixtures.
 It is a new protocol and has no classic packet-ID, C/Python, MAP2, ADS, gRPC,
 or GPL compatibility path.
 
+## Development model
+
+Game Protocol 1 is part of Atrinik's agentic next-generation reimplementation
+and improvement of Atrinik Classic. This fresh MIT-licensed Protobuf,
+specification, and Go/Rust support code is developed primarily through
+Codex-driven workflows under maintainer direction, review, provenance controls,
+tests, and validation. Direct human-written code and specification
+contributions are welcome under the same requirements; “agentic” describes the
+project's primary current software-development workflow, not every line,
+commit, or contributor.
+
+This is a new clean-room contract supporting the replacement, not a mechanical
+translation of Classic packet IDs or code. See
+[the replacement roadmap](https://github.com/atrinik/atrinik/issues/168) and
+[the canonical project authorship statement](https://github.com/atrinik/atrinik/issues/331)
+for the wider technical and authorship context.
+
+The Go and Rust bindings in this repository are deterministic outputs of the
+Protobuf toolchain, not generative AI output. Protocol messages can represent
+maps, quests, lore, dialogue, art, audio, and other game-world content created
+by people; the schemas and generated bindings carry that human-authored content
+but do not create it.
+
 ## Repository contract
 
 - `proto/atrinik/game/v1` owns gameplay schemas;
