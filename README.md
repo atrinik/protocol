@@ -24,10 +24,10 @@ translation of Classic packet IDs or code. See
 for the wider technical and authorship context.
 
 The Go and Rust bindings in this repository are deterministic outputs of the
-Protobuf toolchain, not generative AI output. Protocol messages can represent
-maps, quests, lore, dialogue, art, audio, and other game-world content created
-by people; the schemas and generated bindings carry that human-authored content
-but do not create it.
+Protobuf toolchain, not generative AI output. Protocol message instances can
+carry or refer to maps, quests, lore, dialogue, art, audio, and other game-world
+content created by people. The schemas and deterministic bindings define how
+those values are represented; they do not create or author the game world.
 
 ## Repository contract
 
