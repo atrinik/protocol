@@ -17,8 +17,10 @@ contributions are welcome under the same requirements; “agentic” describes t
 project's primary current software-development workflow, not every line,
 commit, or contributor.
 
-This is a new clean-room contract supporting the replacement, not a mechanical
-translation of Classic packet IDs or code. See
+The current implementation is a new independently authored contract supporting
+the replacement, not a mechanical translation of Classic packet IDs or code.
+That historical fact does not prohibit later exact historical reuse admitted
+under the [provenance policy](PROVENANCE.md). See
 [the replacement roadmap](https://github.com/atrinik/atrinik/issues/168) and
 [the canonical project authorship statement](https://github.com/atrinik/atrinik/issues/331)
 for the wider technical and authorship context.
