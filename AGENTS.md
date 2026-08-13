@@ -71,10 +71,17 @@
 ## Licensing and validation
 
 - New schemas, specs, fixtures, generators, generated artifacts, tests, and
-  infrastructure are MIT. Do not copy/adapt GPL packet tables or source.
-  Historical reuse follows local `PROVENANCE.md` and the canonical
-  `atrinik/atrinik/docs/PROVENANCE.md` registry; mixed or incomplete evidence
-  fails closed.
+  infrastructure are MIT. Do not add GPL/AGPL dependencies, bundles, or
+  unapproved GPL material. Independent implementation remains the default when
+  exact historical reuse cannot be proven. Admit reuse only under local
+  `PROVENANCE.md` and the canonical
+  [`atrinik/atrinik` registry](https://github.com/atrinik/atrinik/blob/main/docs/PROVENANCE.md):
+  each selected, independently separable contribution must itself fit one
+  historical row's “original past Atrinik contributions solely authored”
+  scope. Rows do not combine for joint, agent-generated, or inseparable work;
+  later or agent-generated material needs separate contemporaneous compatible
+  rights. The Classic source stays GPL-2.0-or-later; only exact recorded
+  destination material receives MIT permission.
 - `atrinik/atrinik#168` is the program roadmap; owning issues define product
   semantics and milestone gates. Do not copy M1-M6 schedules into this guide.
 - Treat registry publication as an irreversible external operation. Version
