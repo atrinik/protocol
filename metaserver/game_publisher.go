@@ -21,8 +21,6 @@ import (
 
 const GamePublishSchema = "atrinik-game-publish-v1"
 
-const maximumCertificateBase64Bytes = ((MaximumCertificateDERBytes + 2) / 3) * 4
-
 // GamePublishRequest is one authenticated GP1 publication body after strict
 // canonical JSON validation. CertificateDER and Server remain caller-owned
 // when passed to MarshalGamePublishJSON; ParseGamePublishJSON returns new

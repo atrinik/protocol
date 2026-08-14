@@ -23,23 +23,26 @@ import (
 )
 
 const (
-	SignatureLabel             = "atrinik"
-	SignatureAlgorithm         = "ecdsa-p256-sha256"
-	ContentType                = "application/json"
-	MaximumBodyBytes           = 4096
-	MaximumCertificateDERBytes = 2048
-	MaximumClockSkew           = 300
-	ClassicSignatureTag        = "atrinik-classic-publish-v1"
-	GameSignatureTag           = "atrinik-game-publish-v1"
-	SignatureValidity          = MaximumClockSkew
-	classicPathPrefix          = "/v1/classic/servers/"
-	gamePathPrefix             = "/v1/servers/"
-	publishPathSuffix          = "/publish"
-	coveredComponents          = "(\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\")"
-	maximumSFInteger           = int64(999_999_999_999_999)
-	serverIDHexLength          = 64
-	p256SignatureLength        = 64
-	p256CoordinateLength       = 32
+	SignatureLabel                = "atrinik"
+	SignatureAlgorithm            = "ecdsa-p256-sha256"
+	ContentType                   = "application/json"
+	MaximumBodyBytes              = 4096
+	MaximumCertificateDERBytes    = 2048
+	MaximumClockSkew              = 300
+	ClassicV1SignatureTag         = "atrinik-classic-publish-v1"
+	ClassicV2SignatureTag         = "atrinik-classic-publish-v2"
+	GameSignatureTag              = "atrinik-game-publish-v1"
+	SignatureValidity             = MaximumClockSkew
+	classicV1PathPrefix           = "/v1/classic/servers/"
+	classicV2PathPrefix           = "/v2/classic/servers/"
+	gamePathPrefix                = "/v1/servers/"
+	publishPathSuffix             = "/publish"
+	coveredComponents             = "(\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\")"
+	maximumSFInteger              = int64(999_999_999_999_999)
+	serverIDHexLength             = 64
+	p256SignatureLength           = 64
+	p256CoordinateLength          = 32
+	maximumCertificateBase64Bytes = ((MaximumCertificateDERBytes + 2) / 3) * 4
 )
 
 var (
@@ -52,8 +55,15 @@ var (
 type Profile uint8
 
 const (
-	ClassicProfile Profile = iota + 1
-	GameProfile
+	ClassicV1Profile Profile = 1
+	GameProfile      Profile = 2
+	ClassicV2Profile Profile = 3
+
+	// ClassicProfile is the deprecated name of the frozen Classic v1 profile.
+	// New code must select ClassicV1Profile or ClassicV2Profile explicitly.
+	ClassicProfile = ClassicV1Profile
+	// ClassicSignatureTag is the deprecated name of the frozen Classic v1 tag.
+	ClassicSignatureTag = ClassicV1SignatureTag
 )
 
 // Parameters are the bounded per-request values carried by Signature-Input
@@ -189,8 +199,10 @@ func encodeP256Signature(r, s *big.Int) ([]byte, error) {
 
 func profileValues(profile Profile, serverID string) (string, string, bool) {
 	switch profile {
-	case ClassicProfile:
-		return classicPathPrefix + serverID + publishPathSuffix, ClassicSignatureTag, true
+	case ClassicV1Profile:
+		return classicV1PathPrefix + serverID + publishPathSuffix, ClassicV1SignatureTag, true
+	case ClassicV2Profile:
+		return classicV2PathPrefix + serverID + publishPathSuffix, ClassicV2SignatureTag, true
 	case GameProfile:
 		return gamePathPrefix + serverID + publishPathSuffix, GameSignatureTag, true
 	default:

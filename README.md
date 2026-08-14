@@ -55,7 +55,9 @@ See [the transport specification](spec/transport.md) and
 metaserver publishers use the strict RFC 9421/RFC 9530 profile in
 [the publisher specification](spec/metaserver-publisher.md), including exact
 canonical classic and Game Protocol 1 body fixtures and the Game publisher
-JSON Schema.
+JSON Schema. Classic publisher v1 remains frozen with human-password semantics;
+the distinct signed Classic v2 profile, schema, Go codec, and conformance
+fixtures use `accessCodeRequired` for the open/access-code-protected cutover.
 The replacement server directory uses the independently versioned bounded
 model and canonical static JSON contract in
 [the directory specification](spec/metaserver-directory.md), with generated
