@@ -39,6 +39,7 @@
     "before": {
       "identities": [
         {
+          "access_code_required": false,
           "authenticated_presence": true,
           "controls_active": true,
           "high_water_sequence": "100",
@@ -46,6 +47,8 @@
           "mode": "classic-v1",
           "pending_authorizations": 2,
           "public_listing": true,
+          "published_body_sha256": "",
+          "rendezvous": "not-found",
           "rendezvous_generation_present": true,
           "retained_nonces": [
             "000102030405060708090a0b0c0d0e0f"
@@ -55,6 +58,7 @@
           "v2_usable": false
         },
         {
+          "access_code_required": true,
           "authenticated_presence": true,
           "controls_active": true,
           "high_water_sequence": "102",
@@ -62,6 +66,8 @@
           "mode": "classic-v2-only",
           "pending_authorizations": 1,
           "public_listing": true,
+          "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+          "rendezvous": "proof-required",
           "rendezvous_generation_present": true,
           "retained_nonces": [
             "303132333435363738393a3b3c3d3e3f"
@@ -97,6 +103,7 @@
       "expected_after": {
         "identities": [
           {
+            "access_code_required": false,
             "authenticated_presence": false,
             "controls_active": false,
             "high_water_sequence": "102",
@@ -104,6 +111,8 @@
             "mode": "classic-v1-retired",
             "pending_authorizations": 0,
             "public_listing": false,
+            "published_body_sha256": "",
+            "rendezvous": "not-found",
             "rendezvous_generation_present": false,
             "retained_nonces": [
               "000102030405060708090a0b0c0d0e0f",
@@ -114,6 +123,7 @@
             "v2_usable": false
           },
           {
+            "access_code_required": true,
             "authenticated_presence": true,
             "controls_active": true,
             "high_water_sequence": "102",
@@ -121,6 +131,8 @@
             "mode": "classic-v2-only",
             "pending_authorizations": 1,
             "public_listing": true,
+            "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+            "rendezvous": "proof-required",
             "rendezvous_generation_present": true,
             "retained_nonces": [
               "303132333435363738393a3b3c3d3e3f"
@@ -146,6 +158,7 @@
     "expected_after": {
       "identities": [
         {
+          "access_code_required": false,
           "authenticated_presence": false,
           "controls_active": false,
           "high_water_sequence": "100",
@@ -153,6 +166,8 @@
           "mode": "classic-v1-retired",
           "pending_authorizations": 0,
           "public_listing": false,
+          "published_body_sha256": "",
+          "rendezvous": "not-found",
           "rendezvous_generation_present": false,
           "retained_nonces": [
             "000102030405060708090a0b0c0d0e0f"
@@ -162,6 +177,7 @@
           "v2_usable": false
         },
         {
+          "access_code_required": true,
           "authenticated_presence": true,
           "controls_active": true,
           "high_water_sequence": "102",
@@ -169,6 +185,8 @@
           "mode": "classic-v2-only",
           "pending_authorizations": 1,
           "public_listing": true,
+          "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+          "rendezvous": "proof-required",
           "rendezvous_generation_present": true,
           "retained_nonces": [
             "303132333435363738393a3b3c3d3e3f"
@@ -195,6 +213,7 @@
         "expected_recovered_state": {
           "identities": [
             {
+              "access_code_required": false,
               "authenticated_presence": true,
               "controls_active": true,
               "high_water_sequence": "100",
@@ -202,6 +221,8 @@
               "mode": "classic-v1",
               "pending_authorizations": 2,
               "public_listing": true,
+              "published_body_sha256": "",
+              "rendezvous": "not-found",
               "rendezvous_generation_present": true,
               "retained_nonces": [
                 "000102030405060708090a0b0c0d0e0f"
@@ -211,6 +232,7 @@
               "v2_usable": false
             },
             {
+              "access_code_required": true,
               "authenticated_presence": true,
               "controls_active": true,
               "high_water_sequence": "102",
@@ -218,6 +240,8 @@
               "mode": "classic-v2-only",
               "pending_authorizations": 1,
               "public_listing": true,
+              "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+              "rendezvous": "proof-required",
               "rendezvous_generation_present": true,
               "retained_nonces": [
                 "303132333435363738393a3b3c3d3e3f"
@@ -242,6 +266,7 @@
         "partial_state": {
           "identities": [
             {
+              "access_code_required": false,
               "authenticated_presence": true,
               "controls_active": true,
               "high_water_sequence": "100",
@@ -249,6 +274,8 @@
               "mode": "classic-v1",
               "pending_authorizations": 2,
               "public_listing": true,
+              "published_body_sha256": "",
+              "rendezvous": "not-found",
               "rendezvous_generation_present": true,
               "retained_nonces": [
                 "000102030405060708090a0b0c0d0e0f"
@@ -258,6 +285,7 @@
               "v2_usable": false
             },
             {
+              "access_code_required": true,
               "authenticated_presence": true,
               "controls_active": true,
               "high_water_sequence": "102",
@@ -265,6 +293,8 @@
               "mode": "classic-v2-only",
               "pending_authorizations": 1,
               "public_listing": true,
+              "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+              "rendezvous": "proof-required",
               "rendezvous_generation_present": true,
               "retained_nonces": [
                 "303132333435363738393a3b3c3d3e3f"
@@ -290,6 +320,7 @@
         "expected_recovered_state": {
           "identities": [
             {
+              "access_code_required": false,
               "authenticated_presence": false,
               "controls_active": false,
               "high_water_sequence": "100",
@@ -297,6 +328,8 @@
               "mode": "classic-v1-retired",
               "pending_authorizations": 0,
               "public_listing": false,
+              "published_body_sha256": "",
+              "rendezvous": "not-found",
               "rendezvous_generation_present": false,
               "retained_nonces": [
                 "000102030405060708090a0b0c0d0e0f"
@@ -306,6 +339,7 @@
               "v2_usable": false
             },
             {
+              "access_code_required": true,
               "authenticated_presence": true,
               "controls_active": true,
               "high_water_sequence": "102",
@@ -313,6 +347,8 @@
               "mode": "classic-v2-only",
               "pending_authorizations": 1,
               "public_listing": true,
+              "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+              "rendezvous": "proof-required",
               "rendezvous_generation_present": true,
               "retained_nonces": [
                 "303132333435363738393a3b3c3d3e3f"
@@ -338,6 +374,7 @@
         "partial_state": {
           "identities": [
             {
+              "access_code_required": false,
               "authenticated_presence": true,
               "controls_active": true,
               "high_water_sequence": "100",
@@ -345,6 +382,8 @@
               "mode": "classic-v1",
               "pending_authorizations": 2,
               "public_listing": true,
+              "published_body_sha256": "",
+              "rendezvous": "not-found",
               "rendezvous_generation_present": true,
               "retained_nonces": [
                 "000102030405060708090a0b0c0d0e0f"
@@ -354,6 +393,7 @@
               "v2_usable": false
             },
             {
+              "access_code_required": true,
               "authenticated_presence": true,
               "controls_active": true,
               "high_water_sequence": "102",
@@ -361,6 +401,8 @@
               "mode": "classic-v2-only",
               "pending_authorizations": 1,
               "public_listing": true,
+              "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+              "rendezvous": "proof-required",
               "rendezvous_generation_present": true,
               "retained_nonces": [
                 "303132333435363738393a3b3c3d3e3f"
@@ -418,6 +460,7 @@
           "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
           "tickets": 3,
           "unaffected_identity": {
+            "access_code_required": true,
             "authenticated_presence": true,
             "controls_active": true,
             "high_water_sequence": "102",
@@ -425,6 +468,8 @@
             "mode": "classic-v2-only",
             "pending_authorizations": 1,
             "public_listing": true,
+            "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+            "rendezvous": "proof-required",
             "rendezvous_generation_present": true,
             "retained_nonces": [
               "303132333435363738393a3b3c3d3e3f"
@@ -437,6 +482,13 @@
           "v1_controls_active": true,
           "v1_listing_present": true,
           "v1_rendezvous_generation_present": true,
+          "v2_access_code_required": false,
+          "v2_authenticated_presence": false,
+          "v2_controls_active": false,
+          "v2_public_listing": false,
+          "v2_published_body_sha256": "",
+          "v2_published_envelope": "",
+          "v2_rendezvous": "not-found",
           "v2_usable": false
         },
         "expected": {
@@ -454,6 +506,7 @@
             "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
             "tickets": 3,
             "unaffected_identity": {
+              "access_code_required": true,
               "authenticated_presence": true,
               "controls_active": true,
               "high_water_sequence": "102",
@@ -461,6 +514,8 @@
               "mode": "classic-v2-only",
               "pending_authorizations": 1,
               "public_listing": true,
+              "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+              "rendezvous": "proof-required",
               "rendezvous_generation_present": true,
               "retained_nonces": [
                 "303132333435363738393a3b3c3d3e3f"
@@ -473,6 +528,13 @@
             "v1_controls_active": true,
             "v1_listing_present": true,
             "v1_rendezvous_generation_present": true,
+            "v2_access_code_required": false,
+            "v2_authenticated_presence": false,
+            "v2_controls_active": false,
+            "v2_public_listing": false,
+            "v2_published_body_sha256": "",
+            "v2_published_envelope": "",
+            "v2_rendezvous": "not-found",
             "v2_usable": false
           }
         },
@@ -497,6 +559,7 @@
           "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
           "tickets": 3,
           "unaffected_identity": {
+            "access_code_required": true,
             "authenticated_presence": true,
             "controls_active": true,
             "high_water_sequence": "102",
@@ -504,6 +567,8 @@
             "mode": "classic-v2-only",
             "pending_authorizations": 1,
             "public_listing": true,
+            "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+            "rendezvous": "proof-required",
             "rendezvous_generation_present": true,
             "retained_nonces": [
               "303132333435363738393a3b3c3d3e3f"
@@ -516,6 +581,13 @@
           "v1_controls_active": true,
           "v1_listing_present": true,
           "v1_rendezvous_generation_present": true,
+          "v2_access_code_required": false,
+          "v2_authenticated_presence": false,
+          "v2_controls_active": false,
+          "v2_public_listing": false,
+          "v2_published_body_sha256": "",
+          "v2_published_envelope": "",
+          "v2_rendezvous": "not-found",
           "v2_usable": false
         },
         "expected": {
@@ -533,6 +605,7 @@
             "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
             "tickets": 3,
             "unaffected_identity": {
+              "access_code_required": true,
               "authenticated_presence": true,
               "controls_active": true,
               "high_water_sequence": "102",
@@ -540,6 +613,8 @@
               "mode": "classic-v2-only",
               "pending_authorizations": 1,
               "public_listing": true,
+              "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+              "rendezvous": "proof-required",
               "rendezvous_generation_present": true,
               "retained_nonces": [
                 "303132333435363738393a3b3c3d3e3f"
@@ -552,6 +627,13 @@
             "v1_controls_active": true,
             "v1_listing_present": true,
             "v1_rendezvous_generation_present": true,
+            "v2_access_code_required": false,
+            "v2_authenticated_presence": false,
+            "v2_controls_active": false,
+            "v2_public_listing": false,
+            "v2_published_body_sha256": "",
+            "v2_published_envelope": "",
+            "v2_rendezvous": "not-found",
             "v2_usable": false
           }
         },
@@ -576,6 +658,7 @@
           "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
           "tickets": 3,
           "unaffected_identity": {
+            "access_code_required": true,
             "authenticated_presence": true,
             "controls_active": true,
             "high_water_sequence": "102",
@@ -583,6 +666,8 @@
             "mode": "classic-v2-only",
             "pending_authorizations": 1,
             "public_listing": true,
+            "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+            "rendezvous": "proof-required",
             "rendezvous_generation_present": true,
             "retained_nonces": [
               "303132333435363738393a3b3c3d3e3f"
@@ -595,6 +680,13 @@
           "v1_controls_active": true,
           "v1_listing_present": true,
           "v1_rendezvous_generation_present": true,
+          "v2_access_code_required": false,
+          "v2_authenticated_presence": false,
+          "v2_controls_active": false,
+          "v2_public_listing": false,
+          "v2_published_body_sha256": "",
+          "v2_published_envelope": "",
+          "v2_rendezvous": "not-found",
           "v2_usable": false
         },
         "expected": {
@@ -612,6 +704,7 @@
             "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
             "tickets": 3,
             "unaffected_identity": {
+              "access_code_required": true,
               "authenticated_presence": true,
               "controls_active": true,
               "high_water_sequence": "102",
@@ -619,6 +712,8 @@
               "mode": "classic-v2-only",
               "pending_authorizations": 1,
               "public_listing": true,
+              "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+              "rendezvous": "proof-required",
               "rendezvous_generation_present": true,
               "retained_nonces": [
                 "303132333435363738393a3b3c3d3e3f"
@@ -631,6 +726,13 @@
             "v1_controls_active": true,
             "v1_listing_present": true,
             "v1_rendezvous_generation_present": true,
+            "v2_access_code_required": false,
+            "v2_authenticated_presence": false,
+            "v2_controls_active": false,
+            "v2_public_listing": false,
+            "v2_published_body_sha256": "",
+            "v2_published_envelope": "",
+            "v2_rendezvous": "not-found",
             "v2_usable": false
           }
         },
@@ -655,6 +757,7 @@
           "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
           "tickets": 3,
           "unaffected_identity": {
+            "access_code_required": true,
             "authenticated_presence": true,
             "controls_active": true,
             "high_water_sequence": "102",
@@ -662,6 +765,8 @@
             "mode": "classic-v2-only",
             "pending_authorizations": 1,
             "public_listing": true,
+            "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+            "rendezvous": "proof-required",
             "rendezvous_generation_present": true,
             "retained_nonces": [
               "303132333435363738393a3b3c3d3e3f"
@@ -674,6 +779,13 @@
           "v1_controls_active": true,
           "v1_listing_present": true,
           "v1_rendezvous_generation_present": true,
+          "v2_access_code_required": false,
+          "v2_authenticated_presence": false,
+          "v2_controls_active": false,
+          "v2_public_listing": false,
+          "v2_published_body_sha256": "",
+          "v2_published_envelope": "",
+          "v2_rendezvous": "not-found",
           "v2_usable": false
         },
         "expected": {
@@ -691,6 +803,7 @@
             "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
             "tickets": 0,
             "unaffected_identity": {
+              "access_code_required": true,
               "authenticated_presence": true,
               "controls_active": true,
               "high_water_sequence": "102",
@@ -698,6 +811,8 @@
               "mode": "classic-v2-only",
               "pending_authorizations": 1,
               "public_listing": true,
+              "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+              "rendezvous": "proof-required",
               "rendezvous_generation_present": true,
               "retained_nonces": [
                 "303132333435363738393a3b3c3d3e3f"
@@ -710,6 +825,13 @@
             "v1_controls_active": false,
             "v1_listing_present": false,
             "v1_rendezvous_generation_present": false,
+            "v2_access_code_required": true,
+            "v2_authenticated_presence": true,
+            "v2_controls_active": true,
+            "v2_public_listing": true,
+            "v2_published_body_sha256": "135ce67cb66f6ab9cf98202bdedb7e125cbb128581df982e311bc462c9fd40fb",
+            "v2_published_envelope": "v2-101-upgrade",
+            "v2_rendezvous": "proof-required",
             "v2_usable": true
           }
         },
@@ -735,6 +857,7 @@
           "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
           "tickets": 0,
           "unaffected_identity": {
+            "access_code_required": true,
             "authenticated_presence": true,
             "controls_active": true,
             "high_water_sequence": "102",
@@ -742,6 +865,8 @@
             "mode": "classic-v2-only",
             "pending_authorizations": 1,
             "public_listing": true,
+            "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+            "rendezvous": "proof-required",
             "rendezvous_generation_present": true,
             "retained_nonces": [
               "303132333435363738393a3b3c3d3e3f"
@@ -754,6 +879,13 @@
           "v1_controls_active": false,
           "v1_listing_present": false,
           "v1_rendezvous_generation_present": false,
+          "v2_access_code_required": true,
+          "v2_authenticated_presence": true,
+          "v2_controls_active": true,
+          "v2_public_listing": true,
+          "v2_published_body_sha256": "135ce67cb66f6ab9cf98202bdedb7e125cbb128581df982e311bc462c9fd40fb",
+          "v2_published_envelope": "v2-101-upgrade",
+          "v2_rendezvous": "proof-required",
           "v2_usable": true
         },
         "expected": {
@@ -772,6 +904,7 @@
             "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
             "tickets": 0,
             "unaffected_identity": {
+              "access_code_required": true,
               "authenticated_presence": true,
               "controls_active": true,
               "high_water_sequence": "102",
@@ -779,6 +912,8 @@
               "mode": "classic-v2-only",
               "pending_authorizations": 1,
               "public_listing": true,
+              "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+              "rendezvous": "proof-required",
               "rendezvous_generation_present": true,
               "retained_nonces": [
                 "303132333435363738393a3b3c3d3e3f"
@@ -791,6 +926,13 @@
             "v1_controls_active": false,
             "v1_listing_present": false,
             "v1_rendezvous_generation_present": false,
+            "v2_access_code_required": true,
+            "v2_authenticated_presence": true,
+            "v2_controls_active": true,
+            "v2_public_listing": true,
+            "v2_published_body_sha256": "135ce67cb66f6ab9cf98202bdedb7e125cbb128581df982e311bc462c9fd40fb",
+            "v2_published_envelope": "v2-101-upgrade",
+            "v2_rendezvous": "proof-required",
             "v2_usable": true
           }
         },
@@ -816,6 +958,7 @@
           "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
           "tickets": 0,
           "unaffected_identity": {
+            "access_code_required": true,
             "authenticated_presence": true,
             "controls_active": true,
             "high_water_sequence": "102",
@@ -823,6 +966,8 @@
             "mode": "classic-v2-only",
             "pending_authorizations": 1,
             "public_listing": true,
+            "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+            "rendezvous": "proof-required",
             "rendezvous_generation_present": true,
             "retained_nonces": [
               "303132333435363738393a3b3c3d3e3f"
@@ -835,6 +980,13 @@
           "v1_controls_active": false,
           "v1_listing_present": false,
           "v1_rendezvous_generation_present": false,
+          "v2_access_code_required": true,
+          "v2_authenticated_presence": true,
+          "v2_controls_active": true,
+          "v2_public_listing": true,
+          "v2_published_body_sha256": "135ce67cb66f6ab9cf98202bdedb7e125cbb128581df982e311bc462c9fd40fb",
+          "v2_published_envelope": "v2-101-upgrade",
+          "v2_rendezvous": "proof-required",
           "v2_usable": true
         },
         "expected": {
@@ -853,6 +1005,7 @@
             "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
             "tickets": 0,
             "unaffected_identity": {
+              "access_code_required": true,
               "authenticated_presence": true,
               "controls_active": true,
               "high_water_sequence": "102",
@@ -860,6 +1013,8 @@
               "mode": "classic-v2-only",
               "pending_authorizations": 1,
               "public_listing": true,
+              "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+              "rendezvous": "proof-required",
               "rendezvous_generation_present": true,
               "retained_nonces": [
                 "303132333435363738393a3b3c3d3e3f"
@@ -872,6 +1027,13 @@
             "v1_controls_active": false,
             "v1_listing_present": false,
             "v1_rendezvous_generation_present": false,
+            "v2_access_code_required": true,
+            "v2_authenticated_presence": true,
+            "v2_controls_active": true,
+            "v2_public_listing": true,
+            "v2_published_body_sha256": "135ce67cb66f6ab9cf98202bdedb7e125cbb128581df982e311bc462c9fd40fb",
+            "v2_published_envelope": "v2-102-next",
+            "v2_rendezvous": "proof-required",
             "v2_usable": true
           }
         },
@@ -897,6 +1059,7 @@
           "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
           "tickets": 0,
           "unaffected_identity": {
+            "access_code_required": true,
             "authenticated_presence": true,
             "controls_active": true,
             "high_water_sequence": "102",
@@ -904,6 +1067,8 @@
             "mode": "classic-v2-only",
             "pending_authorizations": 1,
             "public_listing": true,
+            "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+            "rendezvous": "proof-required",
             "rendezvous_generation_present": true,
             "retained_nonces": [
               "303132333435363738393a3b3c3d3e3f"
@@ -916,6 +1081,13 @@
           "v1_controls_active": false,
           "v1_listing_present": false,
           "v1_rendezvous_generation_present": false,
+          "v2_access_code_required": true,
+          "v2_authenticated_presence": true,
+          "v2_controls_active": true,
+          "v2_public_listing": true,
+          "v2_published_body_sha256": "135ce67cb66f6ab9cf98202bdedb7e125cbb128581df982e311bc462c9fd40fb",
+          "v2_published_envelope": "v2-max-minus-one",
+          "v2_rendezvous": "proof-required",
           "v2_usable": true
         },
         "expected": {
@@ -934,6 +1106,7 @@
             "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
             "tickets": 0,
             "unaffected_identity": {
+              "access_code_required": true,
               "authenticated_presence": true,
               "controls_active": true,
               "high_water_sequence": "102",
@@ -941,6 +1114,8 @@
               "mode": "classic-v2-only",
               "pending_authorizations": 1,
               "public_listing": true,
+              "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+              "rendezvous": "proof-required",
               "rendezvous_generation_present": true,
               "retained_nonces": [
                 "303132333435363738393a3b3c3d3e3f"
@@ -953,6 +1128,13 @@
             "v1_controls_active": false,
             "v1_listing_present": false,
             "v1_rendezvous_generation_present": false,
+            "v2_access_code_required": true,
+            "v2_authenticated_presence": true,
+            "v2_controls_active": true,
+            "v2_public_listing": true,
+            "v2_published_body_sha256": "135ce67cb66f6ab9cf98202bdedb7e125cbb128581df982e311bc462c9fd40fb",
+            "v2_published_envelope": "v2-max",
+            "v2_rendezvous": "proof-required",
             "v2_usable": true
           }
         },
@@ -979,6 +1161,7 @@
           "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
           "tickets": 0,
           "unaffected_identity": {
+            "access_code_required": true,
             "authenticated_presence": true,
             "controls_active": true,
             "high_water_sequence": "102",
@@ -986,6 +1169,8 @@
             "mode": "classic-v2-only",
             "pending_authorizations": 1,
             "public_listing": true,
+            "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+            "rendezvous": "proof-required",
             "rendezvous_generation_present": true,
             "retained_nonces": [
               "303132333435363738393a3b3c3d3e3f"
@@ -998,6 +1183,13 @@
           "v1_controls_active": false,
           "v1_listing_present": false,
           "v1_rendezvous_generation_present": false,
+          "v2_access_code_required": true,
+          "v2_authenticated_presence": true,
+          "v2_controls_active": true,
+          "v2_public_listing": true,
+          "v2_published_body_sha256": "135ce67cb66f6ab9cf98202bdedb7e125cbb128581df982e311bc462c9fd40fb",
+          "v2_published_envelope": "v2-max",
+          "v2_rendezvous": "proof-required",
           "v2_usable": true
         },
         "expected": {
@@ -1017,6 +1209,7 @@
             "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
             "tickets": 0,
             "unaffected_identity": {
+              "access_code_required": true,
               "authenticated_presence": true,
               "controls_active": true,
               "high_water_sequence": "102",
@@ -1024,6 +1217,8 @@
               "mode": "classic-v2-only",
               "pending_authorizations": 1,
               "public_listing": true,
+              "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+              "rendezvous": "proof-required",
               "rendezvous_generation_present": true,
               "retained_nonces": [
                 "303132333435363738393a3b3c3d3e3f"
@@ -1036,6 +1231,13 @@
             "v1_controls_active": false,
             "v1_listing_present": false,
             "v1_rendezvous_generation_present": false,
+            "v2_access_code_required": true,
+            "v2_authenticated_presence": true,
+            "v2_controls_active": true,
+            "v2_public_listing": true,
+            "v2_published_body_sha256": "135ce67cb66f6ab9cf98202bdedb7e125cbb128581df982e311bc462c9fd40fb",
+            "v2_published_envelope": "v2-max",
+            "v2_rendezvous": "proof-required",
             "v2_usable": true
           }
         },
@@ -1065,6 +1267,7 @@
           "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
           "tickets": 3,
           "unaffected_identity": {
+            "access_code_required": true,
             "authenticated_presence": true,
             "controls_active": true,
             "high_water_sequence": "102",
@@ -1072,6 +1275,8 @@
             "mode": "classic-v2-only",
             "pending_authorizations": 1,
             "public_listing": true,
+            "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+            "rendezvous": "proof-required",
             "rendezvous_generation_present": true,
             "retained_nonces": [
               "303132333435363738393a3b3c3d3e3f"
@@ -1084,6 +1289,13 @@
           "v1_controls_active": true,
           "v1_listing_present": true,
           "v1_rendezvous_generation_present": true,
+          "v2_access_code_required": false,
+          "v2_authenticated_presence": false,
+          "v2_controls_active": false,
+          "v2_public_listing": false,
+          "v2_published_body_sha256": "",
+          "v2_published_envelope": "",
+          "v2_rendezvous": "not-found",
           "v2_usable": false
         }
       },
@@ -1094,16 +1306,184 @@
       {
         "case": "higher-v2-upgrade",
         "durable_upgrade_marker": false,
-        "expected_recovery": "exact-before",
+        "expected_recovered_state": {
+          "high_water_sequence": "100",
+          "last_accepted_envelope": "v1-100",
+          "mode": "classic-v1",
+          "pending_authorizations": 2,
+          "retained_nonces": [
+            "000102030405060708090a0b0c0d0e0f"
+          ],
+          "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
+          "tickets": 3,
+          "unaffected_identity": {
+            "access_code_required": true,
+            "authenticated_presence": true,
+            "controls_active": true,
+            "high_water_sequence": "102",
+            "last_accepted_envelope": "positive/public-protected-endpoint",
+            "mode": "classic-v2-only",
+            "pending_authorizations": 1,
+            "public_listing": true,
+            "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+            "rendezvous": "proof-required",
+            "rendezvous_generation_present": true,
+            "retained_nonces": [
+              "303132333435363738393a3b3c3d3e3f"
+            ],
+            "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
+            "tickets": 1,
+            "v2_usable": true
+          },
+          "v1_authenticated_presence": true,
+          "v1_controls_active": true,
+          "v1_listing_present": true,
+          "v1_rendezvous_generation_present": true,
+          "v2_access_code_required": false,
+          "v2_authenticated_presence": false,
+          "v2_controls_active": false,
+          "v2_public_listing": false,
+          "v2_published_body_sha256": "",
+          "v2_published_envelope": "",
+          "v2_rendezvous": "not-found",
+          "v2_usable": false
+        },
         "failure_phase": "before-durable-v2-only-marker",
-        "name": "crash-before-upgrade-marker"
+        "name": "crash-before-upgrade-marker",
+        "partial_state": {
+          "high_water_sequence": "100",
+          "last_accepted_envelope": "v1-100",
+          "mode": "classic-v1",
+          "pending_authorizations": 2,
+          "retained_nonces": [
+            "000102030405060708090a0b0c0d0e0f"
+          ],
+          "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
+          "tickets": 3,
+          "unaffected_identity": {
+            "access_code_required": true,
+            "authenticated_presence": true,
+            "controls_active": true,
+            "high_water_sequence": "102",
+            "last_accepted_envelope": "positive/public-protected-endpoint",
+            "mode": "classic-v2-only",
+            "pending_authorizations": 1,
+            "public_listing": true,
+            "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+            "rendezvous": "proof-required",
+            "rendezvous_generation_present": true,
+            "retained_nonces": [
+              "303132333435363738393a3b3c3d3e3f"
+            ],
+            "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
+            "tickets": 1,
+            "v2_usable": true
+          },
+          "v1_authenticated_presence": true,
+          "v1_controls_active": true,
+          "v1_listing_present": true,
+          "v1_rendezvous_generation_present": true,
+          "v2_access_code_required": false,
+          "v2_authenticated_presence": false,
+          "v2_controls_active": false,
+          "v2_public_listing": false,
+          "v2_published_body_sha256": "",
+          "v2_published_envelope": "",
+          "v2_rendezvous": "not-found",
+          "v2_usable": false
+        }
       },
       {
         "case": "higher-v2-upgrade",
         "durable_upgrade_marker": true,
-        "expected_recovery": "exact-after",
+        "expected_recovered_state": {
+          "high_water_sequence": "101",
+          "last_accepted_envelope": "v2-101-upgrade",
+          "mode": "classic-v2-only",
+          "pending_authorizations": 0,
+          "retained_nonces": [
+            "000102030405060708090a0b0c0d0e0f",
+            "101112131415161718191a1b1c1d1e1f"
+          ],
+          "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
+          "tickets": 0,
+          "unaffected_identity": {
+            "access_code_required": true,
+            "authenticated_presence": true,
+            "controls_active": true,
+            "high_water_sequence": "102",
+            "last_accepted_envelope": "positive/public-protected-endpoint",
+            "mode": "classic-v2-only",
+            "pending_authorizations": 1,
+            "public_listing": true,
+            "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+            "rendezvous": "proof-required",
+            "rendezvous_generation_present": true,
+            "retained_nonces": [
+              "303132333435363738393a3b3c3d3e3f"
+            ],
+            "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
+            "tickets": 1,
+            "v2_usable": true
+          },
+          "v1_authenticated_presence": false,
+          "v1_controls_active": false,
+          "v1_listing_present": false,
+          "v1_rendezvous_generation_present": false,
+          "v2_access_code_required": true,
+          "v2_authenticated_presence": true,
+          "v2_controls_active": true,
+          "v2_public_listing": true,
+          "v2_published_body_sha256": "135ce67cb66f6ab9cf98202bdedb7e125cbb128581df982e311bc462c9fd40fb",
+          "v2_published_envelope": "v2-101-upgrade",
+          "v2_rendezvous": "proof-required",
+          "v2_usable": true
+        },
         "failure_phase": "after-durable-v2-only-marker-before-retirement-complete",
-        "name": "crash-after-upgrade-marker"
+        "name": "crash-after-upgrade-marker",
+        "partial_state": {
+          "high_water_sequence": "101",
+          "last_accepted_envelope": "v2-101-upgrade",
+          "mode": "classic-v2-only",
+          "pending_authorizations": 2,
+          "retained_nonces": [
+            "000102030405060708090a0b0c0d0e0f",
+            "101112131415161718191a1b1c1d1e1f"
+          ],
+          "server_id": "c57c33b5b8f51d80a8d5d24faa155f4b1839f446d8bdc66884e9bd355bb5a694",
+          "tickets": 3,
+          "unaffected_identity": {
+            "access_code_required": true,
+            "authenticated_presence": true,
+            "controls_active": true,
+            "high_water_sequence": "102",
+            "last_accepted_envelope": "positive/public-protected-endpoint",
+            "mode": "classic-v2-only",
+            "pending_authorizations": 1,
+            "public_listing": true,
+            "published_body_sha256": "9817cfa609db4171b309d36969466d12026271e52588ce2b0726b2546e46f553",
+            "rendezvous": "proof-required",
+            "rendezvous_generation_present": true,
+            "retained_nonces": [
+              "303132333435363738393a3b3c3d3e3f"
+            ],
+            "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
+            "tickets": 1,
+            "v2_usable": true
+          },
+          "v1_authenticated_presence": true,
+          "v1_controls_active": true,
+          "v1_listing_present": true,
+          "v1_rendezvous_generation_present": true,
+          "v2_access_code_required": true,
+          "v2_authenticated_presence": true,
+          "v2_controls_active": true,
+          "v2_public_listing": true,
+          "v2_published_body_sha256": "135ce67cb66f6ab9cf98202bdedb7e125cbb128581df982e311bc462c9fd40fb",
+          "v2_published_envelope": "v2-101-upgrade",
+          "v2_rendezvous": "proof-required",
+          "v2_usable": true
+        }
       }
     ],
     "signed_envelopes": [

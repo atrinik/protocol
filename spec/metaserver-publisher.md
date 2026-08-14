@@ -268,11 +268,19 @@ Migration is keyed by the authenticated certificate fingerprint, never by a
 global Classic slot or a body-only identifier. The shared migration fixture
 binds every before-state and request to a complete verified signed envelope and
 includes a second identity whose state must remain byte-for-byte unchanged.
+The accepted after-state is derived from the verified v2 body and records its
+authenticated presence, public/private listing effect, configured access-code
+Boolean, resulting rendezvous mode, server-control state, exact signed-envelope
+reference, and SHA-256 digest of the complete published body; `v2 usable` alone
+is not a conforming installed state. The unaffected identity carries the same
+complete digest-bound replay and publication state.
 Before the durable per-identity v2-only marker, a storage or process failure
 recovers the exact v1 before-state; after that marker is durable, recovery
 rolls forward to the complete v2 after-state and may not expose any retired v1
-artifact. The receiver serializes a racing publication for the same identity
-with this transition; it cannot commit between the marker and retirement.
+artifact. The fixture provides concrete partial persisted states and exact
+recovered states on both sides of that marker. The receiver serializes a racing
+publication for the same identity with this transition; it cannot commit
+between the marker and retirement.
 
 Classic v1 and v2 bodies, routes, schemas, signature tags, and signatures are
 mutually non-replayable. A v1 password listing is never emitted in a v2

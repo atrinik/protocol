@@ -89,6 +89,13 @@ type classicV2MigrationState struct {
 	PendingAuthorizations         int                              `json:"pending_authorizations"`
 	Tickets                       int                              `json:"tickets"`
 	V2Usable                      bool                             `json:"v2_usable"`
+	V2AuthenticatedPresence       bool                             `json:"v2_authenticated_presence"`
+	V2PublicListing               bool                             `json:"v2_public_listing"`
+	V2AccessCodeRequired          bool                             `json:"v2_access_code_required"`
+	V2Rendezvous                  string                           `json:"v2_rendezvous"`
+	V2PublishedBodySHA256         string                           `json:"v2_published_body_sha256"`
+	V2PublishedEnvelope           string                           `json:"v2_published_envelope"`
+	V2ControlsActive              bool                             `json:"v2_controls_active"`
 	UnaffectedIdentity            classicV2UnaffectedIdentityState `json:"unaffected_identity"`
 }
 
@@ -105,6 +112,9 @@ type classicV2UnaffectedIdentityState struct {
 	PendingAuthorizations       int      `json:"pending_authorizations"`
 	Tickets                     int      `json:"tickets"`
 	V2Usable                    bool     `json:"v2_usable"`
+	AccessCodeRequired          bool     `json:"access_code_required"`
+	Rendezvous                  string   `json:"rendezvous"`
+	PublishedBodySHA256         string   `json:"published_body_sha256"`
 }
 
 type classicV2MigrationRequest struct {
@@ -143,11 +153,12 @@ type classicV2MigrationSignedEnvelope struct {
 }
 
 type classicV2MigrationFailureTransition struct {
-	Name                 string `json:"name"`
-	Case                 string `json:"case"`
-	FailurePhase         string `json:"failure_phase"`
-	DurableUpgradeMarker bool   `json:"durable_upgrade_marker"`
-	ExpectedRecovery     string `json:"expected_recovery"`
+	Name                   string                  `json:"name"`
+	Case                   string                  `json:"case"`
+	FailurePhase           string                  `json:"failure_phase"`
+	DurableUpgradeMarker   bool                    `json:"durable_upgrade_marker"`
+	PartialState           classicV2MigrationState `json:"partial_state"`
+	ExpectedRecoveredState classicV2MigrationState `json:"expected_recovered_state"`
 }
 
 type classicV2CrossIdentityRejection struct {
@@ -169,6 +180,9 @@ type classicV2GlobalIdentityState struct {
 	PendingAuthorizations       int      `json:"pending_authorizations"`
 	Tickets                     int      `json:"tickets"`
 	V2Usable                    bool     `json:"v2_usable"`
+	AccessCodeRequired          bool     `json:"access_code_required"`
+	Rendezvous                  string   `json:"rendezvous"`
+	PublishedBodySHA256         string   `json:"published_body_sha256"`
 }
 
 type classicV2GlobalRetirementState struct {
@@ -595,8 +609,11 @@ func TestClassicV2MigrationFixture(t *testing.T) {
 			}
 			unaffected := test.Before.UnaffectedIdentity
 			anchorPositive, anchorOK := positives[unaffected.LastAcceptedEnvelope]
+			unaffectedDigest := sha256.Sum256([]byte(anchorPositive.Body))
 			if !anchorOK || unaffected.ServerID != fixture.ServerID || anchorPositive.Sequence != unaffected.HighWaterSequence ||
-				anchorPositive.SignatureBase64 == "" || len(unaffected.RetainedNonces) == 0 {
+				anchorPositive.SignatureBase64 == "" || len(unaffected.RetainedNonces) == 0 ||
+				unaffected.PublishedBodySHA256 != hex.EncodeToString(unaffectedDigest[:]) ||
+				!unaffected.AccessCodeRequired || unaffected.Rendezvous != "proof-required" {
 				t.Fatal("unaffected identity is not bound to a complete signed lineage anchor")
 			}
 			if test.Before.UnaffectedIdentity.ServerID == "" ||
@@ -604,7 +621,7 @@ func TestClassicV2MigrationFixture(t *testing.T) {
 				!reflect.DeepEqual(test.Expected.State.UnaffectedIdentity, test.Before.UnaffectedIdentity) {
 				t.Fatal("migration does not preserve a distinct unaffected identity")
 			}
-			actual := applyClassicV2MigrationFixture(t, test.Before, test.Request)
+			actual := applyClassicV2MigrationFixture(t, test.Before, test.Request, envelopes)
 			if !reflect.DeepEqual(actual, test.Expected) {
 				t.Fatalf("transition result\n got: %#v\nwant: %#v", actual, test.Expected)
 			}
@@ -626,10 +643,14 @@ func TestClassicV2MigrationFixture(t *testing.T) {
 		if failure.DurableUpgradeMarker {
 			want = test.Expected.State
 		}
-		validRecovery := failure.ExpectedRecovery == "exact-before" && reflect.DeepEqual(want, test.Before)
-		validRecovery = validRecovery || failure.ExpectedRecovery == "exact-after" && reflect.DeepEqual(want, test.Expected.State)
-		if !validRecovery {
+		if !reflect.DeepEqual(failure.ExpectedRecoveredState, want) {
 			t.Fatalf("failure transition %q has inconsistent recovery", failure.Name)
+		}
+		if failure.DurableUpgradeMarker && failure.PartialState.Mode != "classic-v2-only" {
+			t.Fatalf("post-marker partial state %q lacks v2-only mode", failure.Name)
+		}
+		if !failure.DurableUpgradeMarker && !reflect.DeepEqual(failure.PartialState, test.Before) {
+			t.Fatalf("pre-marker partial state %q changed the before-state", failure.Name)
 		}
 	}
 	cross := fixture.Migration.CrossIdentityRejection
@@ -641,7 +662,7 @@ func TestClassicV2MigrationFixture(t *testing.T) {
 	actual := applyClassicV2MigrationFixture(t, target.Before, classicV2MigrationRequest{
 		Profile: "classic-v2", ServerID: fixture.ServerID, Sequence: foreign.Sequence,
 		Nonce: foreign.Nonce, SignedEnvelope: cross.RequestEnvelope,
-	})
+	}, envelopes)
 	if !reflect.DeepEqual(actual, cross.Expected) || !reflect.DeepEqual(actual.State, target.Before) {
 		t.Fatal("foreign signed identity changed the target identity state")
 	}
@@ -697,7 +718,7 @@ func verifyClassicV2MigrationEnvelope(t *testing.T, authority string, envelope c
 	}
 }
 
-func applyClassicV2MigrationFixture(t *testing.T, before classicV2MigrationState, request classicV2MigrationRequest) classicV2MigrationExpected {
+func applyClassicV2MigrationFixture(t *testing.T, before classicV2MigrationState, request classicV2MigrationRequest, envelopes map[string]classicV2MigrationSignedEnvelope) classicV2MigrationExpected {
 	t.Helper()
 	highWater, err := strconv.ParseUint(before.HighWaterSequence, 10, 64)
 	if err != nil {
@@ -759,6 +780,22 @@ func applyClassicV2MigrationFixture(t *testing.T, before classicV2MigrationState
 	result.State.LastAcceptedEnvelope = request.SignedEnvelope
 	result.State.RetainedNonces = append(result.State.RetainedNonces, request.Nonce)
 	if request.Profile == "classic-v2" {
+		envelope, ok := envelopes[request.SignedEnvelope]
+		if !ok {
+			t.Fatalf("accepted migration lacks signed envelope %q", request.SignedEnvelope)
+		}
+		published, err := metaserver.ParseClassicV2PublishJSON([]byte(envelope.Body))
+		if err != nil {
+			t.Fatalf("accepted migration has invalid v2 body: %v", err)
+		}
+		bodyDigest := sha256.Sum256([]byte(envelope.Body))
+		rendezvous := "not-found"
+		if published.Public {
+			rendezvous = "unauthenticated"
+			if published.AccessCodeRequired {
+				rendezvous = "proof-required"
+			}
+		}
 		result.State.Mode = "classic-v2-only"
 		result.State.V1AuthenticatedPresence = false
 		result.State.V1ListingPresent = false
@@ -767,6 +804,13 @@ func applyClassicV2MigrationFixture(t *testing.T, before classicV2MigrationState
 		result.State.PendingAuthorizations = 0
 		result.State.Tickets = 0
 		result.State.V2Usable = true
+		result.State.V2AuthenticatedPresence = true
+		result.State.V2PublicListing = published.Public
+		result.State.V2AccessCodeRequired = published.AccessCodeRequired
+		result.State.V2Rendezvous = rendezvous
+		result.State.V2PublishedBodySHA256 = hex.EncodeToString(bodyDigest[:])
+		result.State.V2PublishedEnvelope = request.SignedEnvelope
+		result.State.V2ControlsActive = true
 	}
 	return result
 }
