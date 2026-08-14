@@ -264,6 +264,16 @@ success response and later replay conflicts continue the same exact
 `minimumNextSequence` lineage. A failed v2 attempt changes neither the v1
 state nor the upgrade marker.
 
+Migration is keyed by the authenticated certificate fingerprint, never by a
+global Classic slot or a body-only identifier. The shared migration fixture
+binds every before-state and request to a complete verified signed envelope and
+includes a second identity whose state must remain byte-for-byte unchanged.
+Before the durable per-identity v2-only marker, a storage or process failure
+recovers the exact v1 before-state; after that marker is durable, recovery
+rolls forward to the complete v2 after-state and may not expose any retired v1
+artifact. The receiver serializes a racing publication for the same identity
+with this transition; it cannot commit between the marker and retirement.
+
 Classic v1 and v2 bodies, routes, schemas, signature tags, and signatures are
 mutually non-replayable. A v1 password listing is never emitted in a v2
 directory or admitted to a v2 rendezvous room. Game Protocol 1 retains its
@@ -313,6 +323,10 @@ restore implementation code but must not reopen v1; recovery after production
 v2 exposure is roll-forward. Retired per-identity replay records may be
 contracted only after the mode and v1 tombstones are durable. The normative
 gate transition and fixed rejection are encoded in the shared fixture.
+Its crash-phase vectors require exact rollback before the durable retired-mode
+marker and exact roll-forward after it. Its concurrency vector starts with an
+in-flight v1 commit and requires receivers to exclude new v1 commits, drain the
+existing commit, and only then make the retirement transaction visible.
 
 Game Protocol 1 never uses either Classic form, key, route, schema, signature
 tag, migration marker, or replay lineage. Its `passwordRequired` semantics and

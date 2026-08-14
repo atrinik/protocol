@@ -77,22 +77,35 @@ type classicV2CrossProfileReplayFixture struct {
 }
 
 type classicV2MigrationState struct {
-	Mode                          string   `json:"mode"`
-	HighWaterSequence             string   `json:"high_water_sequence"`
-	RetainedNonces                []string `json:"retained_nonces"`
-	V1AuthenticatedPresence       bool     `json:"v1_authenticated_presence"`
-	V1ListingPresent              bool     `json:"v1_listing_present"`
-	V1RendezvousGenerationPresent bool     `json:"v1_rendezvous_generation_present"`
-	V1ControlsActive              bool     `json:"v1_controls_active"`
-	PendingAuthorizations         int      `json:"pending_authorizations"`
-	Tickets                       int      `json:"tickets"`
-	V2Usable                      bool     `json:"v2_usable"`
+	ServerID                      string                           `json:"server_id"`
+	LastAcceptedEnvelope          string                           `json:"last_accepted_envelope"`
+	Mode                          string                           `json:"mode"`
+	HighWaterSequence             string                           `json:"high_water_sequence"`
+	RetainedNonces                []string                         `json:"retained_nonces"`
+	V1AuthenticatedPresence       bool                             `json:"v1_authenticated_presence"`
+	V1ListingPresent              bool                             `json:"v1_listing_present"`
+	V1RendezvousGenerationPresent bool                             `json:"v1_rendezvous_generation_present"`
+	V1ControlsActive              bool                             `json:"v1_controls_active"`
+	PendingAuthorizations         int                              `json:"pending_authorizations"`
+	Tickets                       int                              `json:"tickets"`
+	V2Usable                      bool                             `json:"v2_usable"`
+	UnaffectedIdentity            classicV2UnaffectedIdentityState `json:"unaffected_identity"`
+}
+
+type classicV2UnaffectedIdentityState struct {
+	ServerID          string `json:"server_id"`
+	Mode              string `json:"mode"`
+	HighWaterSequence string `json:"high_water_sequence"`
+	V1Presence        bool   `json:"v1_presence"`
+	V1Listing         bool   `json:"v1_listing"`
 }
 
 type classicV2MigrationRequest struct {
-	Profile  string `json:"profile"`
-	Sequence string `json:"sequence"`
-	Nonce    string `json:"nonce"`
+	Profile        string `json:"profile"`
+	ServerID       string `json:"server_id"`
+	Sequence       string `json:"sequence"`
+	Nonce          string `json:"nonce"`
+	SignedEnvelope string `json:"signed_envelope"`
 }
 
 type classicV2MigrationExpected struct {
@@ -107,6 +120,27 @@ type classicV2MigrationCase struct {
 	Before   classicV2MigrationState    `json:"before"`
 	Request  classicV2MigrationRequest  `json:"request"`
 	Expected classicV2MigrationExpected `json:"expected"`
+}
+
+type classicV2MigrationSignedEnvelope struct {
+	Name                 string `json:"name"`
+	Profile              string `json:"profile"`
+	ServerID             string `json:"server_id"`
+	CertificateDERBase64 string `json:"certificate_der_base64"`
+	Sequence             string `json:"sequence"`
+	Nonce                string `json:"nonce"`
+	Created              int64  `json:"created"`
+	Body                 string `json:"body"`
+	SignatureBase        string `json:"signature_base"`
+	SignatureBase64      string `json:"signature_base64"`
+}
+
+type classicV2MigrationFailureTransition struct {
+	Name                 string `json:"name"`
+	Case                 string `json:"case"`
+	FailurePhase         string `json:"failure_phase"`
+	DurableUpgradeMarker bool   `json:"durable_upgrade_marker"`
+	ExpectedRecovery     string `json:"expected_recovery"`
 }
 
 type classicV2GlobalRetirementState struct {
@@ -138,6 +172,18 @@ type classicV2GlobalRetirementFixture struct {
 		SequenceOrNonceConsumed bool   `json:"sequence_or_nonce_consumed"`
 		MinimumNextSequence     string `json:"minimum_next_sequence"`
 	} `json:"rejected_publish"`
+	ConcurrentActivation struct {
+		StartingInFlightV1Commits int    `json:"starting_in_flight_v1_commits"`
+		Behavior                  string `json:"behavior"`
+		RacingV1Result            string `json:"racing_v1_result"`
+		ExpectedRecovery          string `json:"expected_recovery"`
+	} `json:"concurrent_activation"`
+	FailureTransitions []struct {
+		Name               string `json:"name"`
+		FailurePhase       string `json:"failure_phase"`
+		DurableRetiredMode bool   `json:"durable_retired_mode"`
+		ExpectedRecovery   string `json:"expected_recovery"`
+	} `json:"failure_transitions"`
 }
 
 type classicV2Fixture struct {
@@ -163,7 +209,9 @@ type classicV2Fixture struct {
 	Negative           []classicV2NegativeFixture           `json:"negative"`
 	CrossProfileReplay []classicV2CrossProfileReplayFixture `json:"cross_profile_replay"`
 	Migration          struct {
-		Cases []classicV2MigrationCase `json:"cases"`
+		SignedEnvelopes    []classicV2MigrationSignedEnvelope    `json:"signed_envelopes"`
+		Cases              []classicV2MigrationCase              `json:"cases"`
+		FailureTransitions []classicV2MigrationFailureTransition `json:"failure_transitions"`
 	} `json:"migration"`
 	GlobalV1Retirement classicV2GlobalRetirementFixture `json:"global_v1_retirement"`
 }
@@ -343,6 +391,9 @@ func TestClassicV2CrossProfileReplayFixtures(t *testing.T) {
 		t.Fatalf("cross-profile replay count %d, want 2", len(fixture.CrossProfileReplay))
 	}
 	v1 := loadPublisherFixture(t)
+	if err := parseFrozenClassicV1Body([]byte(v1.Body)); err != nil {
+		t.Fatalf("frozen v1 golden was rejected: %v", err)
+	}
 	seen := make(map[string]bool)
 	for _, test := range fixture.CrossProfileReplay {
 		t.Run(test.Name, func(t *testing.T) {
@@ -383,6 +434,9 @@ func TestClassicV2CrossProfileReplayFixtures(t *testing.T) {
 				if _, err := metaserver.ParseClassicV2PublishJSON([]byte(test.Body)); err != nil {
 					t.Fatalf("v2 replay source is not a valid v2 body: %v", err)
 				}
+				if err := parseFrozenClassicV1Body([]byte(test.Body)); err == nil {
+					t.Fatal("v2 body was accepted by the frozen v1 codec")
+				}
 				anchored := false
 				for _, positive := range fixture.Positive {
 					anchored = anchored || (test.Body == positive.Body && test.SourceSignatureBase == positive.SignatureBase && test.SignatureBase64 == positive.SignatureBase64)
@@ -399,6 +453,47 @@ func TestClassicV2CrossProfileReplayFixtures(t *testing.T) {
 	if !seen["classic-v1/classic-v2"] || !seen["classic-v2/classic-v1"] {
 		t.Fatal("cross-profile replay fixture is not bidirectional")
 	}
+}
+
+func parseFrozenClassicV1Body(body []byte) error {
+	var schema struct {
+		Schema string `json:"schema"`
+	}
+	if err := json.Unmarshal(body, &schema); err != nil {
+		return err
+	}
+	if schema.Schema != "atrinik-classic-publish-v1" {
+		return errors.New("unsupported frozen Classic v1 schema")
+	}
+	var value struct {
+		Schema           string  `json:"schema"`
+		ServerID         string  `json:"serverId"`
+		Certificate      string  `json:"certificate"`
+		Name             string  `json:"name"`
+		PlayersCount     uint64  `json:"playersCount"`
+		Version          string  `json:"version"`
+		TextComment      string  `json:"textComment"`
+		Public           *bool   `json:"public"`
+		PasswordRequired *bool   `json:"passwordRequired"`
+		Hostname         *string `json:"hostname,omitempty"`
+		Port             *uint16 `json:"port,omitempty"`
+	}
+	decoder := json.NewDecoder(strings.NewReader(string(body)))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&value); err != nil {
+		return err
+	}
+	if value.Public == nil || value.PasswordRequired == nil || (value.Hostname == nil) != (value.Port == nil) {
+		return errors.New("incomplete frozen Classic v1 body")
+	}
+	encoded, err := json.Marshal(value)
+	if err != nil {
+		return err
+	}
+	if string(encoded) != string(body) {
+		return errors.New("noncanonical frozen Classic v1 body")
+	}
+	return nil
 }
 
 func TestClassicV2PublisherNegativeFixtures(t *testing.T) {
@@ -430,8 +525,34 @@ func TestClassicV2MigrationFixture(t *testing.T) {
 	if len(fixture.Migration.Cases) != 8 {
 		t.Fatalf("migration case count %d, want 8", len(fixture.Migration.Cases))
 	}
+	envelopes := make(map[string]classicV2MigrationSignedEnvelope, len(fixture.Migration.SignedEnvelopes))
+	for _, envelope := range fixture.Migration.SignedEnvelopes {
+		if _, exists := envelopes[envelope.Name]; exists {
+			t.Fatalf("duplicate migration envelope %q", envelope.Name)
+		}
+		verifyClassicV2MigrationEnvelope(t, fixture.Authority, envelope)
+		envelopes[envelope.Name] = envelope
+	}
+	if len(envelopes) < len(fixture.Migration.Cases)+1 {
+		t.Fatal("migration fixture lacks authenticated lineage anchors and requests")
+	}
+	cases := make(map[string]classicV2MigrationCase, len(fixture.Migration.Cases))
 	for _, test := range fixture.Migration.Cases {
 		t.Run(test.Name, func(t *testing.T) {
+			anchor, ok := envelopes[test.Before.LastAcceptedEnvelope]
+			if !ok || anchor.ServerID != test.Before.ServerID || anchor.Sequence != test.Before.HighWaterSequence {
+				t.Fatal("before-state is not bound to its last authenticated envelope")
+			}
+			request, ok := envelopes[test.Request.SignedEnvelope]
+			if !ok || request.Profile != test.Request.Profile || request.ServerID != test.Request.ServerID ||
+				request.Sequence != test.Request.Sequence || request.Nonce != test.Request.Nonce {
+				t.Fatal("migration request is not bound to its authenticated envelope")
+			}
+			if test.Before.UnaffectedIdentity.ServerID == "" ||
+				test.Before.UnaffectedIdentity.ServerID == test.Before.ServerID ||
+				test.Expected.State.UnaffectedIdentity != test.Before.UnaffectedIdentity {
+				t.Fatal("migration does not preserve a distinct unaffected identity")
+			}
 			actual := applyClassicV2MigrationFixture(t, test.Before, test.Request)
 			if !reflect.DeepEqual(actual, test.Expected) {
 				t.Fatalf("transition result\n got: %#v\nwant: %#v", actual, test.Expected)
@@ -440,6 +561,75 @@ func TestClassicV2MigrationFixture(t *testing.T) {
 				t.Fatal("rejected migration mutated replay or publication state")
 			}
 		})
+		cases[test.Name] = test
+	}
+	if len(fixture.Migration.FailureTransitions) < 2 {
+		t.Fatal("migration fixture lacks before-marker rollback and after-marker roll-forward failures")
+	}
+	for _, failure := range fixture.Migration.FailureTransitions {
+		test, ok := cases[failure.Case]
+		if !ok || test.Name != "higher-v2-upgrade" || failure.FailurePhase == "" {
+			t.Fatalf("invalid migration failure transition %q", failure.Name)
+		}
+		want := test.Before
+		if failure.DurableUpgradeMarker {
+			want = test.Expected.State
+		}
+		validRecovery := failure.ExpectedRecovery == "exact-before" && reflect.DeepEqual(want, test.Before)
+		validRecovery = validRecovery || failure.ExpectedRecovery == "exact-after" && reflect.DeepEqual(want, test.Expected.State)
+		if !validRecovery {
+			t.Fatalf("failure transition %q has inconsistent recovery", failure.Name)
+		}
+	}
+}
+
+func verifyClassicV2MigrationEnvelope(t *testing.T, authority string, envelope classicV2MigrationSignedEnvelope) {
+	t.Helper()
+	sequence, err := strconv.ParseUint(envelope.Sequence, 10, 64)
+	if err != nil {
+		t.Fatal(err)
+	}
+	nonceBytes, err := hex.DecodeString(envelope.Nonce)
+	if err != nil || len(nonceBytes) != 16 {
+		t.Fatalf("invalid envelope nonce %q", envelope.Nonce)
+	}
+	var nonce [16]byte
+	copy(nonce[:], nonceBytes)
+	profile := metaserver.ClassicV1Profile
+	if envelope.Profile == "classic-v2" {
+		profile = metaserver.ClassicV2Profile
+	} else if envelope.Profile != "classic-v1" {
+		t.Fatalf("invalid envelope profile %q", envelope.Profile)
+	}
+	components, err := metaserver.Build(metaserver.Parameters{
+		Profile: profile, Authority: authority, ServerID: envelope.ServerID,
+		Sequence: sequence, Nonce: nonce, Created: envelope.Created,
+	}, []byte(envelope.Body))
+	if err != nil || components.SignatureBase != envelope.SignatureBase {
+		t.Fatalf("migration envelope did not reconstruct: %v", err)
+	}
+	var identity struct {
+		ServerID    string `json:"serverId"`
+		Certificate string `json:"certificate"`
+	}
+	if err := json.Unmarshal([]byte(envelope.Body), &identity); err != nil ||
+		identity.ServerID != envelope.ServerID || identity.Certificate != envelope.CertificateDERBase64 {
+		t.Fatal("migration body identity does not match its authenticated envelope")
+	}
+	if profile == metaserver.ClassicV1Profile {
+		if err := parseFrozenClassicV1Body([]byte(envelope.Body)); err != nil {
+			t.Fatalf("invalid v1 migration body: %v", err)
+		}
+	} else {
+		if _, err := metaserver.ParseClassicV2PublishJSON([]byte(envelope.Body)); err != nil {
+			t.Fatalf("invalid v2 migration body: %v", err)
+		}
+	}
+	if err := metaserver.VerifyCertificateSignature(
+		decodeBase64(t, envelope.CertificateDERBase64), envelope.ServerID,
+		envelope.SignatureBase, decodeBase64(t, envelope.SignatureBase64),
+	); err != nil {
+		t.Fatalf("migration envelope signature failed: %v", err)
 	}
 }
 
@@ -458,6 +648,11 @@ func applyClassicV2MigrationFixture(t *testing.T, before classicV2MigrationState
 	}
 	if before.Mode != "classic-v1" && before.Mode != "classic-v2-only" {
 		t.Fatalf("unknown migration mode %q", before.Mode)
+	}
+	if before.ServerID == "" || request.ServerID != before.ServerID || request.SignedEnvelope == "" {
+		result := classicV2MigrationExpected{Error: "identity_mismatch", State: before}
+		result.State.RetainedNonces = append([]string(nil), before.RetainedNonces...)
+		return result
 	}
 	for _, nonce := range append(append([]string(nil), before.RetainedNonces...), request.Nonce) {
 		decoded, err := hex.DecodeString(nonce)
@@ -497,6 +692,7 @@ func applyClassicV2MigrationFixture(t *testing.T, before classicV2MigrationState
 		result.MinimumNextSequence = ""
 	}
 	result.State.HighWaterSequence = request.Sequence
+	result.State.LastAcceptedEnvelope = request.SignedEnvelope
 	result.State.RetainedNonces = append(result.State.RetainedNonces, request.Nonce)
 	if request.Profile == "classic-v2" {
 		result.State.Mode = "classic-v2-only"
@@ -536,6 +732,26 @@ func TestClassicV2GlobalRetirementFixture(t *testing.T) {
 		rejection.CacheControl != "no-store" || rejection.Body != `{"error":{"code":"profile_retired"}}` ||
 		rejection.Inspection != "none" || rejection.SequenceOrNonceConsumed || rejection.MinimumNextSequence != "" {
 		t.Fatal("global retirement rejection is not fixed, pre-inspection, and non-mutating")
+	}
+	concurrent := gate.ConcurrentActivation
+	if concurrent.StartingInFlightV1Commits < 1 || concurrent.Behavior != "exclude-new-v1-and-drain-before-retirement-commit" ||
+		concurrent.RacingV1Result != "profile_retired-after-commit" || concurrent.ExpectedRecovery != "exact-after" {
+		t.Fatal("global retirement fixture does not serialize a racing v1 commit")
+	}
+	if len(gate.FailureTransitions) < 2 {
+		t.Fatal("global retirement fixture lacks rollback and roll-forward crash phases")
+	}
+	for _, failure := range gate.FailureTransitions {
+		if failure.Name == "" || failure.FailurePhase == "" {
+			t.Fatal("global failure transition metadata is incomplete")
+		}
+		if failure.DurableRetiredMode {
+			if failure.ExpectedRecovery != "exact-after" {
+				t.Fatal("durable retired mode did not require roll-forward")
+			}
+		} else if failure.ExpectedRecovery != "exact-before" {
+			t.Fatal("pre-marker failure did not require exact rollback")
+		}
 	}
 }
 
