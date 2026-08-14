@@ -326,7 +326,12 @@ gate transition and fixed rejection are encoded in the shared fixture.
 Its crash-phase vectors require exact rollback before the durable retired-mode
 marker and exact roll-forward after it. Its concurrency vector starts with an
 in-flight v1 commit and requires receivers to exclude new v1 commits, drain the
-existing commit, and only then make the retirement transaction visible.
+existing commit, and only then make the retirement transaction visible. A v1
+operation admitted before exclusion completes with its normal authenticated
+success response and consumes its sequence and nonce before its resulting v1
+state is retired. A new v1 operation arriving after exclusion receives the
+fixed non-consuming HTTP 410 response. These are distinct outcomes and must
+never be collapsed into a committed operation reported as `profile_retired`.
 
 Game Protocol 1 never uses either Classic form, key, route, schema, signature
 tag, migration marker, or replay lineage. Its `passwordRequired` semantics and
