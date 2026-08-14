@@ -118,7 +118,7 @@ func TestGamePublisherGoldenFixture(t *testing.T) {
 		t.Fatalf("fixture signature did not verify: %v", err)
 	}
 
-	parameters.Profile = metaserver.ClassicProfile
+	parameters.Profile = metaserver.ClassicV1Profile
 	classic, err := metaserver.Build(parameters, encoded)
 	if err != nil {
 		t.Fatal(err)

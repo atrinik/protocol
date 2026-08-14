@@ -47,7 +47,7 @@ type publisherFixture struct {
 
 func TestPublisherGoldenFixture(t *testing.T) {
 	fixture := loadPublisherFixture(t)
-	parameters := fixtureParameters(t, fixture, metaserver.ClassicProfile)
+	parameters := fixtureParameters(t, fixture, metaserver.ClassicV1Profile)
 	components, err := metaserver.Build(parameters, []byte(fixture.Body))
 	if err != nil {
 		t.Fatal(err)
@@ -109,7 +109,7 @@ func TestPublisherFixtureRejectsMutations(t *testing.T) {
 		{"authority", strings.Replace(fixture.SignatureBase, fixture.Authority, "canary.publish.meta.atrinik.org", 1)},
 		{"path", strings.Replace(fixture.SignatureBase, "/v1/classic/", "/v1/", 1)},
 		{"sequence", strings.Replace(fixture.SignatureBase, fixture.Sequence, "7", 1)},
-		{"protocol tag", strings.Replace(fixture.SignatureBase, metaserver.ClassicSignatureTag, metaserver.GameSignatureTag, 1)},
+		{"protocol tag", strings.Replace(fixture.SignatureBase, metaserver.ClassicV1SignatureTag, metaserver.GameSignatureTag, 1)},
 	}
 	for _, mutation := range mutations {
 		t.Run(mutation.name, func(t *testing.T) {
@@ -168,7 +168,7 @@ func TestPublisherFixtureRejectsMutations(t *testing.T) {
 
 func TestPublisherComponentBounds(t *testing.T) {
 	fixture := loadPublisherFixture(t)
-	valid := fixtureParameters(t, fixture, metaserver.ClassicProfile)
+	valid := fixtureParameters(t, fixture, metaserver.ClassicV1Profile)
 	tests := []struct {
 		name       string
 		parameters metaserver.Parameters
@@ -251,7 +251,7 @@ func FuzzPublisher(f *testing.F) {
 		var nonce [16]byte
 		copy(nonce[:], nonceBytes)
 		parameters := metaserver.Parameters{
-			Profile:   metaserver.ClassicProfile,
+			Profile:   metaserver.ClassicV1Profile,
 			Authority: authority,
 			ServerID:  serverID,
 			Sequence:  sequence,

@@ -1,0 +1,470 @@
+// Copyright 2026 The Atrinik Project
+// SPDX-License-Identifier: MIT
+
+package metaserver_test
+
+import (
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"os"
+	"strconv"
+	"strings"
+	"testing"
+
+	"github.com/atrinik/protocol/metaserver"
+)
+
+type classicV2PositiveFixture struct {
+	Name            string `json:"name"`
+	Sequence        string `json:"sequence"`
+	Nonce           string `json:"nonce"`
+	Created         int64  `json:"created"`
+	Expires         int64  `json:"expires"`
+	Body            string `json:"body"`
+	ContentDigest   string `json:"content_digest"`
+	Path            string `json:"path"`
+	SignatureInput  string `json:"signature_input"`
+	SignatureBase   string `json:"signature_base"`
+	SignatureBase64 string `json:"signature_base64"`
+	SignatureHeader string `json:"signature_header"`
+}
+
+type classicV2NegativeFixture struct {
+	Name  string                             `json:"name"`
+	Body  string                             `json:"body"`
+	Error metaserver.ClassicPublishErrorCode `json:"error"`
+}
+
+type classicV2SignatureNegativeFixture struct {
+	Name            string `json:"name"`
+	Positive        string `json:"positive"`
+	SignatureBase   string `json:"signature_base"`
+	SignatureBase64 string `json:"signature_base64"`
+	Error           string `json:"error"`
+}
+
+type classicV2MigrationCase struct {
+	Name                string `json:"name"`
+	StartingMode        string `json:"starting_mode"`
+	StartingHighWater   string `json:"starting_high_water_sequence"`
+	Profile             string `json:"profile"`
+	Sequence            string `json:"sequence"`
+	Nonce               string `json:"nonce"`
+	Accepted            bool   `json:"accepted"`
+	UpgradesIdentity    bool   `json:"upgrades_identity"`
+	MinimumNextSequence string `json:"minimum_next_sequence"`
+}
+
+type classicV2Fixture struct {
+	FixtureVersion       int    `json:"fixture_version"`
+	Profile              string `json:"profile"`
+	Authority            string `json:"authority"`
+	Method               string `json:"method"`
+	ContentType          string `json:"content_type"`
+	ServerID             string `json:"server_id"`
+	CertificateDERBase64 string `json:"certificate_der_base64"`
+	MaximumBounds        struct {
+		BodyBytes            int    `json:"body_bytes"`
+		CertificateDERBytes  int    `json:"certificate_der_bytes"`
+		NameUTF8Bytes        int    `json:"name_utf8_bytes"`
+		PlayersCount         uint64 `json:"players_count"`
+		VersionUTF8Bytes     int    `json:"version_utf8_bytes"`
+		TextCommentUTF8Bytes int    `json:"text_comment_utf8_bytes"`
+		HostnameBytes        int    `json:"hostname_bytes"`
+		Port                 uint32 `json:"port"`
+	} `json:"maximum_bounds"`
+	Positive          []classicV2PositiveFixture          `json:"positive"`
+	SignatureNegative []classicV2SignatureNegativeFixture `json:"signature_negative"`
+	Negative          []classicV2NegativeFixture          `json:"negative"`
+	Migration         struct {
+		InitialProfile  string                   `json:"initial_profile"`
+		HighWater       string                   `json:"high_water_sequence"`
+		RetainedNonces  []string                 `json:"retained_nonces"`
+		Cases           []classicV2MigrationCase `json:"cases"`
+		PostUpgradeMode string                   `json:"post_upgrade_mode"`
+	} `json:"migration"`
+}
+
+func TestClassicV2PublisherSignatureNegativeFixtures(t *testing.T) {
+	fixture := loadClassicV2Fixture(t)
+	if len(fixture.SignatureNegative) != 4 {
+		t.Fatal("signature-negative fixture does not cover route and tag domains")
+	}
+	certificate := decodeBase64(t, fixture.CertificateDERBase64)
+	positiveSignatures := make(map[string]string, len(fixture.Positive))
+	for _, positive := range fixture.Positive {
+		positiveSignatures[positive.Name] = positive.SignatureBase64
+	}
+	for _, test := range fixture.SignatureNegative {
+		t.Run(test.Name, func(t *testing.T) {
+			if test.Error != "invalid_signature" || test.Positive == "" || test.SignatureBase == "" ||
+				positiveSignatures[test.Positive] != test.SignatureBase64 {
+				t.Fatal("signature-negative fixture metadata is incomplete")
+			}
+			signature := decodeBase64(t, test.SignatureBase64)
+			if err := metaserver.VerifyCertificateSignature(
+				certificate,
+				fixture.ServerID,
+				test.SignatureBase,
+				signature,
+			); !errors.Is(err, metaserver.ErrInvalidSignature) {
+				t.Fatalf("negative signature verified: %v", err)
+			}
+		})
+	}
+}
+
+func TestClassicV2PublisherGoldenFixtures(t *testing.T) {
+	fixture := loadClassicV2Fixture(t)
+	if fixture.FixtureVersion != 1 || fixture.Profile != "classic-v2" ||
+		fixture.Method != "POST" || fixture.ContentType != metaserver.ContentType ||
+		len(fixture.Positive) != 4 {
+		t.Fatal("fixture metadata does not describe the complete Classic v2 matrix")
+	}
+	if fixture.MaximumBounds.BodyBytes != metaserver.MaximumBodyBytes ||
+		fixture.MaximumBounds.CertificateDERBytes != metaserver.MaximumCertificateDERBytes ||
+		fixture.MaximumBounds.NameUTF8Bytes != metaserver.MaximumDirectoryNameBytes ||
+		fixture.MaximumBounds.PlayersCount != metaserver.MaximumClassicPlayers ||
+		fixture.MaximumBounds.VersionUTF8Bytes != metaserver.MaximumClassicVersionBytes ||
+		fixture.MaximumBounds.TextCommentUTF8Bytes != metaserver.MaximumClassicTextCommentBytes ||
+		fixture.MaximumBounds.HostnameBytes != 253 || fixture.MaximumBounds.Port != 65_535 {
+		t.Fatal("fixture bounds differ from the Classic v2 contract")
+	}
+	certificate := decodeBase64(t, fixture.CertificateDERBase64)
+	seen := make(map[string]bool)
+	for _, test := range fixture.Positive {
+		t.Run(test.Name, func(t *testing.T) {
+			request, err := metaserver.ParseClassicV2PublishJSON([]byte(test.Body))
+			if err != nil {
+				t.Fatal(err)
+			}
+			encoded, err := metaserver.MarshalClassicV2PublishJSON(request)
+			if err != nil || string(encoded) != test.Body {
+				t.Fatalf("fixture did not round-trip byte-identically: %v", err)
+			}
+			if hex.EncodeToString(request.ServerID) != fixture.ServerID ||
+				base64.StdEncoding.EncodeToString(request.CertificateDER) != fixture.CertificateDERBase64 {
+				t.Fatal("fixture identity and certificate do not match their metadata")
+			}
+			parameters := classicV2FixtureParameters(t, fixture, test, metaserver.ClassicV2Profile)
+			components, err := metaserver.Build(parameters, encoded)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if test.Expires != test.Created+metaserver.SignatureValidity ||
+				components.Path != test.Path || components.ContentDigest != test.ContentDigest ||
+				components.SignatureInput != test.SignatureInput ||
+				components.SignatureBase != test.SignatureBase {
+				t.Fatal("constructed Classic v2 signature components differ from the fixture")
+			}
+			signature := decodeBase64(t, test.SignatureBase64)
+			if test.SignatureHeader != "atrinik=:"+test.SignatureBase64+":" {
+				t.Fatal("fixture signature header is not canonical")
+			}
+			if err := metaserver.VerifyCertificateSignature(
+				certificate,
+				fixture.ServerID,
+				components.SignatureBase,
+				signature,
+			); err != nil {
+				t.Fatalf("fixture signature did not verify: %v", err)
+			}
+
+			for _, profile := range []metaserver.Profile{
+				metaserver.ClassicV1Profile,
+				metaserver.GameProfile,
+			} {
+				parameters.Profile = profile
+				crossed, err := metaserver.Build(parameters, encoded)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if err := metaserver.VerifyCertificateSignature(
+					certificate,
+					fixture.ServerID,
+					crossed.SignatureBase,
+					signature,
+				); !errors.Is(err, metaserver.ErrInvalidSignature) {
+					t.Fatalf("Classic v2 signature crossed profile %d: %v", profile, err)
+				}
+			}
+
+			key := strconv.FormatBool(request.Public) + "/" +
+				strconv.FormatBool(request.AccessCodeRequired) + "/" +
+				strconv.FormatBool(request.Endpoint != nil)
+			seen[key] = true
+		})
+	}
+	for _, required := range []string{
+		"true/false/false",
+		"true/true/true",
+		"false/false/true",
+		"false/true/false",
+	} {
+		if !seen[required] {
+			t.Fatalf("positive fixture matrix is missing %s", required)
+		}
+	}
+}
+
+func TestClassicV2PublisherNegativeFixtures(t *testing.T) {
+	fixture := loadClassicV2Fixture(t)
+	if len(fixture.Negative) < 12 {
+		t.Fatal("negative fixture does not cover the canonical contract")
+	}
+	for _, test := range fixture.Negative {
+		t.Run(test.Name, func(t *testing.T) {
+			request, err := metaserver.ParseClassicV2PublishJSON([]byte(test.Body))
+			if request != nil {
+				t.Fatal("rejected body returned a partial request")
+			}
+			code, ok := metaserver.ClassicPublishErrorCodeOf(err)
+			if !ok || code != test.Error {
+				t.Fatalf("rejected body returned (%q, %v), want %q", code, err, test.Error)
+			}
+		})
+	}
+}
+
+func TestClassicV2MigrationFixture(t *testing.T) {
+	fixture := loadClassicV2Fixture(t)
+	if fixture.Migration.InitialProfile != "classic-v1" ||
+		fixture.Migration.HighWater != "100" ||
+		len(fixture.Migration.RetainedNonces) == 0 ||
+		fixture.Migration.PostUpgradeMode != "classic-v2-only" {
+		t.Fatal("migration fixture lacks the frozen v1 starting state or irreversible v2 result")
+	}
+	want := map[string]struct {
+		starting  string
+		highWater string
+		accepted  bool
+		upgrades  bool
+		minimum   string
+	}{
+		"higher-v2-upgrade":       {"classic-v1", "100", true, true, "102"},
+		"equal-v2-sequence":       {"classic-v1", "100", false, false, "101"},
+		"stale-v2-sequence":       {"classic-v1", "100", false, false, "101"},
+		"retained-v1-nonce-at-v2": {"classic-v1", "100", false, false, "101"},
+		"post-upgrade-v1":         {"classic-v2-only", "101", false, false, "102"},
+		"next-v2":                 {"classic-v2-only", "101", true, false, "103"},
+	}
+	if len(fixture.Migration.Cases) != len(want) {
+		t.Fatalf("migration case count %d, want %d", len(fixture.Migration.Cases), len(want))
+	}
+	for _, test := range fixture.Migration.Cases {
+		expected, ok := want[test.Name]
+		if !ok || test.StartingMode != expected.starting ||
+			test.StartingHighWater != expected.highWater ||
+			test.Accepted != expected.accepted ||
+			test.UpgradesIdentity != expected.upgrades ||
+			test.MinimumNextSequence != expected.minimum {
+			t.Fatalf("migration case %q differs from the declared lineage", test.Name)
+		}
+		if _, err := strconv.ParseUint(test.StartingHighWater, 10, 64); err != nil {
+			t.Fatalf("migration case %q has invalid starting high water: %v", test.Name, err)
+		}
+		if _, err := strconv.ParseUint(test.Sequence, 10, 64); err != nil {
+			t.Fatalf("migration case %q has invalid sequence: %v", test.Name, err)
+		}
+		if nonce, err := hex.DecodeString(test.Nonce); err != nil || len(nonce) != 16 {
+			t.Fatalf("migration case %q has invalid nonce", test.Name)
+		}
+	}
+}
+
+func TestClassicV2PublisherValidationClasses(t *testing.T) {
+	fixture := loadClassicV2Fixture(t)
+	base, err := metaserver.ParseClassicV2PublishJSON([]byte(fixture.Positive[1].Body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	tests := []struct {
+		name   string
+		mutate func(*metaserver.ClassicV2PublishRequest)
+		code   metaserver.ClassicPublishErrorCode
+	}{
+		{"identity", func(value *metaserver.ClassicV2PublishRequest) { value.ServerID[0] ^= 1 }, metaserver.ClassicPublishInvalidIdentity},
+		{"name", func(value *metaserver.ClassicV2PublishRequest) { value.Name = "" }, metaserver.ClassicPublishInvalidText},
+		{"name too long", func(value *metaserver.ClassicV2PublishRequest) { value.Name = strings.Repeat("n", 81) }, metaserver.ClassicPublishInvalidText},
+		{"version", func(value *metaserver.ClassicV2PublishRequest) { value.Version = strings.Repeat("v", 33) }, metaserver.ClassicPublishInvalidText},
+		{"comment", func(value *metaserver.ClassicV2PublishRequest) { value.TextComment = "bad\nvalue" }, metaserver.ClassicPublishInvalidText},
+		{"comment too long", func(value *metaserver.ClassicV2PublishRequest) { value.TextComment = strings.Repeat("c", 257) }, metaserver.ClassicPublishInvalidText},
+		{"endpoint", func(value *metaserver.ClassicV2PublishRequest) { value.Endpoint.Hostname = "192.0.2.1" }, metaserver.ClassicPublishInvalidEndpoint},
+		{"certificate", func(value *metaserver.ClassicV2PublishRequest) {
+			value.CertificateDER = []byte("not a certificate")
+			digest := sha256.Sum256(value.CertificateDER)
+			value.ServerID = append([]byte(nil), digest[:]...)
+		}, metaserver.ClassicPublishInvalidCertificate},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			value := cloneClassicV2Request(base)
+			test.mutate(value)
+			err := metaserver.ValidateClassicV2Publish(value)
+			code, ok := metaserver.ClassicPublishErrorCodeOf(err)
+			if !ok || code != test.code {
+				t.Fatalf("invalid model returned (%q, %v), want %q", code, err, test.code)
+			}
+		})
+	}
+	if code := classicPublishErrorCode(t, metaserver.ValidateClassicV2Publish(nil)); code != metaserver.ClassicPublishInvalidJSON {
+		t.Fatalf("nil request returned %q", code)
+	}
+}
+
+func TestClassicV2PublisherPreservesClassicTextScalars(t *testing.T) {
+	fixture := loadClassicV2Fixture(t)
+	request, err := metaserver.ParseClassicV2PublishJSON([]byte(fixture.Positive[0].Body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	request.TextComment = "line\u2028paragraph\u2029C1:\u0085 noncharacters:\ufffe\uffff slash:\\u2028 combo:\\\u2028"
+	encoded, err := metaserver.MarshalClassicV2PublishJSON(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Count(string(encoded), `\u2028`) != 1 || strings.Contains(string(encoded), `\u2029`) {
+		t.Fatal("Classic scalar values were emitted as noncanonical JSON escapes")
+	}
+	if !strings.Contains(string(encoded), `slash:\\u2028`) {
+		t.Fatal("literal reverse-solidus text was changed while rendering scalars")
+	}
+	parsed, err := metaserver.ParseClassicV2PublishJSON(encoded)
+	if err != nil || parsed.TextComment != request.TextComment {
+		t.Fatalf("Classic scalar text did not round-trip: %v", err)
+	}
+}
+
+func TestClassicV2PublisherMaximumModel(t *testing.T) {
+	fixture := loadClassicV2Fixture(t)
+	request, err := metaserver.ParseClassicV2PublishJSON([]byte(fixture.Positive[1].Body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	request.Name = strings.Repeat("n", metaserver.MaximumDirectoryNameBytes)
+	request.PlayersCount = ^uint32(0)
+	request.Version = strings.Repeat("v", metaserver.MaximumClassicVersionBytes)
+	request.TextComment = strings.Repeat("c", metaserver.MaximumClassicTextCommentBytes)
+	request.Endpoint.Hostname = strings.Repeat("a", 63) + "." +
+		strings.Repeat("b", 63) + "." + strings.Repeat("c", 63) + "." + strings.Repeat("d", 61)
+	request.Endpoint.Port = 65_535
+	encoded, err := metaserver.MarshalClassicV2PublishJSON(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(request.Endpoint.Hostname) != fixture.MaximumBounds.HostnameBytes {
+		t.Fatal("maximum hostname fixture does not reach its byte bound")
+	}
+	if _, err := metaserver.ParseClassicV2PublishJSON(encoded); err != nil {
+		t.Fatalf("maximum valid model did not round-trip: %v", err)
+	}
+}
+
+func TestClassicV2PublisherInputBounds(t *testing.T) {
+	fixture := loadClassicV2Fixture(t)
+	tests := []struct {
+		name string
+		body []byte
+		code metaserver.ClassicPublishErrorCode
+	}{
+		{"empty", nil, metaserver.ClassicPublishInvalidJSON},
+		{"malformed", []byte(`{"schema":`), metaserver.ClassicPublishInvalidJSON},
+		{"invalid UTF-8", []byte{'{', 0xff, '}'}, metaserver.ClassicPublishInvalidJSON},
+		{"maximum plus one", []byte(strings.Repeat("x", metaserver.MaximumBodyBytes+1)), metaserver.ClassicPublishBodyTooLarge},
+		{"trailing LF", []byte(fixture.Positive[0].Body + "\n"), metaserver.ClassicPublishNonCanonicalJSON},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			_, err := metaserver.ParseClassicV2PublishJSON(test.body)
+			if code := classicPublishErrorCode(t, err); code != test.code {
+				t.Fatalf("invalid input returned %q, want %q", code, test.code)
+			}
+		})
+	}
+}
+
+func FuzzClassicV2PublishJSON(f *testing.F) {
+	fixture := loadClassicV2Fixture(f)
+	for _, test := range fixture.Positive {
+		f.Add([]byte(test.Body))
+	}
+	for _, test := range fixture.Negative {
+		f.Add([]byte(test.Body))
+	}
+	f.Fuzz(func(t *testing.T, input []byte) {
+		request, err := metaserver.ParseClassicV2PublishJSON(input)
+		if err != nil {
+			if _, ok := metaserver.ClassicPublishErrorCodeOf(err); !ok {
+				t.Fatalf("unbounded error type: %T", err)
+			}
+			return
+		}
+		encoded, err := metaserver.MarshalClassicV2PublishJSON(request)
+		if err != nil || string(encoded) != string(input) {
+			t.Fatal("accepted body did not round-trip canonically")
+		}
+	})
+}
+
+func loadClassicV2Fixture(t testing.TB) classicV2Fixture {
+	t.Helper()
+	data, err := os.ReadFile("../fixtures/metaserver-classic-publisher-v2.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fixture classicV2Fixture
+	if err := json.Unmarshal(data, &fixture); err != nil {
+		t.Fatal(err)
+	}
+	return fixture
+}
+
+func classicV2FixtureParameters(
+	t *testing.T,
+	fixture classicV2Fixture,
+	test classicV2PositiveFixture,
+	profile metaserver.Profile,
+) metaserver.Parameters {
+	t.Helper()
+	sequence, err := strconv.ParseUint(test.Sequence, 10, 64)
+	if err != nil {
+		t.Fatal(err)
+	}
+	nonceBytes, err := hex.DecodeString(test.Nonce)
+	if err != nil || len(nonceBytes) != 16 {
+		t.Fatalf("invalid fixture nonce: %v", err)
+	}
+	var nonce [16]byte
+	copy(nonce[:], nonceBytes)
+	return metaserver.Parameters{
+		Profile:   profile,
+		Authority: fixture.Authority,
+		ServerID:  fixture.ServerID,
+		Sequence:  sequence,
+		Nonce:     nonce,
+		Created:   test.Created,
+	}
+}
+
+func cloneClassicV2Request(value *metaserver.ClassicV2PublishRequest) *metaserver.ClassicV2PublishRequest {
+	clone := *value
+	clone.ServerID = append([]byte(nil), value.ServerID...)
+	clone.CertificateDER = append([]byte(nil), value.CertificateDER...)
+	if value.Endpoint != nil {
+		endpoint := *value.Endpoint
+		clone.Endpoint = &endpoint
+	}
+	return &clone
+}
+
+func classicPublishErrorCode(t *testing.T, err error) metaserver.ClassicPublishErrorCode {
+	t.Helper()
+	code, ok := metaserver.ClassicPublishErrorCodeOf(err)
+	if !ok {
+		t.Fatalf("unexpected error %v", err)
+	}
+	return code
+}

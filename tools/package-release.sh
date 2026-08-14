@@ -68,8 +68,10 @@ git archive --format=tar --prefix="atrinik-protocol-${version}/" HEAD \
 cp gen/descriptor/atrinik-game-v1.binpb "${output}/"
 cp fixtures/framing.json fixtures/metaserver-directory-v1.json \
   fixtures/metaserver-game-publisher-v1.json \
+  fixtures/metaserver-classic-publisher-v2.json \
   fixtures/metaserver-publisher-v1.json \
   schema/metaserver-directory-v1.schema.json \
+  schema/metaserver-classic-publisher-v2.schema.json \
   schema/metaserver-game-publisher-v1.schema.json \
   spec/metaserver-directory.md spec/metaserver-publisher.md \
   THIRD_PARTY_NOTICES.md LICENSE "${output}/"
@@ -115,7 +117,9 @@ jq -n \
   fi
   checksum_files+=(atrinik-game-v1.binpb framing.json \
     metaserver-directory-v1.json metaserver-game-publisher-v1.json \
+    metaserver-classic-publisher-v2.json \
     metaserver-publisher-v1.json metaserver-directory-v1.schema.json \
+    metaserver-classic-publisher-v2.schema.json \
     metaserver-game-publisher-v1.schema.json metaserver-directory.md \
     metaserver-publisher.md "${directory_fixtures[@]}" sbom.cdx.json \
     provenance.json THIRD_PARTY_NOTICES.md LICENSE)

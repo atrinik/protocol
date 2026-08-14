@@ -1,4 +1,4 @@
-# Metaserver publisher authentication v1
+# Metaserver publisher authentication
 
 This specification defines Atrinik's certificate-bound, one-request
 metaserver publisher authentication profile. It is independent from gameplay
@@ -16,11 +16,12 @@ key MUST be ECDSA P-256. Certificate chain trust and wall-clock validity are
 not identity inputs: clients pin the exact DER digest, and proof of the
 matching private key authorizes publication.
 
-Two profiles are deliberately separate:
+Three profiles are deliberately separate:
 
 | Profile | Exact path | Signature `tag` |
 | --- | --- | --- |
-| Classic | `/v1/classic/servers/{server-id}/publish` | `atrinik-classic-publish-v1` |
+| Classic v1 (frozen) | `/v1/classic/servers/{server-id}/publish` | `atrinik-classic-publish-v1` |
+| Classic v2 | `/v2/classic/servers/{server-id}/publish` | `atrinik-classic-publish-v2` |
 | Game Protocol 1 | `/v1/servers/{server-id}/publish` | `atrinik-game-publish-v1` |
 
 Both use signature label `atrinik`, algorithm parameter
@@ -68,6 +69,50 @@ byte-identical non-transitional UTS #46 ToASCII validation. The port is a
 canonical JSON integer from 1 through 65535. A publisher that has not explicitly
 opted into a DNS endpoint omits both fields; request-source and discovered
 numeric addresses are never substituted.
+
+Classic v1 is frozen with this exact `passwordRequired` human-password
+meaning. A receiver MUST NOT reinterpret, normalize, or project a v1 body as
+an access-code publication. Its route, schema, signature tag, key order, and
+field semantics remain an independent pre-cutover contract until the global
+v1 retirement gate described below.
+
+### Classic v2 body
+
+The Classic v2 body has the same strict UTF-8, canonical JSON, identity,
+certificate, display, player-count, version, comment, and optional endpoint
+rules as Classic v1. Its keys occur exactly in this order:
+
+```text
+schema, serverId, certificate, name, playersCount, version, textComment,
+public, accessCodeRequired[, hostname, port]
+```
+
+`schema` is `atrinik-classic-publish-v2`. `accessCodeRequired` is a mandatory
+JSON Boolean describing one exhaustive configured server policy:
+
+- `false` is open access. No player access capability is required before
+  candidate disclosure or after QUIC; a reachable endpoint and any candidate
+  disclosed by unauthenticated rendezvous are public routing information.
+- `true` requires the current process launch's one full access code. Its
+  rendezvous capability gates candidate disclosure, and its independent join
+  capability gates every post-QUIC setup, including direct connections.
+
+The Boolean is configured policy, not current credential health. Generation,
+artifact, signaling, expiry, or verification failure MUST NOT cause a
+protected publisher to emit `false`; the server remains protected, withdraws,
+or fails closed. No access code, access ID, secret, token, verifier, expiry,
+proof, candidate, password, or authentication result is publisher data.
+There is no password-only, invite-only, join-only, partially protected, or
+hybrid v2 body.
+
+The normative schema is
+`schema/metaserver-classic-publisher-v2.schema.json`. The byte-identical open,
+protected, public, private, endpoint-present, and endpoint-absent bodies,
+digests, signature inputs, bases, signatures, negative cases, and replay
+migration vectors are in
+`fixtures/metaserver-classic-publisher-v2.json`. Exact key ordering, UTF-8 byte
+limits, certificate identity, canonical base64, canonical JSON, and IDNA
+semantics remain requirements where JSON Schema cannot express them.
 
 ### Game Protocol 1 body
 
@@ -164,7 +209,8 @@ policy.
 
 Only after certificate and signature verification may a receiver charge an
 identity quota or inspect the body as authoritative input. For each server
-identity, one serialized atomic publication operation:
+identity and its selected profile, one serialized atomic publication
+operation:
 
 1. rejects a nonce already present in the bounded replay window;
 2. requires `sequence` to be greater than the stored sequence;
@@ -188,8 +234,24 @@ ordering remains authoritative after nonce pruning. An authenticated heartbeat
 with equivalent public content refreshes presence but does not advance the
 visible directory revision. A public-content change or expiry does.
 
+Classic v1 and v2 share one monotonic sequence and retained-nonce lineage per
+server identity. The first accepted v2 operation MUST be strictly above the v1
+high-water mark, reject any nonce retained from either Classic profile, and
+atomically retire the identity's v1 presence, listing, rendezvous generation,
+controls, pending authorizations, and tickets before v2 becomes usable. That
+commit irreversibly marks the identity Classic-v2-only: every later v1
+publication fails closed even with a higher sequence or fresh nonce. The v2
+success response and later replay conflicts continue the same exact
+`minimumNextSequence` lineage. A failed v2 attempt changes neither the v1
+state nor the upgrade marker.
+
+Classic v1 and v2 bodies, routes, schemas, signature tags, and signatures are
+mutually non-replayable. A v1 password listing is never emitted in a v2
+directory or admitted to a v2 rendezvous room. Game Protocol 1 retains its
+independent sequence, nonce, body, route, and public behavior.
+
 Successful responses and all 409/429 responses use `Cache-Control: no-store`.
-The success body for both profiles is exactly
+The success body for all profiles is exactly
 `{"status":"ok","rendezvousToken":"{64-lower-hex}"}`. A replay conflict is
 exactly
 `{"error":{"code":"publish_replay","minimumNextSequence":"{uint64}"}}`.
@@ -205,14 +267,21 @@ and directory artifacts.
 
 ## Compatibility and ownership
 
-This is a new, fail-closed profile. Classic OTP/COTP requests are a temporary
-compatibility route and are not accepted on either v1 path. Their removal
-requires a deployed publisher hostname, supported-consumer cutover, and a
-documented rollback window. Game Protocol 1 never uses the classic form, key,
-route, schema, or signature tag.
+Classic v2 is a new, fail-closed profile. A cutover Classic server publishes
+v2 only and never negotiates or falls back to v1. Temporary v1 availability
+serves only identities which have not upgraded. At the explicit coordinated
+global retirement gate, receivers reject every new Classic v1 publication,
+expire or tombstone remaining v1 presence/listings/rooms, converge the v2-only
+directory, and then contract retired state. This gate is not an indefinite
+dual-producer policy, and recovery after production v2 exposure is
+roll-forward.
+
+Game Protocol 1 never uses either Classic form, key, route, schema, signature
+tag, migration marker, or replay lineage. Its `passwordRequired` semantics and
+generated directory/protobuf models are unchanged.
 
 The protocol repository owns these canonical inputs and the shared fixture.
-The metaserver Worker owns strict HTTP parsing, authentication, replay storage,
-atomic listing mutation, rate limits, and redaction. Classic and Go servers own
-private-key access, crash-safe sequence persistence, request construction,
-backoff, and response handling.
+The metaserver Worker owns strict HTTP parsing, authentication, the atomic
+Classic v1-to-v2 migration, replay storage, listing mutation, rate limits, and
+redaction. Classic and Go servers own private-key access, crash-safe sequence
+persistence, request construction, backoff, and response handling.
