@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"math"
 	"os"
 	"reflect"
 	"strconv"
@@ -50,11 +51,15 @@ type classicV2NegativeFixture struct {
 }
 
 type classicV2SignatureNegativeFixture struct {
-	Name            string `json:"name"`
-	Positive        string `json:"positive"`
-	SignatureBase   string `json:"signature_base"`
-	SignatureBase64 string `json:"signature_base64"`
-	Error           string `json:"error"`
+	Name                 string `json:"name"`
+	FailureClass         string `json:"failure_class"`
+	Positive             string `json:"positive"`
+	CertificateDERBase64 string `json:"certificate_der_base64"`
+	ServerID             string `json:"server_id"`
+	Body                 string `json:"body"`
+	SignatureBase        string `json:"signature_base"`
+	SignatureBase64      string `json:"signature_base64"`
+	Error                string `json:"error"`
 }
 
 type classicV2CrossProfileReplayFixture struct {
@@ -75,6 +80,7 @@ type classicV2MigrationState struct {
 	Mode                          string   `json:"mode"`
 	HighWaterSequence             string   `json:"high_water_sequence"`
 	RetainedNonces                []string `json:"retained_nonces"`
+	V1AuthenticatedPresence       bool     `json:"v1_authenticated_presence"`
 	V1ListingPresent              bool     `json:"v1_listing_present"`
 	V1RendezvousGenerationPresent bool     `json:"v1_rendezvous_generation_present"`
 	V1ControlsActive              bool     `json:"v1_controls_active"`
@@ -103,6 +109,37 @@ type classicV2MigrationCase struct {
 	Expected classicV2MigrationExpected `json:"expected"`
 }
 
+type classicV2GlobalRetirementState struct {
+	Mode                    string `json:"mode"`
+	InFlightV1Commits       int    `json:"in_flight_v1_commits"`
+	V1AuthenticatedPresence int    `json:"v1_authenticated_presences"`
+	V1Listings              int    `json:"v1_listings"`
+	V1RendezvousGenerations int    `json:"v1_rendezvous_generations"`
+	V1Controls              int    `json:"v1_controls"`
+	PendingAuthorizations   int    `json:"pending_authorizations"`
+	Tickets                 int    `json:"tickets"`
+	V2StateUnchanged        bool   `json:"v2_state_unchanged"`
+	RollbackAllowed         bool   `json:"rollback_allowed"`
+}
+
+type classicV2GlobalRetirementFixture struct {
+	Before     classicV2GlobalRetirementState `json:"before"`
+	Activation struct {
+		Kind         string `json:"kind"`
+		Prerequisite string `json:"prerequisite"`
+	} `json:"activation"`
+	ExpectedAfter   classicV2GlobalRetirementState `json:"expected_after"`
+	RejectedPublish struct {
+		Profile                 string `json:"profile"`
+		HTTPStatus              int    `json:"http_status"`
+		CacheControl            string `json:"cache_control"`
+		Body                    string `json:"body"`
+		Inspection              string `json:"inspection"`
+		SequenceOrNonceConsumed bool   `json:"sequence_or_nonce_consumed"`
+		MinimumNextSequence     string `json:"minimum_next_sequence"`
+	} `json:"rejected_publish"`
+}
+
 type classicV2Fixture struct {
 	FixtureVersion       int    `json:"fixture_version"`
 	Profile              string `json:"profile"`
@@ -128,34 +165,64 @@ type classicV2Fixture struct {
 	Migration          struct {
 		Cases []classicV2MigrationCase `json:"cases"`
 	} `json:"migration"`
+	GlobalV1Retirement classicV2GlobalRetirementFixture `json:"global_v1_retirement"`
 }
 
 func TestClassicV2PublisherSignatureNegativeFixtures(t *testing.T) {
 	fixture := loadClassicV2Fixture(t)
-	if len(fixture.SignatureNegative) != 4 {
-		t.Fatal("signature-negative fixture does not cover route and tag domains")
+	if len(fixture.SignatureNegative) != 15 {
+		t.Fatal("signature-negative fixture does not cover every required failure class")
 	}
-	certificate := decodeBase64(t, fixture.CertificateDERBase64)
-	positiveSignatures := make(map[string]string, len(fixture.Positive))
+	positives := make(map[string]classicV2PositiveFixture, len(fixture.Positive))
 	for _, positive := range fixture.Positive {
-		positiveSignatures[positive.Name] = positive.SignatureBase64
+		positives[positive.Name] = positive
 	}
+	seen := make(map[string]bool)
 	for _, test := range fixture.SignatureNegative {
 		t.Run(test.Name, func(t *testing.T) {
-			if test.Error != "invalid_signature" || test.Positive == "" || test.SignatureBase == "" ||
-				positiveSignatures[test.Positive] != test.SignatureBase64 {
+			positive, ok := positives[test.Positive]
+			if !ok || test.FailureClass == "" || test.CertificateDERBase64 == "" || test.ServerID == "" ||
+				test.Body == "" || test.SignatureBase == "" || test.SignatureBase64 == "" {
 				t.Fatal("signature-negative fixture metadata is incomplete")
 			}
+			if test.FailureClass == "body_content_digest" {
+				parameters := classicV2FixtureParameters(t, fixture, positive, metaserver.ClassicV2Profile)
+				components, err := metaserver.Build(parameters, []byte(test.Body))
+				if err != nil || components.SignatureBase != test.SignatureBase {
+					t.Fatalf("mutated body does not construct the declared signature base: %v", err)
+				}
+			}
+			certificate := decodeBase64(t, test.CertificateDERBase64)
 			signature := decodeBase64(t, test.SignatureBase64)
-			if err := metaserver.VerifyCertificateSignature(
+			err := metaserver.VerifyCertificateSignature(
 				certificate,
-				fixture.ServerID,
+				test.ServerID,
 				test.SignatureBase,
 				signature,
-			); !errors.Is(err, metaserver.ErrInvalidSignature) {
-				t.Fatalf("negative signature verified: %v", err)
+			)
+			switch test.Error {
+			case "invalid_identity":
+				if !errors.Is(err, metaserver.ErrInvalidIdentity) {
+					t.Fatalf("identity failure returned %v", err)
+				}
+			case "invalid_signature":
+				if !errors.Is(err, metaserver.ErrInvalidSignature) {
+					t.Fatalf("signature failure returned %v", err)
+				}
+			default:
+				t.Fatalf("unknown expected error %q", test.Error)
 			}
+			seen[test.FailureClass] = true
 		})
+	}
+	for _, required := range []string{
+		"body_content_digest", "authority", "sequence", "route_tag_domain", "route", "tag",
+		"signed_server_id", "keyid", "certificate_fingerprint", "certificate_der",
+		"certificate_key_type", "signature_length", "signature_coordinate",
+	} {
+		if !seen[required] {
+			t.Fatalf("signature-negative fixture is missing %q", required)
+		}
 	}
 }
 
@@ -339,6 +406,7 @@ func TestClassicV2PublisherNegativeFixtures(t *testing.T) {
 	if len(fixture.Negative) < 12 {
 		t.Fatal("negative fixture does not cover the canonical contract")
 	}
+	seen := make(map[string]bool)
 	for _, test := range fixture.Negative {
 		t.Run(test.Name, func(t *testing.T) {
 			request, err := metaserver.ParseClassicV2PublishJSON([]byte(test.Body))
@@ -349,14 +417,18 @@ func TestClassicV2PublisherNegativeFixtures(t *testing.T) {
 			if !ok || code != test.Error {
 				t.Fatalf("rejected body returned (%q, %v), want %q", code, err, test.Error)
 			}
+			seen[test.Name] = true
 		})
+	}
+	if !seen["endpoint-alias"] {
+		t.Fatal("negative fixture does not cover an endpoint object alias")
 	}
 }
 
 func TestClassicV2MigrationFixture(t *testing.T) {
 	fixture := loadClassicV2Fixture(t)
-	if len(fixture.Migration.Cases) != 6 {
-		t.Fatalf("migration case count %d, want 6", len(fixture.Migration.Cases))
+	if len(fixture.Migration.Cases) != 8 {
+		t.Fatalf("migration case count %d, want 8", len(fixture.Migration.Cases))
 	}
 	for _, test := range fixture.Migration.Cases {
 		t.Run(test.Name, func(t *testing.T) {
@@ -395,14 +467,18 @@ func applyClassicV2MigrationFixture(t *testing.T, before classicV2MigrationState
 	}
 
 	result := classicV2MigrationExpected{
-		MinimumNextSequence: strconv.FormatUint(highWater+1, 10),
-		State:               before,
+		State: before,
 	}
 	result.State.RetainedNonces = append([]string(nil), before.RetainedNonces...)
 	if before.Mode == "classic-v2-only" && request.Profile == "classic-v1" {
 		result.Error = "profile_retired"
 		return result
 	}
+	if highWater == math.MaxUint64 {
+		result.Error = "publish_sequence_exhausted"
+		return result
+	}
+	result.MinimumNextSequence = strconv.FormatUint(highWater+1, 10)
 	for _, nonce := range before.RetainedNonces {
 		if nonce == request.Nonce {
 			result.Error = "publish_replay"
@@ -415,11 +491,16 @@ func applyClassicV2MigrationFixture(t *testing.T, before classicV2MigrationState
 	}
 
 	result.Accepted = true
-	result.MinimumNextSequence = strconv.FormatUint(sequence+1, 10)
+	if sequence != math.MaxUint64 {
+		result.MinimumNextSequence = strconv.FormatUint(sequence+1, 10)
+	} else {
+		result.MinimumNextSequence = ""
+	}
 	result.State.HighWaterSequence = request.Sequence
 	result.State.RetainedNonces = append(result.State.RetainedNonces, request.Nonce)
 	if request.Profile == "classic-v2" {
 		result.State.Mode = "classic-v2-only"
+		result.State.V1AuthenticatedPresence = false
 		result.State.V1ListingPresent = false
 		result.State.V1RendezvousGenerationPresent = false
 		result.State.V1ControlsActive = false
@@ -428,6 +509,34 @@ func applyClassicV2MigrationFixture(t *testing.T, before classicV2MigrationState
 		result.State.V2Usable = true
 	}
 	return result
+}
+
+func TestClassicV2GlobalRetirementFixture(t *testing.T) {
+	gate := loadClassicV2Fixture(t).GlobalV1Retirement
+	if gate.Before.Mode != "classic-v1-accepting" || gate.Before.InFlightV1Commits != 0 ||
+		gate.Before.V1AuthenticatedPresence == 0 || gate.Before.V1Listings == 0 ||
+		gate.Activation.Kind != "authorized-operator-transaction" ||
+		gate.Activation.Prerequisite != "human-accepted-v5-canaries-and-one-way-alias-cutover" {
+		t.Fatal("global retirement fixture lacks an explicit drained starting gate and human prerequisite")
+	}
+	after := gate.Before
+	after.Mode = "classic-v1-retired"
+	after.V1AuthenticatedPresence = 0
+	after.V1Listings = 0
+	after.V1RendezvousGenerations = 0
+	after.V1Controls = 0
+	after.PendingAuthorizations = 0
+	after.Tickets = 0
+	after.RollbackAllowed = false
+	if after != gate.ExpectedAfter || !gate.ExpectedAfter.V2StateUnchanged {
+		t.Fatalf("global retirement transition %#v, want %#v", gate.ExpectedAfter, after)
+	}
+	rejection := gate.RejectedPublish
+	if rejection.Profile != "classic-v1" || rejection.HTTPStatus != 410 ||
+		rejection.CacheControl != "no-store" || rejection.Body != `{"error":{"code":"profile_retired"}}` ||
+		rejection.Inspection != "none" || rejection.SequenceOrNonceConsumed || rejection.MinimumNextSequence != "" {
+		t.Fatal("global retirement rejection is not fixed, pre-inspection, and non-mutating")
+	}
 }
 
 func TestClassicV2PublisherValidationClasses(t *testing.T) {

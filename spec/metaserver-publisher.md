@@ -241,7 +241,11 @@ at least the advertised minimum. A minimum of zero is invalid. If either the
 receiver's stored sequence or the publisher's local high-water mark is the
 uint64 maximum, publication for that identity is exhausted and requires
 explicit operator recovery; it never wraps and no larger minimum can be
-represented.
+represented. A request rejected because the receiver is already exhausted
+returns HTTP 409 with stable code `publish_sequence_exhausted` and no
+`minimumNextSequence`. An accepted request whose sequence is the uint64
+maximum succeeds normally but advertises no next sequence; every later request
+is exhausted.
 
 Accepted nonces are retained for at least 24 hours, bounded by the authenticated
 48-publishes-per-UTC-day identity limit and pruned after expiry. Sequence
@@ -270,6 +274,14 @@ The success body for all profiles is exactly
 `{"status":"ok","rendezvousToken":"{64-lower-hex}"}`. A replay conflict is
 exactly
 `{"error":{"code":"publish_replay","minimumNextSequence":"{uint64}"}}`.
+An exhausted lineage is exactly
+`{"error":{"code":"publish_sequence_exhausted"}}`. Before the global gate,
+an authenticated v1 request for an identity already upgraded to v2 returns
+HTTP 410 and exactly `{"error":{"code":"profile_retired"}}`; it consumes no
+sequence or nonce and carries no `minimumNextSequence`. After the global gate,
+the v1 route returns that same fixed HTTP 410 response before inspecting the
+request body, signature, identity, sequence, or nonce. All 410 responses also
+use `Cache-Control: no-store`.
 Rate-limit errors use the deployment's bounded error envelope, return HTTP 429,
 and carry matching delta-seconds in both `Retry-After` and
 `error.retry_after_seconds`; publishers treat that response as a consumed
@@ -285,11 +297,22 @@ and directory artifacts.
 Classic v2 is a new, fail-closed profile. A cutover Classic server publishes
 v2 only and never negotiates or falls back to v1. Temporary v1 availability
 serves only identities which have not upgraded. At the explicit coordinated
-global retirement gate, receivers reject every new Classic v1 publication,
-expire or tombstone remaining v1 presence/listings/rooms, converge the v2-only
-directory, and then contract retired state. This gate is not an indefinite
-dual-producer policy, and recovery after production v2 exposure is
-roll-forward.
+global retirement gate, an authorized operator performs one serialized,
+durable transition from receiver mode `classic-v1-accepting` to
+`classic-v1-retired`. The external activation prerequisite is explicit human
+acceptance of the program's v5 production canaries and one-way alias cutover;
+elapsed time, traffic, a deploy, or the arrival of a v2 publication never
+activates it implicitly. The transaction first excludes and drains in-flight
+v1 state commits, then durably marks the retired mode and atomically expires or
+tombstones every remaining v1 authenticated presence, listing, rendezvous
+generation, control, pending authorization, and ticket before publishing the
+converged v2-only directory generation. V2 identities, replay state, and
+availability are unchanged. All replicas, backups, restores, and replacement
+deployments inherit the retired mode. The transition is one-way: rollback may
+restore implementation code but must not reopen v1; recovery after production
+v2 exposure is roll-forward. Retired per-identity replay records may be
+contracted only after the mode and v1 tombstones are durable. The normative
+gate transition and fixed rejection are encoded in the shared fixture.
 
 Game Protocol 1 never uses either Classic form, key, route, schema, signature
 tag, migration marker, or replay lineage. Its `passwordRequired` semantics and

@@ -1,11 +1,74 @@
 {
-  "fixture_version": 1,
-  "profile": "classic-v2",
   "authority": "publish.meta.atrinik.org",
-  "method": "POST",
-  "content_type": "application/json",
-  "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
   "certificate_der_base64": "MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ",
+  "content_type": "application/json",
+  "cross_profile_replay": [
+    {
+      "name": "v1-at-v2",
+      "source_profile": "classic-v1",
+      "target_profile": "classic-v2",
+      "server_id": "51f341b3c529d7186d2981afd2d8519c6c15eaced3f0291acdfb408f5cba746b",
+      "certificate_der_base64": "MIIBRzCB76ADAgECAgEBMAoGCCqGSM49BAMCMCQxIjAgBgNVBAMTGUF0cmluaWsgcHVibGlzaGVyIGZpeHR1cmUwHhcNMjYwMTAxMDAwMDAwWhcNMzYwMTAxMDAwMDAwWjAkMSIwIAYDVQQDExlBdHJpbmlrIHB1Ymxpc2hlciBmaXh0dXJlMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEPQd9J89i9RHBKxJbWY3LVTOACf0pjFZgJTnCMy6BlQ27hfl0xwZf5LkuREpxVbe0xh6ydj5V00OY5Sh5myB4pqMSMBAwDgYDVR0PAQH/BAQDAgeAMAoGCCqGSM49BAMCA0cAMEQCIAbaCO4YENW0H67c1Gj292fvPwTwvwsQ8F5ObWMOv0wyAiArIt0mJkn917HvWQw8HrBVOCyXfGfocde6yjbjwSUcEA==",
+      "body": "{\"schema\":\"atrinik-classic-publish-v1\",\"serverId\":\"51f341b3c529d7186d2981afd2d8519c6c15eaced3f0291acdfb408f5cba746b\",\"certificate\":\"MIIBRzCB76ADAgECAgEBMAoGCCqGSM49BAMCMCQxIjAgBgNVBAMTGUF0cmluaWsgcHVibGlzaGVyIGZpeHR1cmUwHhcNMjYwMTAxMDAwMDAwWhcNMzYwMTAxMDAwMDAwWjAkMSIwIAYDVQQDExlBdHJpbmlrIHB1Ymxpc2hlciBmaXh0dXJlMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEPQd9J89i9RHBKxJbWY3LVTOACf0pjFZgJTnCMy6BlQ27hfl0xwZf5LkuREpxVbe0xh6ydj5V00OY5Sh5myB4pqMSMBAwDgYDVR0PAQH/BAQDAgeAMAoGCCqGSM49BAMCA0cAMEQCIAbaCO4YENW0H67c1Gj292fvPwTwvwsQ8F5ObWMOv0wyAiArIt0mJkn917HvWQw8HrBVOCyXfGfocde6yjbjwSUcEA==\",\"name\":\"Atrinik Classic\",\"playersCount\":3,\"version\":\"5.7.0\",\"textComment\":\"Fixture\",\"public\":true,\"passwordRequired\":true}",
+      "source_signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v1/classic/servers/51f341b3c529d7186d2981afd2d8519c6c15eaced3f0291acdfb408f5cba746b/publish\n\"content-digest\": sha-256=:7r1sfMoSYvvgYGEEOEHGcIKysWU8LtvUcNxXBdd/hyw=:\n\"content-type\": application/json\n\"atrinik-server-id\": 51f341b3c529d7186d2981afd2d8519c6c15eaced3f0291acdfb408f5cba746b\n\"atrinik-publish-sequence\": 18446744073709551610\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000000;expires=1800000300;nonce=\"000102030405060708090a0b0c0d0e0f\";alg=\"ecdsa-p256-sha256\";keyid=\"51f341b3c529d7186d2981afd2d8519c6c15eaced3f0291acdfb408f5cba746b\";tag=\"atrinik-classic-publish-v1\"",
+      "target_signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v2/classic/servers/51f341b3c529d7186d2981afd2d8519c6c15eaced3f0291acdfb408f5cba746b/publish\n\"content-digest\": sha-256=:7r1sfMoSYvvgYGEEOEHGcIKysWU8LtvUcNxXBdd/hyw=:\n\"content-type\": application/json\n\"atrinik-server-id\": 51f341b3c529d7186d2981afd2d8519c6c15eaced3f0291acdfb408f5cba746b\n\"atrinik-publish-sequence\": 18446744073709551610\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000000;expires=1800000300;nonce=\"000102030405060708090a0b0c0d0e0f\";alg=\"ecdsa-p256-sha256\";keyid=\"51f341b3c529d7186d2981afd2d8519c6c15eaced3f0291acdfb408f5cba746b\";tag=\"atrinik-classic-publish-v2\"",
+      "signature_base64": "ec3TLCXjfy0FCqNAL/cdtrWSRj2ktJ2v81L7yuzgpw270zFhROANO0rUQ5y0hU5NSOfVai2chQlbNY9zHEffIw==",
+      "target_body_error": "unsupported_schema",
+      "target_signature_error": "invalid_signature"
+    },
+    {
+      "name": "v2-at-v1",
+      "source_profile": "classic-v2",
+      "target_profile": "classic-v1",
+      "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
+      "certificate_der_base64": "MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "source_signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v2/classic/servers/13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809/publish\n\"content-digest\": sha-256=:mBfPpgnbQXGzCdNpaUZtEgJiceUliM4rByayVG5G9VM=:\n\"content-type\": application/json\n\"atrinik-server-id\": 13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\n\"atrinik-publish-sequence\": 102\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000600;expires=1800000900;nonce=\"303132333435363738393a3b3c3d3e3f\";alg=\"ecdsa-p256-sha256\";keyid=\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\";tag=\"atrinik-classic-publish-v2\"",
+      "target_signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v1/classic/servers/13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809/publish\n\"content-digest\": sha-256=:mBfPpgnbQXGzCdNpaUZtEgJiceUliM4rByayVG5G9VM=:\n\"content-type\": application/json\n\"atrinik-server-id\": 13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\n\"atrinik-publish-sequence\": 102\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000600;expires=1800000900;nonce=\"303132333435363738393a3b3c3d3e3f\";alg=\"ecdsa-p256-sha256\";keyid=\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\";tag=\"atrinik-classic-publish-v1\"",
+      "signature_base64": "1gJXC5zSAoE9ngEtAC/rIwPdt9+YbW2YwlrLwi9Sj6U9XZdsmTpIMR2/2ASzKuD/P1PusayPzzeVnsj0VFKRIw==",
+      "target_body_error": "unsupported_schema",
+      "target_signature_error": "invalid_signature"
+    }
+  ],
+  "fixture_version": 1,
+  "global_v1_retirement": {
+    "activation": {
+      "kind": "authorized-operator-transaction",
+      "prerequisite": "human-accepted-v5-canaries-and-one-way-alias-cutover"
+    },
+    "before": {
+      "in_flight_v1_commits": 0,
+      "mode": "classic-v1-accepting",
+      "pending_authorizations": 3,
+      "tickets": 4,
+      "v1_authenticated_presences": 2,
+      "v1_controls": 2,
+      "v1_listings": 2,
+      "v1_rendezvous_generations": 1,
+      "v2_state_unchanged": true
+    },
+    "expected_after": {
+      "in_flight_v1_commits": 0,
+      "mode": "classic-v1-retired",
+      "pending_authorizations": 0,
+      "rollback_allowed": false,
+      "tickets": 0,
+      "v1_authenticated_presences": 0,
+      "v1_controls": 0,
+      "v1_listings": 0,
+      "v1_rendezvous_generations": 0,
+      "v2_state_unchanged": true
+    },
+    "rejected_publish": {
+      "body": "{\"error\":{\"code\":\"profile_retired\"}}",
+      "cache_control": "no-store",
+      "http_status": 410,
+      "inspection": "none",
+      "minimum_next_sequence": "",
+      "profile": "classic-v1",
+      "sequence_or_nonce_consumed": false
+    }
+  },
   "maximum_bounds": {
     "body_bytes": 4096,
     "certificate_der_bytes": 2048,
@@ -16,6 +79,437 @@
     "hostname_bytes": 253,
     "port": 65535
   },
+  "method": "POST",
+  "migration": {
+    "cases": [
+      {
+        "before": {
+          "high_water_sequence": "100",
+          "mode": "classic-v1",
+          "pending_authorizations": 2,
+          "retained_nonces": [
+            "000102030405060708090a0b0c0d0e0f"
+          ],
+          "tickets": 3,
+          "v1_authenticated_presence": true,
+          "v1_controls_active": true,
+          "v1_listing_present": true,
+          "v1_rendezvous_generation_present": true,
+          "v2_usable": false
+        },
+        "expected": {
+          "accepted": false,
+          "error": "publish_replay",
+          "minimum_next_sequence": "101",
+          "state": {
+            "high_water_sequence": "100",
+            "mode": "classic-v1",
+            "pending_authorizations": 2,
+            "retained_nonces": [
+              "000102030405060708090a0b0c0d0e0f"
+            ],
+            "tickets": 3,
+            "v1_authenticated_presence": true,
+            "v1_controls_active": true,
+            "v1_listing_present": true,
+            "v1_rendezvous_generation_present": true,
+            "v2_usable": false
+          }
+        },
+        "name": "equal-v2-sequence",
+        "request": {
+          "nonce": "202122232425262728292a2b2c2d2e2f",
+          "profile": "classic-v2",
+          "sequence": "100"
+        }
+      },
+      {
+        "before": {
+          "high_water_sequence": "100",
+          "mode": "classic-v1",
+          "pending_authorizations": 2,
+          "retained_nonces": [
+            "000102030405060708090a0b0c0d0e0f"
+          ],
+          "tickets": 3,
+          "v1_authenticated_presence": true,
+          "v1_controls_active": true,
+          "v1_listing_present": true,
+          "v1_rendezvous_generation_present": true,
+          "v2_usable": false
+        },
+        "expected": {
+          "accepted": false,
+          "error": "publish_replay",
+          "minimum_next_sequence": "101",
+          "state": {
+            "high_water_sequence": "100",
+            "mode": "classic-v1",
+            "pending_authorizations": 2,
+            "retained_nonces": [
+              "000102030405060708090a0b0c0d0e0f"
+            ],
+            "tickets": 3,
+            "v1_authenticated_presence": true,
+            "v1_controls_active": true,
+            "v1_listing_present": true,
+            "v1_rendezvous_generation_present": true,
+            "v2_usable": false
+          }
+        },
+        "name": "stale-v2-sequence",
+        "request": {
+          "nonce": "303132333435363738393a3b3c3d3e3f",
+          "profile": "classic-v2",
+          "sequence": "99"
+        }
+      },
+      {
+        "before": {
+          "high_water_sequence": "100",
+          "mode": "classic-v1",
+          "pending_authorizations": 2,
+          "retained_nonces": [
+            "000102030405060708090a0b0c0d0e0f"
+          ],
+          "tickets": 3,
+          "v1_authenticated_presence": true,
+          "v1_controls_active": true,
+          "v1_listing_present": true,
+          "v1_rendezvous_generation_present": true,
+          "v2_usable": false
+        },
+        "expected": {
+          "accepted": false,
+          "error": "publish_replay",
+          "minimum_next_sequence": "101",
+          "state": {
+            "high_water_sequence": "100",
+            "mode": "classic-v1",
+            "pending_authorizations": 2,
+            "retained_nonces": [
+              "000102030405060708090a0b0c0d0e0f"
+            ],
+            "tickets": 3,
+            "v1_authenticated_presence": true,
+            "v1_controls_active": true,
+            "v1_listing_present": true,
+            "v1_rendezvous_generation_present": true,
+            "v2_usable": false
+          }
+        },
+        "name": "retained-v1-nonce-at-v2",
+        "request": {
+          "nonce": "000102030405060708090a0b0c0d0e0f",
+          "profile": "classic-v2",
+          "sequence": "101"
+        }
+      },
+      {
+        "before": {
+          "high_water_sequence": "100",
+          "mode": "classic-v1",
+          "pending_authorizations": 2,
+          "retained_nonces": [
+            "000102030405060708090a0b0c0d0e0f"
+          ],
+          "tickets": 3,
+          "v1_authenticated_presence": true,
+          "v1_controls_active": true,
+          "v1_listing_present": true,
+          "v1_rendezvous_generation_present": true,
+          "v2_usable": false
+        },
+        "expected": {
+          "accepted": true,
+          "minimum_next_sequence": "102",
+          "state": {
+            "high_water_sequence": "101",
+            "mode": "classic-v2-only",
+            "pending_authorizations": 0,
+            "retained_nonces": [
+              "000102030405060708090a0b0c0d0e0f",
+              "101112131415161718191a1b1c1d1e1f"
+            ],
+            "tickets": 0,
+            "v1_authenticated_presence": false,
+            "v1_controls_active": false,
+            "v1_listing_present": false,
+            "v1_rendezvous_generation_present": false,
+            "v2_usable": true
+          }
+        },
+        "name": "higher-v2-upgrade",
+        "request": {
+          "nonce": "101112131415161718191a1b1c1d1e1f",
+          "profile": "classic-v2",
+          "sequence": "101"
+        }
+      },
+      {
+        "before": {
+          "high_water_sequence": "101",
+          "mode": "classic-v2-only",
+          "pending_authorizations": 0,
+          "retained_nonces": [
+            "000102030405060708090a0b0c0d0e0f",
+            "101112131415161718191a1b1c1d1e1f"
+          ],
+          "tickets": 0,
+          "v1_authenticated_presence": false,
+          "v1_controls_active": false,
+          "v1_listing_present": false,
+          "v1_rendezvous_generation_present": false,
+          "v2_usable": true
+        },
+        "expected": {
+          "accepted": false,
+          "error": "profile_retired",
+          "minimum_next_sequence": "",
+          "state": {
+            "high_water_sequence": "101",
+            "mode": "classic-v2-only",
+            "pending_authorizations": 0,
+            "retained_nonces": [
+              "000102030405060708090a0b0c0d0e0f",
+              "101112131415161718191a1b1c1d1e1f"
+            ],
+            "tickets": 0,
+            "v1_authenticated_presence": false,
+            "v1_controls_active": false,
+            "v1_listing_present": false,
+            "v1_rendezvous_generation_present": false,
+            "v2_usable": true
+          }
+        },
+        "name": "post-upgrade-v1",
+        "request": {
+          "nonce": "404142434445464748494a4b4c4d4e4f",
+          "profile": "classic-v1",
+          "sequence": "102"
+        }
+      },
+      {
+        "before": {
+          "high_water_sequence": "101",
+          "mode": "classic-v2-only",
+          "pending_authorizations": 0,
+          "retained_nonces": [
+            "000102030405060708090a0b0c0d0e0f",
+            "101112131415161718191a1b1c1d1e1f"
+          ],
+          "tickets": 0,
+          "v1_authenticated_presence": false,
+          "v1_controls_active": false,
+          "v1_listing_present": false,
+          "v1_rendezvous_generation_present": false,
+          "v2_usable": true
+        },
+        "expected": {
+          "accepted": true,
+          "minimum_next_sequence": "103",
+          "state": {
+            "high_water_sequence": "102",
+            "mode": "classic-v2-only",
+            "pending_authorizations": 0,
+            "retained_nonces": [
+              "000102030405060708090a0b0c0d0e0f",
+              "101112131415161718191a1b1c1d1e1f",
+              "505152535455565758595a5b5c5d5e5f"
+            ],
+            "tickets": 0,
+            "v1_authenticated_presence": false,
+            "v1_controls_active": false,
+            "v1_listing_present": false,
+            "v1_rendezvous_generation_present": false,
+            "v2_usable": true
+          }
+        },
+        "name": "next-v2",
+        "request": {
+          "nonce": "505152535455565758595a5b5c5d5e5f",
+          "profile": "classic-v2",
+          "sequence": "102"
+        }
+      },
+      {
+        "before": {
+          "high_water_sequence": "18446744073709551614",
+          "mode": "classic-v2-only",
+          "pending_authorizations": 0,
+          "retained_nonces": [
+            "000102030405060708090a0b0c0d0e0f"
+          ],
+          "tickets": 0,
+          "v1_authenticated_presence": false,
+          "v1_controls_active": false,
+          "v1_listing_present": false,
+          "v1_rendezvous_generation_present": false,
+          "v2_usable": true
+        },
+        "expected": {
+          "accepted": true,
+          "minimum_next_sequence": "",
+          "state": {
+            "high_water_sequence": "18446744073709551615",
+            "mode": "classic-v2-only",
+            "pending_authorizations": 0,
+            "retained_nonces": [
+              "000102030405060708090a0b0c0d0e0f",
+              "606162636465666768696a6b6c6d6e6f"
+            ],
+            "tickets": 0,
+            "v1_authenticated_presence": false,
+            "v1_controls_active": false,
+            "v1_listing_present": false,
+            "v1_rendezvous_generation_present": false,
+            "v2_usable": true
+          }
+        },
+        "name": "maximum-v2-sequence",
+        "request": {
+          "nonce": "606162636465666768696a6b6c6d6e6f",
+          "profile": "classic-v2",
+          "sequence": "18446744073709551615"
+        }
+      },
+      {
+        "before": {
+          "high_water_sequence": "18446744073709551615",
+          "mode": "classic-v2-only",
+          "pending_authorizations": 0,
+          "retained_nonces": [
+            "000102030405060708090a0b0c0d0e0f",
+            "606162636465666768696a6b6c6d6e6f"
+          ],
+          "tickets": 0,
+          "v1_authenticated_presence": false,
+          "v1_controls_active": false,
+          "v1_listing_present": false,
+          "v1_rendezvous_generation_present": false,
+          "v2_usable": true
+        },
+        "expected": {
+          "accepted": false,
+          "error": "publish_sequence_exhausted",
+          "minimum_next_sequence": "",
+          "state": {
+            "high_water_sequence": "18446744073709551615",
+            "mode": "classic-v2-only",
+            "pending_authorizations": 0,
+            "retained_nonces": [
+              "000102030405060708090a0b0c0d0e0f",
+              "606162636465666768696a6b6c6d6e6f"
+            ],
+            "tickets": 0,
+            "v1_authenticated_presence": false,
+            "v1_controls_active": false,
+            "v1_listing_present": false,
+            "v1_rendezvous_generation_present": false,
+            "v2_usable": true
+          }
+        },
+        "name": "exhausted-lineage",
+        "request": {
+          "nonce": "707172737475767778797a7b7c7d7e7f",
+          "profile": "classic-v2",
+          "sequence": "18446744073709551615"
+        }
+      }
+    ]
+  },
+  "negative": [
+    {
+      "name": "v1-schema",
+      "body": "{\"schema\":\"atrinik-classic-publish-v1\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "error": "unsupported_schema"
+    },
+    {
+      "name": "legacy-password-field",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"passwordRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "error": "noncanonical_json"
+    },
+    {
+      "name": "wrong-key-order",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"playersCount\":4,\"name\":\"Atrinik Classic\",\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "error": "noncanonical_json"
+    },
+    {
+      "name": "whitespace",
+      "body": "{ \"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "error": "noncanonical_json"
+    },
+    {
+      "name": "duplicate-field",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "error": "noncanonical_json"
+    },
+    {
+      "name": "unknown-field",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327,\"extra\":true}",
+      "error": "noncanonical_json"
+    },
+    {
+      "name": "malformed-boolean",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":\"true\",\"hostname\":\"play.example.org\",\"port\":13327}",
+      "error": "invalid_json"
+    },
+    {
+      "name": "missing-policy",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "error": "noncanonical_json"
+    },
+    {
+      "name": "hostname-without-port",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\"}",
+      "error": "invalid_endpoint"
+    },
+    {
+      "name": "port-without-hostname",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"port\":13327}",
+      "error": "invalid_endpoint"
+    },
+    {
+      "name": "uppercase-server-id",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13E46C3B910727029646BA5DB7EE5930080F832AF4D9E29F70CF781250A23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "error": "invalid_identity"
+    },
+    {
+      "name": "noncanonical-certificate",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ=\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "error": "invalid_certificate"
+    },
+    {
+      "name": "players-overflow",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4294967296,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "error": "invalid_players"
+    },
+    {
+      "name": "numeric-hostname",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"192.0.2.1\",\"port\":13327}",
+      "error": "invalid_endpoint"
+    },
+    {
+      "name": "uppercase-hostname",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"Play.example.org\",\"port\":13327}",
+      "error": "invalid_endpoint"
+    },
+    {
+      "name": "control-text",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"bad\\nvalue\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "error": "invalid_text"
+    },
+    {
+      "name": "trailing-input",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}{}",
+      "error": "noncanonical_json"
+    },
+    {
+      "name": "endpoint-alias",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"endpoint\":{\"hostname\":\"play.example.org\",\"port\":13327}}",
+      "error": "noncanonical_json"
+    }
+  ],
   "positive": [
     {
       "name": "public-open-addressless",
@@ -106,391 +600,173 @@
       }
     }
   ],
-  "cross_profile_replay": [
-    {
-      "name": "v1-at-v2",
-      "source_profile": "classic-v1",
-      "target_profile": "classic-v2",
-      "server_id": "51f341b3c529d7186d2981afd2d8519c6c15eaced3f0291acdfb408f5cba746b",
-      "certificate_der_base64": "MIIBRzCB76ADAgECAgEBMAoGCCqGSM49BAMCMCQxIjAgBgNVBAMTGUF0cmluaWsgcHVibGlzaGVyIGZpeHR1cmUwHhcNMjYwMTAxMDAwMDAwWhcNMzYwMTAxMDAwMDAwWjAkMSIwIAYDVQQDExlBdHJpbmlrIHB1Ymxpc2hlciBmaXh0dXJlMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEPQd9J89i9RHBKxJbWY3LVTOACf0pjFZgJTnCMy6BlQ27hfl0xwZf5LkuREpxVbe0xh6ydj5V00OY5Sh5myB4pqMSMBAwDgYDVR0PAQH/BAQDAgeAMAoGCCqGSM49BAMCA0cAMEQCIAbaCO4YENW0H67c1Gj292fvPwTwvwsQ8F5ObWMOv0wyAiArIt0mJkn917HvWQw8HrBVOCyXfGfocde6yjbjwSUcEA==",
-      "body": "{\"schema\":\"atrinik-classic-publish-v1\",\"serverId\":\"51f341b3c529d7186d2981afd2d8519c6c15eaced3f0291acdfb408f5cba746b\",\"certificate\":\"MIIBRzCB76ADAgECAgEBMAoGCCqGSM49BAMCMCQxIjAgBgNVBAMTGUF0cmluaWsgcHVibGlzaGVyIGZpeHR1cmUwHhcNMjYwMTAxMDAwMDAwWhcNMzYwMTAxMDAwMDAwWjAkMSIwIAYDVQQDExlBdHJpbmlrIHB1Ymxpc2hlciBmaXh0dXJlMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEPQd9J89i9RHBKxJbWY3LVTOACf0pjFZgJTnCMy6BlQ27hfl0xwZf5LkuREpxVbe0xh6ydj5V00OY5Sh5myB4pqMSMBAwDgYDVR0PAQH/BAQDAgeAMAoGCCqGSM49BAMCA0cAMEQCIAbaCO4YENW0H67c1Gj292fvPwTwvwsQ8F5ObWMOv0wyAiArIt0mJkn917HvWQw8HrBVOCyXfGfocde6yjbjwSUcEA==\",\"name\":\"Atrinik Classic\",\"playersCount\":3,\"version\":\"5.7.0\",\"textComment\":\"Fixture\",\"public\":true,\"passwordRequired\":true}",
-      "source_signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v1/classic/servers/51f341b3c529d7186d2981afd2d8519c6c15eaced3f0291acdfb408f5cba746b/publish\n\"content-digest\": sha-256=:7r1sfMoSYvvgYGEEOEHGcIKysWU8LtvUcNxXBdd/hyw=:\n\"content-type\": application/json\n\"atrinik-server-id\": 51f341b3c529d7186d2981afd2d8519c6c15eaced3f0291acdfb408f5cba746b\n\"atrinik-publish-sequence\": 18446744073709551610\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000000;expires=1800000300;nonce=\"000102030405060708090a0b0c0d0e0f\";alg=\"ecdsa-p256-sha256\";keyid=\"51f341b3c529d7186d2981afd2d8519c6c15eaced3f0291acdfb408f5cba746b\";tag=\"atrinik-classic-publish-v1\"",
-      "target_signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v2/classic/servers/51f341b3c529d7186d2981afd2d8519c6c15eaced3f0291acdfb408f5cba746b/publish\n\"content-digest\": sha-256=:7r1sfMoSYvvgYGEEOEHGcIKysWU8LtvUcNxXBdd/hyw=:\n\"content-type\": application/json\n\"atrinik-server-id\": 51f341b3c529d7186d2981afd2d8519c6c15eaced3f0291acdfb408f5cba746b\n\"atrinik-publish-sequence\": 18446744073709551610\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000000;expires=1800000300;nonce=\"000102030405060708090a0b0c0d0e0f\";alg=\"ecdsa-p256-sha256\";keyid=\"51f341b3c529d7186d2981afd2d8519c6c15eaced3f0291acdfb408f5cba746b\";tag=\"atrinik-classic-publish-v2\"",
-      "signature_base64": "ec3TLCXjfy0FCqNAL/cdtrWSRj2ktJ2v81L7yuzgpw270zFhROANO0rUQ5y0hU5NSOfVai2chQlbNY9zHEffIw==",
-      "target_body_error": "unsupported_schema",
-      "target_signature_error": "invalid_signature"
-    },
-    {
-      "name": "v2-at-v1",
-      "source_profile": "classic-v2",
-      "target_profile": "classic-v1",
-      "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
-      "certificate_der_base64": "MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ",
-      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
-      "source_signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v2/classic/servers/13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809/publish\n\"content-digest\": sha-256=:mBfPpgnbQXGzCdNpaUZtEgJiceUliM4rByayVG5G9VM=:\n\"content-type\": application/json\n\"atrinik-server-id\": 13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\n\"atrinik-publish-sequence\": 102\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000600;expires=1800000900;nonce=\"303132333435363738393a3b3c3d3e3f\";alg=\"ecdsa-p256-sha256\";keyid=\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\";tag=\"atrinik-classic-publish-v2\"",
-      "target_signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v1/classic/servers/13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809/publish\n\"content-digest\": sha-256=:mBfPpgnbQXGzCdNpaUZtEgJiceUliM4rByayVG5G9VM=:\n\"content-type\": application/json\n\"atrinik-server-id\": 13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\n\"atrinik-publish-sequence\": 102\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000600;expires=1800000900;nonce=\"303132333435363738393a3b3c3d3e3f\";alg=\"ecdsa-p256-sha256\";keyid=\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\";tag=\"atrinik-classic-publish-v1\"",
-      "signature_base64": "1gJXC5zSAoE9ngEtAC/rIwPdt9+YbW2YwlrLwi9Sj6U9XZdsmTpIMR2/2ASzKuD/P1PusayPzzeVnsj0VFKRIw==",
-      "target_body_error": "unsupported_schema",
-      "target_signature_error": "invalid_signature"
-    }
-  ],
+  "profile": "classic-v2",
+  "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
   "signature_negative": [
     {
-      "name": "v2-signature-at-v1",
+      "name": "body-content-digest",
+      "failure_class": "body_content_digest",
       "positive": "public-protected-endpoint",
+      "certificate_der_base64": "MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ",
+      "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic mutated\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v2/classic/servers/13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809/publish\n\"content-digest\": sha-256=:wzSGCMNyq+fY+HvqHsUwSM+VBpBskOYmciOfTpyIGl0=:\n\"content-type\": application/json\n\"atrinik-server-id\": 13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\n\"atrinik-publish-sequence\": 102\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000600;expires=1800000900;nonce=\"303132333435363738393a3b3c3d3e3f\";alg=\"ecdsa-p256-sha256\";keyid=\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\";tag=\"atrinik-classic-publish-v2\"",
+      "signature_base64": "1gJXC5zSAoE9ngEtAC/rIwPdt9+YbW2YwlrLwi9Sj6U9XZdsmTpIMR2/2ASzKuD/P1PusayPzzeVnsj0VFKRIw==",
+      "error": "invalid_signature"
+    },
+    {
+      "name": "authority",
+      "failure_class": "authority",
+      "positive": "public-protected-endpoint",
+      "certificate_der_base64": "MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ",
+      "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "signature_base": "\"@method\": POST\n\"@authority\": canary.publish.meta.atrinik.org\n\"@path\": /v2/classic/servers/13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809/publish\n\"content-digest\": sha-256=:mBfPpgnbQXGzCdNpaUZtEgJiceUliM4rByayVG5G9VM=:\n\"content-type\": application/json\n\"atrinik-server-id\": 13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\n\"atrinik-publish-sequence\": 102\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000600;expires=1800000900;nonce=\"303132333435363738393a3b3c3d3e3f\";alg=\"ecdsa-p256-sha256\";keyid=\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\";tag=\"atrinik-classic-publish-v2\"",
+      "signature_base64": "1gJXC5zSAoE9ngEtAC/rIwPdt9+YbW2YwlrLwi9Sj6U9XZdsmTpIMR2/2ASzKuD/P1PusayPzzeVnsj0VFKRIw==",
+      "error": "invalid_signature"
+    },
+    {
+      "name": "sequence",
+      "failure_class": "sequence",
+      "positive": "public-protected-endpoint",
+      "certificate_der_base64": "MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ",
+      "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v2/classic/servers/13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809/publish\n\"content-digest\": sha-256=:mBfPpgnbQXGzCdNpaUZtEgJiceUliM4rByayVG5G9VM=:\n\"content-type\": application/json\n\"atrinik-server-id\": 13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\n\"atrinik-publish-sequence\": 7\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000600;expires=1800000900;nonce=\"303132333435363738393a3b3c3d3e3f\";alg=\"ecdsa-p256-sha256\";keyid=\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\";tag=\"atrinik-classic-publish-v2\"",
+      "signature_base64": "1gJXC5zSAoE9ngEtAC/rIwPdt9+YbW2YwlrLwi9Sj6U9XZdsmTpIMR2/2ASzKuD/P1PusayPzzeVnsj0VFKRIw==",
+      "error": "invalid_signature"
+    },
+    {
+      "name": "v2-signature-at-v1",
+      "failure_class": "route_tag_domain",
+      "positive": "public-protected-endpoint",
+      "certificate_der_base64": "MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ",
+      "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
       "signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v1/classic/servers/13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809/publish\n\"content-digest\": sha-256=:mBfPpgnbQXGzCdNpaUZtEgJiceUliM4rByayVG5G9VM=:\n\"content-type\": application/json\n\"atrinik-server-id\": 13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\n\"atrinik-publish-sequence\": 102\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000600;expires=1800000900;nonce=\"303132333435363738393a3b3c3d3e3f\";alg=\"ecdsa-p256-sha256\";keyid=\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\";tag=\"atrinik-classic-publish-v1\"",
       "signature_base64": "1gJXC5zSAoE9ngEtAC/rIwPdt9+YbW2YwlrLwi9Sj6U9XZdsmTpIMR2/2ASzKuD/P1PusayPzzeVnsj0VFKRIw==",
       "error": "invalid_signature"
     },
     {
       "name": "v2-signature-at-game",
+      "failure_class": "route_tag_domain",
       "positive": "public-protected-endpoint",
+      "certificate_der_base64": "MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ",
+      "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
       "signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v1/servers/13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809/publish\n\"content-digest\": sha-256=:mBfPpgnbQXGzCdNpaUZtEgJiceUliM4rByayVG5G9VM=:\n\"content-type\": application/json\n\"atrinik-server-id\": 13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\n\"atrinik-publish-sequence\": 102\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000600;expires=1800000900;nonce=\"303132333435363738393a3b3c3d3e3f\";alg=\"ecdsa-p256-sha256\";keyid=\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\";tag=\"atrinik-game-publish-v1\"",
       "signature_base64": "1gJXC5zSAoE9ngEtAC/rIwPdt9+YbW2YwlrLwi9Sj6U9XZdsmTpIMR2/2ASzKuD/P1PusayPzzeVnsj0VFKRIw==",
       "error": "invalid_signature"
     },
     {
       "name": "wrong-v2-route",
+      "failure_class": "route",
       "positive": "public-protected-endpoint",
+      "certificate_der_base64": "MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ",
+      "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
       "signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v2/classic/server/13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809/publish\n\"content-digest\": sha-256=:mBfPpgnbQXGzCdNpaUZtEgJiceUliM4rByayVG5G9VM=:\n\"content-type\": application/json\n\"atrinik-server-id\": 13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\n\"atrinik-publish-sequence\": 102\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000600;expires=1800000900;nonce=\"303132333435363738393a3b3c3d3e3f\";alg=\"ecdsa-p256-sha256\";keyid=\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\";tag=\"atrinik-classic-publish-v2\"",
       "signature_base64": "1gJXC5zSAoE9ngEtAC/rIwPdt9+YbW2YwlrLwi9Sj6U9XZdsmTpIMR2/2ASzKuD/P1PusayPzzeVnsj0VFKRIw==",
       "error": "invalid_signature"
     },
     {
       "name": "wrong-v2-tag",
+      "failure_class": "tag",
       "positive": "public-protected-endpoint",
+      "certificate_der_base64": "MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ",
+      "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
       "signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v2/classic/servers/13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809/publish\n\"content-digest\": sha-256=:mBfPpgnbQXGzCdNpaUZtEgJiceUliM4rByayVG5G9VM=:\n\"content-type\": application/json\n\"atrinik-server-id\": 13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\n\"atrinik-publish-sequence\": 102\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000600;expires=1800000900;nonce=\"303132333435363738393a3b3c3d3e3f\";alg=\"ecdsa-p256-sha256\";keyid=\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\";tag=\"atrinik-classic-publish-v3\"",
       "signature_base64": "1gJXC5zSAoE9ngEtAC/rIwPdt9+YbW2YwlrLwi9Sj6U9XZdsmTpIMR2/2ASzKuD/P1PusayPzzeVnsj0VFKRIw==",
       "error": "invalid_signature"
-    }
-  ],
-  "negative": [
-    {
-      "name": "v1-schema",
-      "body": "{\"schema\":\"atrinik-classic-publish-v1\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
-      "error": "unsupported_schema"
     },
     {
-      "name": "legacy-password-field",
-      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"passwordRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
-      "error": "noncanonical_json"
+      "name": "signed-server-id-disagreement",
+      "failure_class": "signed_server_id",
+      "positive": "public-protected-endpoint",
+      "certificate_der_base64": "MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ",
+      "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v2/classic/servers/13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809/publish\n\"content-digest\": sha-256=:mBfPpgnbQXGzCdNpaUZtEgJiceUliM4rByayVG5G9VM=:\n\"content-type\": application/json\n\"atrinik-server-id\": 03e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\n\"atrinik-publish-sequence\": 102\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000600;expires=1800000900;nonce=\"303132333435363738393a3b3c3d3e3f\";alg=\"ecdsa-p256-sha256\";keyid=\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\";tag=\"atrinik-classic-publish-v2\"",
+      "signature_base64": "1gJXC5zSAoE9ngEtAC/rIwPdt9+YbW2YwlrLwi9Sj6U9XZdsmTpIMR2/2ASzKuD/P1PusayPzzeVnsj0VFKRIw==",
+      "error": "invalid_signature"
     },
     {
-      "name": "wrong-key-order",
-      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"playersCount\":4,\"name\":\"Atrinik Classic\",\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
-      "error": "noncanonical_json"
+      "name": "keyid-disagreement",
+      "failure_class": "keyid",
+      "positive": "public-protected-endpoint",
+      "certificate_der_base64": "MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ",
+      "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v2/classic/servers/13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809/publish\n\"content-digest\": sha-256=:mBfPpgnbQXGzCdNpaUZtEgJiceUliM4rByayVG5G9VM=:\n\"content-type\": application/json\n\"atrinik-server-id\": 13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\n\"atrinik-publish-sequence\": 102\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000600;expires=1800000900;nonce=\"303132333435363738393a3b3c3d3e3f\";alg=\"ecdsa-p256-sha256\";keyid=\"03e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\";tag=\"atrinik-classic-publish-v2\"",
+      "signature_base64": "1gJXC5zSAoE9ngEtAC/rIwPdt9+YbW2YwlrLwi9Sj6U9XZdsmTpIMR2/2ASzKuD/P1PusayPzzeVnsj0VFKRIw==",
+      "error": "invalid_signature"
     },
     {
-      "name": "whitespace",
-      "body": "{ \"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
-      "error": "noncanonical_json"
-    },
-    {
-      "name": "duplicate-field",
-      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
-      "error": "noncanonical_json"
-    },
-    {
-      "name": "unknown-field",
-      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327,\"extra\":true}",
-      "error": "noncanonical_json"
-    },
-    {
-      "name": "malformed-boolean",
-      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":\"true\",\"hostname\":\"play.example.org\",\"port\":13327}",
-      "error": "invalid_json"
-    },
-    {
-      "name": "missing-policy",
-      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
-      "error": "noncanonical_json"
-    },
-    {
-      "name": "hostname-without-port",
-      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\"}",
-      "error": "invalid_endpoint"
-    },
-    {
-      "name": "port-without-hostname",
-      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"port\":13327}",
-      "error": "invalid_endpoint"
-    },
-    {
-      "name": "uppercase-server-id",
-      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13E46C3B910727029646BA5DB7EE5930080F832AF4D9E29F70CF781250A23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "name": "certificate-fingerprint-mismatch",
+      "failure_class": "certificate_fingerprint",
+      "positive": "public-protected-endpoint",
+      "certificate_der_base64": "MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ",
+      "server_id": "03e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v2/classic/servers/13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809/publish\n\"content-digest\": sha-256=:mBfPpgnbQXGzCdNpaUZtEgJiceUliM4rByayVG5G9VM=:\n\"content-type\": application/json\n\"atrinik-server-id\": 13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\n\"atrinik-publish-sequence\": 102\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000600;expires=1800000900;nonce=\"303132333435363738393a3b3c3d3e3f\";alg=\"ecdsa-p256-sha256\";keyid=\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\";tag=\"atrinik-classic-publish-v2\"",
+      "signature_base64": "1gJXC5zSAoE9ngEtAC/rIwPdt9+YbW2YwlrLwi9Sj6U9XZdsmTpIMR2/2ASzKuD/P1PusayPzzeVnsj0VFKRIw==",
       "error": "invalid_identity"
     },
     {
-      "name": "noncanonical-certificate",
-      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ=\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
-      "error": "invalid_certificate"
+      "name": "malformed-certificate",
+      "failure_class": "certificate_der",
+      "positive": "public-protected-endpoint",
+      "certificate_der_base64": "bm90IGEgY2VydGlmaWNhdGU=",
+      "server_id": "47209c9b7af839de69e9a9cd625e9182c1ad63dae79ed88a2dd680fe34218620",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v2/classic/servers/13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809/publish\n\"content-digest\": sha-256=:mBfPpgnbQXGzCdNpaUZtEgJiceUliM4rByayVG5G9VM=:\n\"content-type\": application/json\n\"atrinik-server-id\": 13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\n\"atrinik-publish-sequence\": 102\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000600;expires=1800000900;nonce=\"303132333435363738393a3b3c3d3e3f\";alg=\"ecdsa-p256-sha256\";keyid=\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\";tag=\"atrinik-classic-publish-v2\"",
+      "signature_base64": "1gJXC5zSAoE9ngEtAC/rIwPdt9+YbW2YwlrLwi9Sj6U9XZdsmTpIMR2/2ASzKuD/P1PusayPzzeVnsj0VFKRIw==",
+      "error": "invalid_identity"
     },
     {
-      "name": "players-overflow",
-      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4294967296,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
-      "error": "invalid_players"
+      "name": "non-p256-certificate",
+      "failure_class": "certificate_key_type",
+      "positive": "public-protected-endpoint",
+      "certificate_der_base64": "MIIB0zCCAVigAwIBAgIUYD79hLD6PhdnB+ntqGm9joG8RgYwCgYIKoZIzj0EAwIwIDEeMBwGA1UEAwwVQXRyaW5pay1QMzg0LW5lZ2F0aXZlMB4XDTI2MDgxNDAyNTI0N1oXDTM2MDgxMTAyNTI0N1owIDEeMBwGA1UEAwwVQXRyaW5pay1QMzg0LW5lZ2F0aXZlMHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEpkpDP1nwTmqDj1KvqCrULFkMSmv6Tar3SZRws9qrIY1fsGNHTSg36PYZL8RGYvJztpsnyBy+5t9Eff3cVEbWnwhzs78s0+REt4kuKlhYF/YYBK5P/bknu4SWZODHhTslo1MwUTAdBgNVHQ4EFgQUOVhnWI5Z9Ur56JzdIdTr4feKmXMwHwYDVR0jBBgwFoAUOVhnWI5Z9Ur56JzdIdTr4feKmXMwDwYDVR0TAQH/BAUwAwEB/zAKBggqhkjOPQQDAgNpADBmAjEAipJlthtoBzM6gVuIcrGoV72h5MdmefJIi4WMutcSyMHSBS6Xmx1YE3UpeUnEJ9K9AjEAulPPnUMBZ+EmCfTzVGBXqiT66fmoO56+UO5FOVvwar2WwBJuPXAL5BIMFACiXGv3",
+      "server_id": "42f63fc7bf6955c441bb8d9f00fec3f38cd3f0afd179d59754fd2618766edfee",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v2/classic/servers/13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809/publish\n\"content-digest\": sha-256=:mBfPpgnbQXGzCdNpaUZtEgJiceUliM4rByayVG5G9VM=:\n\"content-type\": application/json\n\"atrinik-server-id\": 13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\n\"atrinik-publish-sequence\": 102\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000600;expires=1800000900;nonce=\"303132333435363738393a3b3c3d3e3f\";alg=\"ecdsa-p256-sha256\";keyid=\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\";tag=\"atrinik-classic-publish-v2\"",
+      "signature_base64": "1gJXC5zSAoE9ngEtAC/rIwPdt9+YbW2YwlrLwi9Sj6U9XZdsmTpIMR2/2ASzKuD/P1PusayPzzeVnsj0VFKRIw==",
+      "error": "invalid_identity"
     },
     {
-      "name": "numeric-hostname",
-      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"192.0.2.1\",\"port\":13327}",
-      "error": "invalid_endpoint"
+      "name": "malformed-p1363-length",
+      "failure_class": "signature_length",
+      "positive": "public-protected-endpoint",
+      "certificate_der_base64": "MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ",
+      "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v2/classic/servers/13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809/publish\n\"content-digest\": sha-256=:mBfPpgnbQXGzCdNpaUZtEgJiceUliM4rByayVG5G9VM=:\n\"content-type\": application/json\n\"atrinik-server-id\": 13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\n\"atrinik-publish-sequence\": 102\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000600;expires=1800000900;nonce=\"303132333435363738393a3b3c3d3e3f\";alg=\"ecdsa-p256-sha256\";keyid=\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\";tag=\"atrinik-classic-publish-v2\"",
+      "signature_base64": "1gJXC5zSAoE9ngEtAC/rIwPdt9+YbW2YwlrLwi9Sj6U9XZdsmTpIMR2/2ASzKuD/P1PusayPzzeVnsj0VFKR",
+      "error": "invalid_identity"
     },
     {
-      "name": "uppercase-hostname",
-      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"Play.example.org\",\"port\":13327}",
-      "error": "invalid_endpoint"
+      "name": "zero-p1363-coordinate",
+      "failure_class": "signature_coordinate",
+      "positive": "public-protected-endpoint",
+      "certificate_der_base64": "MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ",
+      "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v2/classic/servers/13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809/publish\n\"content-digest\": sha-256=:mBfPpgnbQXGzCdNpaUZtEgJiceUliM4rByayVG5G9VM=:\n\"content-type\": application/json\n\"atrinik-server-id\": 13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\n\"atrinik-publish-sequence\": 102\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000600;expires=1800000900;nonce=\"303132333435363738393a3b3c3d3e3f\";alg=\"ecdsa-p256-sha256\";keyid=\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\";tag=\"atrinik-classic-publish-v2\"",
+      "signature_base64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "error": "invalid_signature"
     },
     {
-      "name": "control-text",
-      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"bad\\nvalue\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
-      "error": "invalid_text"
-    },
-    {
-      "name": "trailing-input",
-      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}{}",
-      "error": "noncanonical_json"
+      "name": "out-of-range-p1363-coordinate",
+      "failure_class": "signature_coordinate",
+      "positive": "public-protected-endpoint",
+      "certificate_der_base64": "MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ",
+      "server_id": "13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809",
+      "body": "{\"schema\":\"atrinik-classic-publish-v2\",\"serverId\":\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\",\"certificate\":\"MIIBWDCB/6ADAgECAgEhMAoGCCqGSM49BAMCMCUxIzAhBgNVBAMTGkF0cmluaWsgQ2xhc3NpYyB2MiBmaXh0dXJlMB4XDTI2MDEwMTAwMDAwMFoXDTM2MDEwMTAwMDAwMFowJTEjMCEGA1UEAxMaQXRyaW5payBDbGFzc2ljIHYyIGZpeHR1cmUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATo4QRR45SdaF7zpESDJmLYTpGJbLuZIR6lYm+D0tiFS4Okj0gskkrVPr5FeHGblhLvUTv1C+GLO08g10p0EmPRoyAwHjAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAKBggqhkjOPQQDAgNIADBFAiEAhVxthqGABVxAG0Kqlh0AGWQk74HoNqfr4493srgNBsQCICx9jMsucb8mRVNO1O4E2i2nN6IdtCb6cMNDa/4Y8neZ\",\"name\":\"Atrinik Classic\",\"playersCount\":4,\"version\":\"6.0.0\",\"textComment\":\"Access-code fixture Ω\",\"public\":true,\"accessCodeRequired\":true,\"hostname\":\"play.example.org\",\"port\":13327}",
+      "signature_base": "\"@method\": POST\n\"@authority\": publish.meta.atrinik.org\n\"@path\": /v2/classic/servers/13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809/publish\n\"content-digest\": sha-256=:mBfPpgnbQXGzCdNpaUZtEgJiceUliM4rByayVG5G9VM=:\n\"content-type\": application/json\n\"atrinik-server-id\": 13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\n\"atrinik-publish-sequence\": 102\n\"@signature-params\": (\"@method\" \"@authority\" \"@path\" \"content-digest\" \"content-type\" \"atrinik-server-id\" \"atrinik-publish-sequence\");created=1800000600;expires=1800000900;nonce=\"303132333435363738393a3b3c3d3e3f\";alg=\"ecdsa-p256-sha256\";keyid=\"13e46c3b910727029646ba5db7ee5930080f832af4d9e29f70cf781250a23809\";tag=\"atrinik-classic-publish-v2\"",
+      "signature_base64": "/////////////////////////////////////////////////////////////////////////////////////w==",
+      "error": "invalid_signature"
     }
-  ],
-  "migration": {
-    "cases": [
-      {
-        "name": "equal-v2-sequence",
-        "before": {
-          "mode": "classic-v1",
-          "high_water_sequence": "100",
-          "retained_nonces": [
-            "000102030405060708090a0b0c0d0e0f"
-          ],
-          "v1_listing_present": true,
-          "v1_rendezvous_generation_present": true,
-          "v1_controls_active": true,
-          "pending_authorizations": 2,
-          "tickets": 3,
-          "v2_usable": false
-        },
-        "request": {
-          "profile": "classic-v2",
-          "sequence": "100",
-          "nonce": "202122232425262728292a2b2c2d2e2f"
-        },
-        "expected": {
-          "accepted": false,
-          "error": "publish_replay",
-          "minimum_next_sequence": "101",
-          "state": {
-            "mode": "classic-v1",
-            "high_water_sequence": "100",
-            "retained_nonces": [
-              "000102030405060708090a0b0c0d0e0f"
-            ],
-            "v1_listing_present": true,
-            "v1_rendezvous_generation_present": true,
-            "v1_controls_active": true,
-            "pending_authorizations": 2,
-            "tickets": 3,
-            "v2_usable": false
-          }
-        }
-      },
-      {
-        "name": "stale-v2-sequence",
-        "before": {
-          "mode": "classic-v1",
-          "high_water_sequence": "100",
-          "retained_nonces": [
-            "000102030405060708090a0b0c0d0e0f"
-          ],
-          "v1_listing_present": true,
-          "v1_rendezvous_generation_present": true,
-          "v1_controls_active": true,
-          "pending_authorizations": 2,
-          "tickets": 3,
-          "v2_usable": false
-        },
-        "request": {
-          "profile": "classic-v2",
-          "sequence": "99",
-          "nonce": "303132333435363738393a3b3c3d3e3f"
-        },
-        "expected": {
-          "accepted": false,
-          "error": "publish_replay",
-          "minimum_next_sequence": "101",
-          "state": {
-            "mode": "classic-v1",
-            "high_water_sequence": "100",
-            "retained_nonces": [
-              "000102030405060708090a0b0c0d0e0f"
-            ],
-            "v1_listing_present": true,
-            "v1_rendezvous_generation_present": true,
-            "v1_controls_active": true,
-            "pending_authorizations": 2,
-            "tickets": 3,
-            "v2_usable": false
-          }
-        }
-      },
-      {
-        "name": "retained-v1-nonce-at-v2",
-        "before": {
-          "mode": "classic-v1",
-          "high_water_sequence": "100",
-          "retained_nonces": [
-            "000102030405060708090a0b0c0d0e0f"
-          ],
-          "v1_listing_present": true,
-          "v1_rendezvous_generation_present": true,
-          "v1_controls_active": true,
-          "pending_authorizations": 2,
-          "tickets": 3,
-          "v2_usable": false
-        },
-        "request": {
-          "profile": "classic-v2",
-          "sequence": "101",
-          "nonce": "000102030405060708090a0b0c0d0e0f"
-        },
-        "expected": {
-          "accepted": false,
-          "error": "publish_replay",
-          "minimum_next_sequence": "101",
-          "state": {
-            "mode": "classic-v1",
-            "high_water_sequence": "100",
-            "retained_nonces": [
-              "000102030405060708090a0b0c0d0e0f"
-            ],
-            "v1_listing_present": true,
-            "v1_rendezvous_generation_present": true,
-            "v1_controls_active": true,
-            "pending_authorizations": 2,
-            "tickets": 3,
-            "v2_usable": false
-          }
-        }
-      },
-      {
-        "name": "higher-v2-upgrade",
-        "before": {
-          "mode": "classic-v1",
-          "high_water_sequence": "100",
-          "retained_nonces": [
-            "000102030405060708090a0b0c0d0e0f"
-          ],
-          "v1_listing_present": true,
-          "v1_rendezvous_generation_present": true,
-          "v1_controls_active": true,
-          "pending_authorizations": 2,
-          "tickets": 3,
-          "v2_usable": false
-        },
-        "request": {
-          "profile": "classic-v2",
-          "sequence": "101",
-          "nonce": "101112131415161718191a1b1c1d1e1f"
-        },
-        "expected": {
-          "accepted": true,
-          "minimum_next_sequence": "102",
-          "state": {
-            "mode": "classic-v2-only",
-            "high_water_sequence": "101",
-            "retained_nonces": [
-              "000102030405060708090a0b0c0d0e0f",
-              "101112131415161718191a1b1c1d1e1f"
-            ],
-            "v1_listing_present": false,
-            "v1_rendezvous_generation_present": false,
-            "v1_controls_active": false,
-            "pending_authorizations": 0,
-            "tickets": 0,
-            "v2_usable": true
-          }
-        }
-      },
-      {
-        "name": "post-upgrade-v1",
-        "before": {
-          "mode": "classic-v2-only",
-          "high_water_sequence": "101",
-          "retained_nonces": [
-            "000102030405060708090a0b0c0d0e0f",
-            "101112131415161718191a1b1c1d1e1f"
-          ],
-          "v1_listing_present": false,
-          "v1_rendezvous_generation_present": false,
-          "v1_controls_active": false,
-          "pending_authorizations": 0,
-          "tickets": 0,
-          "v2_usable": true
-        },
-        "request": {
-          "profile": "classic-v1",
-          "sequence": "102",
-          "nonce": "404142434445464748494a4b4c4d4e4f"
-        },
-        "expected": {
-          "accepted": false,
-          "error": "profile_retired",
-          "minimum_next_sequence": "102",
-          "state": {
-            "mode": "classic-v2-only",
-            "high_water_sequence": "101",
-            "retained_nonces": [
-              "000102030405060708090a0b0c0d0e0f",
-              "101112131415161718191a1b1c1d1e1f"
-            ],
-            "v1_listing_present": false,
-            "v1_rendezvous_generation_present": false,
-            "v1_controls_active": false,
-            "pending_authorizations": 0,
-            "tickets": 0,
-            "v2_usable": true
-          }
-        }
-      },
-      {
-        "name": "next-v2",
-        "before": {
-          "mode": "classic-v2-only",
-          "high_water_sequence": "101",
-          "retained_nonces": [
-            "000102030405060708090a0b0c0d0e0f",
-            "101112131415161718191a1b1c1d1e1f"
-          ],
-          "v1_listing_present": false,
-          "v1_rendezvous_generation_present": false,
-          "v1_controls_active": false,
-          "pending_authorizations": 0,
-          "tickets": 0,
-          "v2_usable": true
-        },
-        "request": {
-          "profile": "classic-v2",
-          "sequence": "102",
-          "nonce": "505152535455565758595a5b5c5d5e5f"
-        },
-        "expected": {
-          "accepted": true,
-          "minimum_next_sequence": "103",
-          "state": {
-            "mode": "classic-v2-only",
-            "high_water_sequence": "102",
-            "retained_nonces": [
-              "000102030405060708090a0b0c0d0e0f",
-              "101112131415161718191a1b1c1d1e1f",
-              "505152535455565758595a5b5c5d5e5f"
-            ],
-            "v1_listing_present": false,
-            "v1_rendezvous_generation_present": false,
-            "v1_controls_active": false,
-            "pending_authorizations": 0,
-            "tickets": 0,
-            "v2_usable": true
-          }
-        }
-      }
-    ]
-  }
+  ]
 }
