@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 	"testing"
@@ -18,18 +19,28 @@ import (
 )
 
 type classicV2PositiveFixture struct {
-	Name            string `json:"name"`
-	Sequence        string `json:"sequence"`
-	Nonce           string `json:"nonce"`
-	Created         int64  `json:"created"`
-	Expires         int64  `json:"expires"`
-	Body            string `json:"body"`
-	ContentDigest   string `json:"content_digest"`
-	Path            string `json:"path"`
-	SignatureInput  string `json:"signature_input"`
-	SignatureBase   string `json:"signature_base"`
-	SignatureBase64 string `json:"signature_base64"`
-	SignatureHeader string `json:"signature_header"`
+	Name            string                    `json:"name"`
+	Sequence        string                    `json:"sequence"`
+	Nonce           string                    `json:"nonce"`
+	Created         int64                     `json:"created"`
+	Expires         int64                     `json:"expires"`
+	Body            string                    `json:"body"`
+	ContentDigest   string                    `json:"content_digest"`
+	Path            string                    `json:"path"`
+	SignatureInput  string                    `json:"signature_input"`
+	SignatureBase   string                    `json:"signature_base"`
+	SignatureBase64 string                    `json:"signature_base64"`
+	SignatureHeader string                    `json:"signature_header"`
+	ExpectedState   classicV2PublicationState `json:"expected_state"`
+}
+
+type classicV2PublicationState struct {
+	AuthenticatedPresence        bool   `json:"authenticated_presence"`
+	PublicListing                bool   `json:"public_listing"`
+	PublicFieldsRetained         bool   `json:"public_fields_retained"`
+	Rendezvous                   string `json:"rendezvous"`
+	PublicAuthorizationActive    bool   `json:"public_authorization_active"`
+	PrivateServerControlRetained bool   `json:"private_server_control_retained"`
 }
 
 type classicV2NegativeFixture struct {
@@ -46,16 +57,50 @@ type classicV2SignatureNegativeFixture struct {
 	Error           string `json:"error"`
 }
 
+type classicV2CrossProfileReplayFixture struct {
+	Name                 string `json:"name"`
+	SourceProfile        string `json:"source_profile"`
+	TargetProfile        string `json:"target_profile"`
+	ServerID             string `json:"server_id"`
+	CertificateDERBase64 string `json:"certificate_der_base64"`
+	Body                 string `json:"body"`
+	SourceSignatureBase  string `json:"source_signature_base"`
+	TargetSignatureBase  string `json:"target_signature_base"`
+	SignatureBase64      string `json:"signature_base64"`
+	TargetBodyError      string `json:"target_body_error"`
+	TargetSignatureError string `json:"target_signature_error"`
+}
+
+type classicV2MigrationState struct {
+	Mode                          string   `json:"mode"`
+	HighWaterSequence             string   `json:"high_water_sequence"`
+	RetainedNonces                []string `json:"retained_nonces"`
+	V1ListingPresent              bool     `json:"v1_listing_present"`
+	V1RendezvousGenerationPresent bool     `json:"v1_rendezvous_generation_present"`
+	V1ControlsActive              bool     `json:"v1_controls_active"`
+	PendingAuthorizations         int      `json:"pending_authorizations"`
+	Tickets                       int      `json:"tickets"`
+	V2Usable                      bool     `json:"v2_usable"`
+}
+
+type classicV2MigrationRequest struct {
+	Profile  string `json:"profile"`
+	Sequence string `json:"sequence"`
+	Nonce    string `json:"nonce"`
+}
+
+type classicV2MigrationExpected struct {
+	Accepted            bool                    `json:"accepted"`
+	Error               string                  `json:"error"`
+	MinimumNextSequence string                  `json:"minimum_next_sequence"`
+	State               classicV2MigrationState `json:"state"`
+}
+
 type classicV2MigrationCase struct {
-	Name                string `json:"name"`
-	StartingMode        string `json:"starting_mode"`
-	StartingHighWater   string `json:"starting_high_water_sequence"`
-	Profile             string `json:"profile"`
-	Sequence            string `json:"sequence"`
-	Nonce               string `json:"nonce"`
-	Accepted            bool   `json:"accepted"`
-	UpgradesIdentity    bool   `json:"upgrades_identity"`
-	MinimumNextSequence string `json:"minimum_next_sequence"`
+	Name     string                     `json:"name"`
+	Before   classicV2MigrationState    `json:"before"`
+	Request  classicV2MigrationRequest  `json:"request"`
+	Expected classicV2MigrationExpected `json:"expected"`
 }
 
 type classicV2Fixture struct {
@@ -76,15 +121,12 @@ type classicV2Fixture struct {
 		HostnameBytes        int    `json:"hostname_bytes"`
 		Port                 uint32 `json:"port"`
 	} `json:"maximum_bounds"`
-	Positive          []classicV2PositiveFixture          `json:"positive"`
-	SignatureNegative []classicV2SignatureNegativeFixture `json:"signature_negative"`
-	Negative          []classicV2NegativeFixture          `json:"negative"`
-	Migration         struct {
-		InitialProfile  string                   `json:"initial_profile"`
-		HighWater       string                   `json:"high_water_sequence"`
-		RetainedNonces  []string                 `json:"retained_nonces"`
-		Cases           []classicV2MigrationCase `json:"cases"`
-		PostUpgradeMode string                   `json:"post_upgrade_mode"`
+	Positive           []classicV2PositiveFixture           `json:"positive"`
+	SignatureNegative  []classicV2SignatureNegativeFixture  `json:"signature_negative"`
+	Negative           []classicV2NegativeFixture           `json:"negative"`
+	CrossProfileReplay []classicV2CrossProfileReplayFixture `json:"cross_profile_replay"`
+	Migration          struct {
+		Cases []classicV2MigrationCase `json:"cases"`
 	} `json:"migration"`
 }
 
@@ -172,6 +214,24 @@ func TestClassicV2PublisherGoldenFixtures(t *testing.T) {
 			); err != nil {
 				t.Fatalf("fixture signature did not verify: %v", err)
 			}
+			wantRendezvous := "not-found"
+			if request.Public {
+				wantRendezvous = "unauthenticated"
+				if request.AccessCodeRequired {
+					wantRendezvous = "proof-required"
+				}
+			}
+			wantState := classicV2PublicationState{
+				AuthenticatedPresence:        true,
+				PublicListing:                request.Public,
+				PublicFieldsRetained:         request.Public,
+				Rendezvous:                   wantRendezvous,
+				PublicAuthorizationActive:    request.Public && request.AccessCodeRequired,
+				PrivateServerControlRetained: !request.Public,
+			}
+			if test.ExpectedState != wantState {
+				t.Fatalf("publication state %#v, want %#v", test.ExpectedState, wantState)
+			}
 
 			for _, profile := range []metaserver.Profile{
 				metaserver.ClassicV1Profile,
@@ -210,6 +270,70 @@ func TestClassicV2PublisherGoldenFixtures(t *testing.T) {
 	}
 }
 
+func TestClassicV2CrossProfileReplayFixtures(t *testing.T) {
+	fixture := loadClassicV2Fixture(t)
+	if len(fixture.CrossProfileReplay) != 2 {
+		t.Fatalf("cross-profile replay count %d, want 2", len(fixture.CrossProfileReplay))
+	}
+	v1 := loadPublisherFixture(t)
+	seen := make(map[string]bool)
+	for _, test := range fixture.CrossProfileReplay {
+		t.Run(test.Name, func(t *testing.T) {
+			if test.Name != strings.TrimPrefix(test.SourceProfile, "classic-")+"-at-"+strings.TrimPrefix(test.TargetProfile, "classic-") ||
+				test.TargetBodyError != "unsupported_schema" ||
+				test.TargetSignatureError != "invalid_signature" {
+				t.Fatal("cross-profile replay metadata is incomplete")
+			}
+			certificate := decodeBase64(t, test.CertificateDERBase64)
+			signature := decodeBase64(t, test.SignatureBase64)
+			if err := metaserver.VerifyCertificateSignature(certificate, test.ServerID, test.SourceSignatureBase, signature); err != nil {
+				t.Fatalf("source signature did not verify: %v", err)
+			}
+			if err := metaserver.VerifyCertificateSignature(certificate, test.ServerID, test.TargetSignatureBase, signature); !errors.Is(err, metaserver.ErrInvalidSignature) {
+				t.Fatalf("cross-profile signature verified: %v", err)
+			}
+
+			var envelope struct {
+				Schema string `json:"schema"`
+			}
+			if err := json.Unmarshal([]byte(test.Body), &envelope); err != nil {
+				t.Fatal(err)
+			}
+			switch test.SourceProfile {
+			case "classic-v1":
+				if test.TargetProfile != "classic-v2" || test.Body != v1.Body || test.ServerID != v1.ServerID ||
+					test.CertificateDERBase64 != v1.CertificateDERBase64 || test.SourceSignatureBase != v1.SignatureBase ||
+					test.SignatureBase64 != v1.SignatureBase64 || envelope.Schema != "atrinik-classic-publish-v1" {
+					t.Fatal("v1-at-v2 vector is not anchored to the frozen v1 golden")
+				}
+				if _, err := metaserver.ParseClassicV2PublishJSON([]byte(test.Body)); classicPublishErrorCode(t, err) != metaserver.ClassicPublishUnsupportedSchema {
+					t.Fatalf("v1 body was not rejected by the v2 codec: %v", err)
+				}
+			case "classic-v2":
+				if test.TargetProfile != "classic-v1" || envelope.Schema != "atrinik-classic-publish-v2" {
+					t.Fatal("v2-at-v1 vector does not target the frozen v1 domain")
+				}
+				if _, err := metaserver.ParseClassicV2PublishJSON([]byte(test.Body)); err != nil {
+					t.Fatalf("v2 replay source is not a valid v2 body: %v", err)
+				}
+				anchored := false
+				for _, positive := range fixture.Positive {
+					anchored = anchored || (test.Body == positive.Body && test.SourceSignatureBase == positive.SignatureBase && test.SignatureBase64 == positive.SignatureBase64)
+				}
+				if !anchored {
+					t.Fatal("v2-at-v1 vector is not anchored to a v2 golden")
+				}
+			default:
+				t.Fatalf("unknown source profile %q", test.SourceProfile)
+			}
+			seen[test.SourceProfile+"/"+test.TargetProfile] = true
+		})
+	}
+	if !seen["classic-v1/classic-v2"] || !seen["classic-v2/classic-v1"] {
+		t.Fatal("cross-profile replay fixture is not bidirectional")
+	}
+}
+
 func TestClassicV2PublisherNegativeFixtures(t *testing.T) {
 	fixture := loadClassicV2Fixture(t)
 	if len(fixture.Negative) < 12 {
@@ -231,48 +355,79 @@ func TestClassicV2PublisherNegativeFixtures(t *testing.T) {
 
 func TestClassicV2MigrationFixture(t *testing.T) {
 	fixture := loadClassicV2Fixture(t)
-	if fixture.Migration.InitialProfile != "classic-v1" ||
-		fixture.Migration.HighWater != "100" ||
-		len(fixture.Migration.RetainedNonces) == 0 ||
-		fixture.Migration.PostUpgradeMode != "classic-v2-only" {
-		t.Fatal("migration fixture lacks the frozen v1 starting state or irreversible v2 result")
-	}
-	want := map[string]struct {
-		starting  string
-		highWater string
-		accepted  bool
-		upgrades  bool
-		minimum   string
-	}{
-		"higher-v2-upgrade":       {"classic-v1", "100", true, true, "102"},
-		"equal-v2-sequence":       {"classic-v1", "100", false, false, "101"},
-		"stale-v2-sequence":       {"classic-v1", "100", false, false, "101"},
-		"retained-v1-nonce-at-v2": {"classic-v1", "100", false, false, "101"},
-		"post-upgrade-v1":         {"classic-v2-only", "101", false, false, "102"},
-		"next-v2":                 {"classic-v2-only", "101", true, false, "103"},
-	}
-	if len(fixture.Migration.Cases) != len(want) {
-		t.Fatalf("migration case count %d, want %d", len(fixture.Migration.Cases), len(want))
+	if len(fixture.Migration.Cases) != 6 {
+		t.Fatalf("migration case count %d, want 6", len(fixture.Migration.Cases))
 	}
 	for _, test := range fixture.Migration.Cases {
-		expected, ok := want[test.Name]
-		if !ok || test.StartingMode != expected.starting ||
-			test.StartingHighWater != expected.highWater ||
-			test.Accepted != expected.accepted ||
-			test.UpgradesIdentity != expected.upgrades ||
-			test.MinimumNextSequence != expected.minimum {
-			t.Fatalf("migration case %q differs from the declared lineage", test.Name)
-		}
-		if _, err := strconv.ParseUint(test.StartingHighWater, 10, 64); err != nil {
-			t.Fatalf("migration case %q has invalid starting high water: %v", test.Name, err)
-		}
-		if _, err := strconv.ParseUint(test.Sequence, 10, 64); err != nil {
-			t.Fatalf("migration case %q has invalid sequence: %v", test.Name, err)
-		}
-		if nonce, err := hex.DecodeString(test.Nonce); err != nil || len(nonce) != 16 {
-			t.Fatalf("migration case %q has invalid nonce", test.Name)
+		t.Run(test.Name, func(t *testing.T) {
+			actual := applyClassicV2MigrationFixture(t, test.Before, test.Request)
+			if !reflect.DeepEqual(actual, test.Expected) {
+				t.Fatalf("transition result\n got: %#v\nwant: %#v", actual, test.Expected)
+			}
+			if !actual.Accepted && !reflect.DeepEqual(actual.State, test.Before) {
+				t.Fatal("rejected migration mutated replay or publication state")
+			}
+		})
+	}
+}
+
+func applyClassicV2MigrationFixture(t *testing.T, before classicV2MigrationState, request classicV2MigrationRequest) classicV2MigrationExpected {
+	t.Helper()
+	highWater, err := strconv.ParseUint(before.HighWaterSequence, 10, 64)
+	if err != nil {
+		t.Fatalf("invalid high-water sequence: %v", err)
+	}
+	sequence, err := strconv.ParseUint(request.Sequence, 10, 64)
+	if err != nil {
+		t.Fatalf("invalid request sequence: %v", err)
+	}
+	if request.Profile != "classic-v1" && request.Profile != "classic-v2" {
+		t.Fatalf("unknown request profile %q", request.Profile)
+	}
+	if before.Mode != "classic-v1" && before.Mode != "classic-v2-only" {
+		t.Fatalf("unknown migration mode %q", before.Mode)
+	}
+	for _, nonce := range append(append([]string(nil), before.RetainedNonces...), request.Nonce) {
+		decoded, err := hex.DecodeString(nonce)
+		if err != nil || len(decoded) != 16 {
+			t.Fatalf("invalid retained or request nonce %q", nonce)
 		}
 	}
+
+	result := classicV2MigrationExpected{
+		MinimumNextSequence: strconv.FormatUint(highWater+1, 10),
+		State:               before,
+	}
+	result.State.RetainedNonces = append([]string(nil), before.RetainedNonces...)
+	if before.Mode == "classic-v2-only" && request.Profile == "classic-v1" {
+		result.Error = "profile_retired"
+		return result
+	}
+	for _, nonce := range before.RetainedNonces {
+		if nonce == request.Nonce {
+			result.Error = "publish_replay"
+			return result
+		}
+	}
+	if sequence <= highWater {
+		result.Error = "publish_replay"
+		return result
+	}
+
+	result.Accepted = true
+	result.MinimumNextSequence = strconv.FormatUint(sequence+1, 10)
+	result.State.HighWaterSequence = request.Sequence
+	result.State.RetainedNonces = append(result.State.RetainedNonces, request.Nonce)
+	if request.Profile == "classic-v2" {
+		result.State.Mode = "classic-v2-only"
+		result.State.V1ListingPresent = false
+		result.State.V1RendezvousGenerationPresent = false
+		result.State.V1ControlsActive = false
+		result.State.PendingAuthorizations = 0
+		result.State.Tickets = 0
+		result.State.V2Usable = true
+	}
+	return result
 }
 
 func TestClassicV2PublisherValidationClasses(t *testing.T) {

@@ -46,6 +46,10 @@ type publisherFixture struct {
 }
 
 func TestPublisherGoldenFixture(t *testing.T) {
+	if metaserver.ClassicProfile != metaserver.ClassicV1Profile ||
+		metaserver.ClassicSignatureTag != metaserver.ClassicV1SignatureTag {
+		t.Fatal("deprecated Classic v1 API aliases changed value")
+	}
 	fixture := loadPublisherFixture(t)
 	parameters := fixtureParameters(t, fixture, metaserver.ClassicV1Profile)
 	components, err := metaserver.Build(parameters, []byte(fixture.Body))

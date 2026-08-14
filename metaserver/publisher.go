@@ -58,6 +58,12 @@ const (
 	ClassicV1Profile Profile = 1
 	GameProfile      Profile = 2
 	ClassicV2Profile Profile = 3
+
+	// ClassicProfile is the deprecated name of the frozen Classic v1 profile.
+	// New code must select ClassicV1Profile or ClassicV2Profile explicitly.
+	ClassicProfile = ClassicV1Profile
+	// ClassicSignatureTag is the deprecated name of the frozen Classic v1 tag.
+	ClassicSignatureTag = ClassicV1SignatureTag
 )
 
 // Parameters are the bounded per-request values carried by Signature-Input

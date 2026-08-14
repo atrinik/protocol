@@ -105,6 +105,19 @@ proof, candidate, password, or authentication result is publisher data.
 There is no password-only, invite-only, join-only, partially protected, or
 hybrid v2 body.
 
+For both Classic versions, `public: true` makes the complete authenticated
+model eligible for its version's public directory and rendezvous behavior.
+`public: false` still advances the identity's replay and authenticated
+presence state, but the receiver atomically removes any public directory
+entry, public endpoint/display projection, public rendezvous room generation,
+pending client authorization, candidate, and ticket state for that identity.
+The public rendezvous route then returns the same fixed not-found result as an
+absent identity. Authenticated owner, replay, presence, and server-control
+state may remain private, but no display, endpoint, or access-policy field is
+retained as public directory state. A later public body must republish the
+complete model. Private publication never makes possession of an access code a
+discovery grant.
+
 The normative schema is
 `schema/metaserver-classic-publisher-v2.schema.json`. The byte-identical open,
 protected, public, private, endpoint-present, and endpoint-absent bodies,
@@ -208,8 +221,10 @@ atomically beside the persistent server identity and included in backup/restore
 policy.
 
 Only after certificate and signature verification may a receiver charge an
-identity quota or inspect the body as authoritative input. For each server
-identity and its selected profile, one serialized atomic publication
+identity quota or inspect the body as authoritative input. Replay state is
+partitioned into explicit lineages: Classic v1 and v2 share one lineage per
+server identity, while Game Protocol 1 has its own independent lineage. For
+each server identity and replay lineage, one serialized atomic publication
 operation:
 
 1. rejects a nonce already present in the bounded replay window;
