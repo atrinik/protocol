@@ -3,7 +3,9 @@ name: Semantic Release
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches:
+      - main
+      - '[0-9]+.[0-9]+.x'
 
 permissions:
   contents: write
@@ -43,6 +45,8 @@ jobs:
           tools/install-ci-dependencies.sh
       - name: Revalidate exact release revision
         run: tools/validate.sh
+      - name: Verify release branch policy
+        run: node scripts/release/test-release-policy.cjs
       - name: Analyze commits, package, and publish
         env:
           GH_TOKEN: ${{ github.token }}
