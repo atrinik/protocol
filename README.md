@@ -65,7 +65,7 @@ Go/Rust model types and byte-identical conformance fixtures.
 
 ## Toolchain and validation
 
-The supported tools are Go 1.26.5, Rust 1.97.1, Protobuf 35.0, Buf 1.72.0,
+The supported tools are Go 1.26.6, Rust 1.97.1, Protobuf 35.0, Buf 1.72.0,
 protoc-gen-go 1.36.11, and protoc-gen-prost 0.5.0. The reusable Atrinik Linux
 devcontainer supplies them. A clean clone needs no sibling checkout.
 
