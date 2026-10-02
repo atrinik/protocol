@@ -79,9 +79,10 @@ tool versions, formats/lints schemas, regenerates both languages, and rebuilds
 the descriptor. `tools/validate.sh` additionally checks the breaking baseline,
 generated drift, Go vet/unit/race/fuzz compilation, Rust format/Clippy/tests/doc
 tests/Windows cross-build, dependency licenses, fixtures, and release dry-run.
-Resolved dependency versions come from the standard `Cargo.lock` and `go.sum`
-files. `policy/dependencies.json` records ownership and review policy for direct
-dependencies without duplicating those versions; validation compares it with
+Cargo resolves dependency versions from `Cargo.lock`; Go uses the requirements
+in `go.mod` and minimal version selection, while `go.sum` authenticates module
+content. `policy/dependencies.json` records ownership and review policy for
+direct dependencies without duplicating versions; validation compares it with
 the manifests, checks the resolved Cargo and Go graphs for forbidden sources,
 and evaluates resolved Cargo license expressions against the SPDX policy.
 

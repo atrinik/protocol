@@ -66,6 +66,7 @@ write_valid_fixtures() {
 EOF
   cat >"${MOCK_GO_METADATA}" <<'EOF'
 {"Path":"github.com/atrinik/protocol","Main":true}
+{"Path":"github.com/google/go-cmp","Version":"v0.7.0","Indirect":true,"GoMod":"/cache/github.com/google/go-cmp@v0.7.0/go.mod","GoModSum":"h1:cXJzdA=="}
 {"Path":"golang.org/x/net","Version":"v0.58.0","Sum":"h1:YWJjZA=="}
 {"Path":"golang.org/x/text","Version":"v0.41.0","Sum":"h1:ZWZnaA=="}
 {"Path":"google.golang.org/protobuf","Version":"v1.37.0","Sum":"h1:aWprbA=="}
@@ -115,6 +116,13 @@ printf '%s\n' \
   '{"Path":"github.com/atrinik/classic","Version":"v2.0.0","Sum":"h1:bW5vcA=="}' \
   >>"${MOCK_GO_METADATA}"
 expect_failure "a forbidden Go module"
+
+write_valid_fixtures
+jq 'if .Path == "github.com/google/go-cmp"
+  then del(.GoModSum) else . end' \
+  "${MOCK_GO_METADATA}" >"${MOCK_GO_METADATA}.new"
+mv "${MOCK_GO_METADATA}.new" "${MOCK_GO_METADATA}"
+expect_failure "a Go module without an authenticated module or archive sum"
 
 write_valid_fixtures
 jq '(.Require[] | select(.Path == "golang.org/x/text") | .Indirect) = false' \

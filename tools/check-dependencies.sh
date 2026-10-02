@@ -90,7 +90,8 @@ jq -e --slurpfile policy policy/dependencies.json \
     else
       (.Replace == null)
       and ((.Version // "") | test("^v[^[:space:]]+$"))
-      and ((.Sum // "") | test("^h1:[A-Za-z0-9+/=]+$"))
+      and ([.Sum, .GoModSum]
+        | any((. // "") | test("^h1:[A-Za-z0-9+/=]+$")))
       and all($policy[0].forbidden_go_modules[];
         . as $forbidden
         | $module.Path != $forbidden
