@@ -29,6 +29,11 @@ case "$1 $2" in
   "mod edit")
     cat "${MOCK_GO_MANIFEST}"
     ;;
+  "mod verify")
+    if [[ ${MOCK_GO_VERIFY_FAIL:-0} == 1 ]]; then
+      exit 1
+    fi
+    ;;
   *)
     exit 64
     ;;
@@ -60,13 +65,16 @@ write_valid_fixtures() {
     },
     {"id":"bytes 1.13.0","name":"bytes","version":"1.13.0","license":"MIT","source":"registry+https://github.com/rust-lang/crates.io-index","dependencies":[]},
     {"id":"idna 1.2.0","name":"idna","version":"1.2.0","license":"MIT OR Apache-2.0","source":"registry+https://github.com/rust-lang/crates.io-index","dependencies":[]},
-    {"id":"prost 0.14.6","name":"prost","version":"0.14.6","license":"Apache-2.0","source":"registry+https://github.com/rust-lang/crates.io-index","dependencies":[]}
+    {"id":"prost 0.14.6","name":"prost","version":"0.14.6","license":"Apache-2.0","source":"registry+https://github.com/rust-lang/crates.io-index","dependencies":[]},
+    {"id":"unicode-ident 1.0.24","name":"unicode-ident","version":"1.0.24","license":"(MIT OR Apache-2.0) AND Unicode-3.0","source":"registry+https://github.com/rust-lang/crates.io-index","dependencies":[]}
   ]
 }
 EOF
   cat >"${MOCK_GO_METADATA}" <<'EOF'
 {"Path":"github.com/atrinik/protocol","Main":true}
+{"Path":"github.com/golang/protobuf","Version":"v1.5.0","Indirect":true}
 {"Path":"github.com/google/go-cmp","Version":"v0.7.0","Indirect":true,"GoMod":"/cache/github.com/google/go-cmp@v0.7.0/go.mod","GoModSum":"h1:cXJzdA=="}
+{"Path":"golang.org/x/crypto","Version":"v0.54.0","Indirect":true}
 {"Path":"golang.org/x/net","Version":"v0.58.0","Sum":"h1:YWJjZA=="}
 {"Path":"golang.org/x/text","Version":"v0.41.0","Sum":"h1:ZWZnaA=="}
 {"Path":"google.golang.org/protobuf","Version":"v1.37.0","Sum":"h1:aWprbA=="}
@@ -98,6 +106,13 @@ mv "${MOCK_CARGO_METADATA}.new" "${MOCK_CARGO_METADATA}"
 expect_failure "a forbidden Cargo license"
 
 write_valid_fixtures
+jq '(.packages[] | select(.name == "bytes") | .license) =
+  "MIT OR OR Apache-2.0"' \
+  "${MOCK_CARGO_METADATA}" >"${MOCK_CARGO_METADATA}.new"
+mv "${MOCK_CARGO_METADATA}.new" "${MOCK_CARGO_METADATA}"
+expect_failure "a malformed Cargo license expression"
+
+write_valid_fixtures
 jq '(.packages[] | select(.name == "bytes") | .source) =
   "git+https://example.invalid/bytes"' \
   "${MOCK_CARGO_METADATA}" >"${MOCK_CARGO_METADATA}.new"
@@ -119,10 +134,20 @@ expect_failure "a forbidden Go module"
 
 write_valid_fixtures
 jq 'if .Path == "github.com/google/go-cmp"
-  then del(.GoModSum) else . end' \
+  then .GoModSum = "not-a-checksum" else . end' \
   "${MOCK_GO_METADATA}" >"${MOCK_GO_METADATA}.new"
 mv "${MOCK_GO_METADATA}.new" "${MOCK_GO_METADATA}"
-expect_failure "a Go module without an authenticated module or archive sum"
+expect_failure "a malformed Go module checksum"
+
+write_valid_fixtures
+jq 'if .Path == "golang.org/x/net"
+  then .Sum = "sha256:not-supported" else . end' \
+  "${MOCK_GO_METADATA}" >"${MOCK_GO_METADATA}.new"
+mv "${MOCK_GO_METADATA}.new" "${MOCK_GO_METADATA}"
+expect_failure "a malformed Go archive checksum"
+
+write_valid_fixtures
+MOCK_GO_VERIFY_FAIL=1 expect_failure "failed standard Go module verification"
 
 write_valid_fixtures
 jq '(.Require[] | select(.Path == "golang.org/x/text") | .Indirect) = false' \

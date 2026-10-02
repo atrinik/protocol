@@ -29,6 +29,35 @@ trap 'rm -f -- "${cargo_metadata}"' EXIT
 cargo metadata --locked --offline --format-version 1 >"${cargo_metadata}"
 
 if ! jq -e --slurpfile policy policy/dependencies.json '
+  def valid_license_expression($expression; $allowed; $forbidden):
+    ($expression
+      | gsub("\\("; " ( ")
+      | gsub("\\)"; " ) ")
+      | split(" ")
+      | map(select(. != ""))) as $tokens
+    | ($tokens | length) > 0
+    and (reduce $tokens[] as $token (
+      {valid: true, expect_operand: true, depth: 0};
+      if (.valid | not) then
+        .
+      elif .expect_operand then
+        if $token == "(" then
+          .depth += 1
+        elif (($allowed | index($token)) != null
+          and ($forbidden | index($token)) == null) then
+          .expect_operand = false
+        else
+          .valid = false
+        end
+      elif $token == ")" and .depth > 0 then
+        .depth -= 1
+      elif $token == "AND" or $token == "OR" then
+        .expect_operand = true
+      else
+        .valid = false
+      end
+    ) | .valid and (.expect_operand | not) and .depth == 0);
+
   . as $metadata
   | ($metadata.workspace_members | unique) as $workspace_members
   | ([
@@ -51,15 +80,8 @@ if ! jq -e --slurpfile policy policy/dependencies.json '
       end)
   and all($metadata.packages[];
     (.license // "") as $expression
-    | ($expression
-      | gsub("[()]"; " ")
-      | split(" ")
-      | map(select(. != "" and . != "AND" and . != "OR"))) as $licenses
-    | ($licenses | length) > 0
-      and all($licenses[];
-        . as $license
-        | ($policy[0].allowed_spdx | index($license)) != null
-        and ($policy[0].forbidden_spdx | index($license)) == null))
+    | valid_license_expression($expression;
+        $policy[0].allowed_spdx; $policy[0].forbidden_spdx))
 ' "${cargo_metadata}" >/dev/null; then
   echo "Cargo graph violates the dependency source, inventory, or license policy." >&2
   exit 1
@@ -68,6 +90,7 @@ fi
 go_metadata=$(mktemp /tmp/atrinik-protocol-go-metadata.XXXXXX)
 go_manifest=$(mktemp /tmp/atrinik-protocol-go-manifest.XXXXXX)
 trap 'rm -f -- "${cargo_metadata}" "${go_metadata}" "${go_manifest}"' EXIT
+go mod verify
 go list -m -json all | jq -s . >"${go_metadata}"
 go mod edit -json >"${go_manifest}"
 
@@ -90,8 +113,9 @@ jq -e --slurpfile policy policy/dependencies.json \
     else
       (.Replace == null)
       and ((.Version // "") | test("^v[^[:space:]]+$"))
-      and ([.Sum, .GoModSum]
-        | any((. // "") | test("^h1:[A-Za-z0-9+/=]+$")))
+      and ((.Sum == null) or (.Sum | test("^h1:[A-Za-z0-9+/=]+$")))
+      and ((.GoModSum == null)
+        or (.GoModSum | test("^h1:[A-Za-z0-9+/=]+$")))
       and all($policy[0].forbidden_go_modules[];
         . as $forbidden
         | $module.Path != $forbidden
