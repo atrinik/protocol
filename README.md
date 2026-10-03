@@ -79,6 +79,12 @@ tool versions, formats/lints schemas, regenerates both languages, and rebuilds
 the descriptor. `tools/validate.sh` additionally checks the breaking baseline,
 generated drift, Go vet/unit/race/fuzz compilation, Rust format/Clippy/tests/doc
 tests/Windows cross-build, dependency licenses, fixtures, and release dry-run.
+Cargo resolves dependency versions from `Cargo.lock`; Go uses the requirements
+in `go.mod` and minimal version selection, while `go.sum` authenticates module
+content. `policy/dependencies.json` records ownership and review policy for
+direct dependencies without duplicating versions; validation compares it with
+the manifests, checks the resolved Cargo and Go graphs for forbidden sources,
+and evaluates resolved Cargo license expressions against the SPDX policy.
 
 The aggregate required check is `Protocol validation`. Release tags create a
 source/bindings/schema archive, descriptor, fixtures, checksums, CycloneDX

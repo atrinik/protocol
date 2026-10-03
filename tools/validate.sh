@@ -27,6 +27,7 @@ cargo build --workspace --target x86_64-pc-windows-gnu
 cmp LICENSE crates/atrinik-protocol/LICENSE
 
 tools/check-dependencies.sh
+tools/test-check-dependencies.sh
 python3 tools/check-crate-release-policy.py
 python3 -m unittest tools/test_crate_release_policy.py
 jq empty \
