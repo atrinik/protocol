@@ -93,6 +93,10 @@ cp fixtures/metaserver-directory-v2.json fixtures/metaserver-game-publisher-v2.j
   schema/metaserver-classic-publisher-v3.schema.json \
   spec/access-tokens.md "${output}/"
 
+python3 tools/contract_release_bundle.py "${output}" "${version}"
+rm -rf -- "${output}/metaserver-directory-v1" \
+  "${output}/metaserver-directory-v2"
+
 SYFT_CHECK_FOR_APP_UPDATE=false syft dir:. \
   --source-name atrinik-protocol --source-version "${version}" \
   --output "cyclonedx-json=${output}/sbom.cdx.json"
@@ -124,8 +128,9 @@ jq -n \
 
 (
   cd "${output}"
-  # Cover every shipped artifact, including nested current-version fixtures.
-  # NUL separators preserve exact file names; SHA256SUMS cannot cover itself.
-  find . -type f ! -name SHA256SUMS -printf '%P\0' \
+  # Semantic-release uploads build/release/*, so the downloadable output and
+  # its checksum inventory must both be flat. SHA256SUMS cannot cover itself.
+  test -z "$(find . -mindepth 1 -type d -print -quit)"
+  find . -mindepth 1 -maxdepth 1 -type f ! -name SHA256SUMS -printf '%P\0' \
     | LC_ALL=C sort -z | xargs -0 sha256sum >SHA256SUMS
 )
