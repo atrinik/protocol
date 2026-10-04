@@ -22,6 +22,7 @@ import tarfile
 import time
 import tomllib
 import urllib.request
+import urllib.error
 
 # Importing the verifier must not dirty the checked-out publication source.
 sys.dont_write_bytecode = True
@@ -139,6 +140,10 @@ def put_once(data, encoded, token):
             if not isinstance(result, dict) or 'errors' in result:
                 return 'indeterminate'
             return 'success'
+    except urllib.error.HTTPError as error:
+        # Close the response without reading or formatting its untrusted reason.
+        error.close()
+        return 'indeterminate'
     except Exception:
         # Even an HTTP error can follow server-side acceptance. Recheck the
         # public registry in the credential-free verifier before any new run.
