@@ -242,14 +242,20 @@ session and never replays auth. Existing TLS/QUIC transcript security, disabled
 
 ## Local administration, persistence and use
 
-In-game /access operations require explicit root-managed authenticated-account
-allowlist/capability `access-token-admin`, never default OP/group inheritance.
-Root/startup-only policy/store/allowlist config cannot be read/mutated through
-ordinary OP `/config`, permission grants, aliases or scripting escape routes.
+Classic in-game `/access` operations use the existing per-player/character command
+permission mechanism, managed through `/cmd_permission`. `[OP]` grants `/access`
+automatically, consistently with other operator commands. Check the active
+character's effective command permission for every operation; do not add a
+separate account allowlist or `access-token-admin` authority. Existing account
+passwords and stored character permissions are unchanged.
+
+Access policy and store-path configuration remain root/startup-only settings;
+command permission does not make those settings writable through `/config`.
 Use the same checked serialized store API for in-game and peer-authenticated local
-admin. Bootstrap offline initializes store/allowlist only; a usable code is issued
-through the locked-online authenticated control path. Never temporarily open a
-server or create a default code.
+admin. Bootstrap offline initializes the store only. The root-only local Unix
+admin socket remains available while the private server is locked, so an operator
+can issue its first usable code through the authenticated online control path.
+Never temporarily open a server or create a default code.
 
 A token's authorization revision changes only on management changes; last-use/audit
 updates advance a separate durable commit sequence, not token authorization or
@@ -261,7 +267,8 @@ Lists/history/provisioning/offline checks never invent use events. Default expir
 is null; no automatic rotation/renewal. A valid empty/fully expired protected store
 is locked, not corrupt and not an updater failure.
 
-Root-managed allowlist files may grant read access to the dedicated service group (root-owned0440/0640, no group-write/other access); server UID must not gain write authority. Native admin uses existing root-only UID/peer identity boundary. Request is one
+Native admin uses the existing root-only Unix-socket UID/peer identity boundary,
+independent of in-game character permissions. Request is one
 `ATRINIK-ADMIN/1 ACCESS <compactJSON>\n`, write-half-close, maximum1024bytes. JSON
 schema `atrinik-access-admin-v1`, operation issue/list/history/revoke/remove/status/
 result, requestId32hex, operation-specific strict keys. Mutations require global
