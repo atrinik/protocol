@@ -1,0 +1,51 @@
+name: Prepare Rust crate
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_tag:
+        description: Published source tag
+        type: string
+        required: true
+      source_revision:
+        description: Exact published source revision
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: protocol-crate-publication
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.repository == 'atrinik/protocol' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CARGO_HOME: /tmp/atrinik-crate-prepare-cargo
+      CARGO_TARGET_DIR: /tmp/atrinik-crate-prepare-target
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - run: rustup toolchain install 1.97.1 --profile minimal
+      - id: prepare
+        env:
+          SOURCE_TAG: ${{ inputs.source_tag }}
+          SOURCE_REVISION: ${{ inputs.source_revision }}
+        run: |
+          set -euo pipefail
+          python3 tools/crate_publication.py prepare --source-tag "$SOURCE_TAG" \
+            --source-revision "$SOURCE_REVISION" --output "$RUNNER_TEMP/crate-prepared"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: reviewed-crate-inputs
+          path: |
+            ${{ runner.temp }}/crate-prepared/atrinik-protocol-0.2.0.crate
+            ${{ runner.temp }}/crate-prepared/artifact.json
+          if-no-files-found: error
+          retention-days: 7

@@ -10,7 +10,7 @@
     "sha256": "413c4da6c1b304d4a622065efe0d36c3f591041972f1a5ee76c538926f3c0b6b"
   },
   "future": {
-    "status": "disabled-until-reviewed-activation",
+    "status": "prepared-awaiting-reviewed-artifact",
     "authentication": "trusted-publishing",
     "repository_owner": "atrinik",
     "repository": "protocol",
