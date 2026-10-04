@@ -8,8 +8,9 @@ tools/generate.sh
 buf breaking --against compatibility/baseline.binpb
 git diff --exit-code -- proto gen crates/atrinik-protocol/src/generated
 
-test -z "$(gofmt -l framing metaserver validation)"
+test -z "$(gofmt -l framing metaserver validation tools/generate-access-fixtures)"
 go mod verify
+go run ./tools/generate-access-fixtures --check
 go vet ./...
 go test ./...
 go test -race ./...

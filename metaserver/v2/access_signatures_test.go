@@ -31,6 +31,9 @@ func checkCurrentSignature(t *testing.T, fixture gamePublisherFixture, profile m
 	if components.Path != fixture.Path || components.ContentDigest != fixture.ContentDigest || components.SignatureInput != fixture.SignatureInput || components.SignatureBase != fixture.SignatureBase {
 		t.Fatal("canonical signature fixture mismatch")
 	}
+	if fixture.SignatureHeader != "atrinik=:"+fixture.SignatureBase64+":" {
+		t.Fatal("signature header differs from raw signature")
+	}
 	if err := metaserver.VerifyCertificateSignature(decodeBase64(t, fixture.CertificateDERBase64), fixture.ServerID, components.SignatureBase, decodeBase64(t, fixture.SignatureBase64)); err != nil {
 		t.Fatal(err)
 	}
@@ -48,6 +51,38 @@ func TestClassicV3SignatureAndBody(t *testing.T) {
 	checkCurrentSignature(t, fixture, metaserver.ClassicV3Profile)
 	if _, err := metaserver.ParseClassicV3PublishJSON([]byte(fixture.Body)); err != nil {
 		t.Fatal(err)
+	}
+	// Nested vectors intentionally differ in replay state, not authentication.
+	// Validate their actual body bytes, canonical signature components and ECDSA
+	// signatures independently so a replay test cannot fail earlier with a 401.
+	var records map[string]json.RawMessage
+	if err := json.Unmarshal(data, &records); err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range []string{"heartbeat", "changed", "private", "reused_nonce", "stale", "open"} {
+		t.Run(name, func(t *testing.T) {
+			encoded, ok := records[name]
+			if !ok {
+				t.Fatal("missing signed scenario")
+			}
+			vector := fixture // Nested vectors inherit certificate/authority/time.
+			if err := json.Unmarshal(encoded, &vector); err != nil {
+				t.Fatal(err)
+			}
+			checkCurrentSignature(t, vector, metaserver.ClassicV3Profile)
+			if _, err := metaserver.ParseClassicV3PublishJSON([]byte(vector.Body)); err != nil {
+				t.Fatal(err)
+			}
+			var body struct {
+				AccessRequired bool `json:"accessRequired"`
+			}
+			if err := json.Unmarshal([]byte(vector.Body), &body); err != nil {
+				t.Fatal(err)
+			}
+			if body.AccessRequired != (name != "open") {
+				t.Fatal("open/protected fixture policy mismatch")
+			}
+		})
 	}
 }
 
