@@ -38,6 +38,15 @@ it directly to a DER-leaf digest. The trusted HTTPS metaserver is first-contact
 routing authority; previously pinned identity changes stop before C is sent. A
 code alone cannot protect first contact against a malicious trusted directory.
 
+Production default authorities are `https://publish.meta.atrinik.org` for signed
+route management, `https://rendezvous.meta.atrinik.org` for access resolution,
+and `wss://rendezvous.meta.atrinik.org` for access rendezvous. The static public
+directory authority `https://meta.atrinik.org` does not receive access secrets.
+Explicitly configured trusted origins may replace these defaults; they are
+operator/client configuration, never values discovered from a directory record.
+Do not derive the access authority from the static directory URL or follow
+cross-authority redirects. HTTP signatures bind the selected publisher authority.
+
 `accessRequired` is configured policy, independent of `public`, token count,
 expiry, availability and store health. Open public servers require no token.
 Public protected servers retain their explicit public endpoint if configured;
@@ -227,7 +236,7 @@ no controls and optional expiresAt decimaltext; revoke/remove/history add tokenI
 list adds optional cursor ASCII<=128, revision and limit1..64; result adds
  targetRequestId. Unknown/duplicate keys or trailing bytes fail.
 Response `ATRINIK-ADMIN/1 ACCESS <N>\n` then exactly N JSON bytes then EOF;
-N canonical1..32768. Exact envelope fields are schema, operation, requestId, outcome, revision and result. Successful status uses outcome=committed; initialized outer revision matches result revision, absent_open outer revision is null; pendingRouteSync is integer0..32. These bind the response; no secret except initial successful issue's private code field. Capability
+N canonical1..32768. Exact envelope fields are schema, operation, requestId, outcome, revision and result. Successful status uses outcome=committed; initialized outer revision matches result revision, absent_open outer revision is null; pendingRouteSync is integer0..1024. These bind the response; no secret except initial successful issue's private code field. Capability
 is `access-tokens-v1`; old shutdown capabilities remain a bounded unordered set.
 
 Status is a tagged union. Initialized:
@@ -235,6 +244,16 @@ Status is a tagged union. Initialized:
 Absent open:
 `{"state":"absent_open","schemaVersion":1,"serverIdentity":"64hex","policy":"open"}`.
 Absent protected is failure, never fabricated initialized state. No extra fields.
+Local storage retains at most1024 nonremoved token records, each with at most one
+durable pending route-synchronization state. A dispatch page contains at most32
+records; this dispatch bound is not a bound on durable pending state. Issuance
+may refuse while at least32 records await synchronization. Revocation and expiry
+must still durably deny locally, coalescing the latest terminal authorization
+revision into that token's existing pending state. A stale activation or older
+acknowledgment cannot clear a newer terminal pending state or restore admission.
+Removal requires remote confirmation and cannot discard an unsynchronized deny.
+Status counts all pending records, so1024 is valid and1025 is invalid even when
+the remote service is unavailable. A pending count alone never blocks updates.
 Provide the identical status via a native read-only offline command with exclusive
 state lock and verified stopped server, no networking/startup/issuance. Updater
 uses that path when stopped and live root socket when running; it never checks
