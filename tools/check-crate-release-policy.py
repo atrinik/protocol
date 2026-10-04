@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import re
 import tomllib
 from pathlib import Path
@@ -15,10 +16,11 @@ RELEASE_POLICY = ROOT / "policy" / "rust-crate-release.json"
 WORKFLOWS = ROOT / ".github" / "workflows"
 PUBLISH_WORKFLOW = WORKFLOWS / "publish-crate.yml"
 BOOTSTRAP_CHECK = ROOT / "tools" / "check-crate-publication.py"
+EXPECTED_PUBLICATION_WORKFLOW_SHA256 = "94bb1b7795cafdc35dbe0e9d1741d73a946fd32a53475e85205f33ea53b316b9"
 EXPECTED_WORKFLOWS = {"pr-title.yml", "release.yml", "validate.yml", "publish-crate.yml"}
 
 EXPECTED_FUTURE_POLICY = {
-    "status": "prepared-awaiting-reviewed-artifact",
+    "status": "reviewed-manual-publication",
     "authentication": "trusted-publishing",
     "repository_owner": "atrinik",
     "repository": "protocol",
@@ -56,7 +58,7 @@ def main() -> None:
         expected_candidate = {
             "schema_version": 1, "name": release["name"],
             "version": workspace_version, "base_published_version": release["version"],
-            "status": "unpublished", "publication": "prepared-without-upload",
+            "status": "unpublished", "publication": "reviewed-manual-publication",
         }
         if candidate != expected_candidate or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", workspace_version):
             raise SystemExit("unpublished crate candidate policy changed")
@@ -86,17 +88,23 @@ def main() -> None:
         raise SystemExit("reviewed Rust registry policy changed")
 
     next_policy = load_json(ROOT / "policy/rust-crate-next.json")
-    if next_policy != {"schema_version": 1, "name": release["name"],
-                       "version": workspace_version, "status": "awaiting-source-release",
-                       "artifact": None}:
-        raise SystemExit("actual artifact pins require a separate activation review")
+    expected_next = {"schema_version": 1, "name": release["name"],
+                     "version": workspace_version, "status": "ready-for-publication",
+                     "artifact": {
+                         "repository_release": "2.8.0",
+                         "revision": "a47537790f5ea8a08adf7e6dffee4fa794cf3665",
+                         "asset": "atrinik-protocol-0.2.0.crate",
+                         "sha256": "cda65c3c322993cfab378454fb9b1182df8a000216f4abd1170e53cdfdc3b3bb",
+                     }}
+    if next_policy != expected_next:
+        raise SystemExit("reviewed next-crate artifact pins changed")
     if not PUBLISH_WORKFLOW.is_file():
-        raise SystemExit("credential-free preparation workflow is required")
-    preparation = PUBLISH_WORKFLOW.read_text()
-    for forbidden in ("id-token:", "contents: write", "push:", "pull_request:",
-                      "workflow_call:", "secrets.", "environment:"):
-        if forbidden in preparation:
-            raise SystemExit("preparation workflow must remain credential-free and manual")
+        raise SystemExit("reviewed publication workflow is required")
+    # Fence the complete reviewed job/step/permission graph, not substrings that
+    # could overlook a YAML placement or expression change. A workflow edit
+    # requires changing this anchor and its independent policy review together.
+    if hashlib.sha256(PUBLISH_WORKFLOW.read_bytes()).hexdigest() != EXPECTED_PUBLICATION_WORKFLOW_SHA256:
+        raise SystemExit("reviewed publication workflow changed")
     if BOOTSTRAP_CHECK.exists():
         raise SystemExit("one-time bootstrap checker must remain removed")
 
@@ -111,7 +119,7 @@ def main() -> None:
     for workflow in workflow_paths:
         text = workflow.read_text(encoding="utf-8")
         for fragment in FORBIDDEN_WORKFLOW_FRAGMENTS:
-            if fragment in text:
+            if workflow != PUBLISH_WORKFLOW and fragment in text:
                 raise SystemExit(
                     f"disabled registry capability in {workflow.name}: {fragment}"
                 )
@@ -121,7 +129,7 @@ def main() -> None:
     required_readme = (
         "The one-use bootstrap workflow",
         "has been removed",
-        "prepared-awaiting-reviewed-artifact",
+        "reviewed-manual-publication",
         "crates-io-release",
         "Trusted Publishing",
     )
