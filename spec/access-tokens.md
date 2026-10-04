@@ -186,11 +186,36 @@ DO delivery failure does not unconsume a grant; client obtains a new grant.
 D1/DO SQLite replay and ordinary tables never store raw grants/candidates; use purpose-separated replay HMAC aliases as current privacy policy requires. The existing live hibernation attachment may retain the raw one-use grant as its routing ticket for at most15seconds, bounded by socket limits and cleared on terminal teardown; this narrow transient persistence exception never permits raw access codes/R. Pending grant records cap at32/server and32768/environment; prune expired/consumed records in bounded batches before allocation and fail closed at capacity. Cross-store writes never claim
 atomicity they do not provide.
 
-Initial ceilings: resolve30/source/minute and60eligible/server/minute; route
-mutations64/authenticated-server/hour burst16; existing stricter WAF/transport
-limits still apply. At most16 active client attempts/server; one15second deadline,
-existing frame/byte/candidate budgets and replay retention. Unknown codes cannot
-drain a claimed server budget. Rotating source HMAC tags, never raw IP persistence.
+Application ingress budgets use fixed service/purpose keys shared by all callers;
+never requester addresses or address-derived identifiers. Configurable coarse
+per-edge-location purpose circuit breakers bound unauthenticated request costs;
+they are not a globally serialized deployment quota. Shared ceilings are deployment
+capacity settings, not caller quotas: do not reuse a former per-source ceiling
+as a shared default without validating the aggregate load envelope. Eligible
+resolution additionally allows 60 requests/server/minute; route mutations allow
+64/authenticated-server/hour
+with burst 16. Charge target-specific budgets only after validating the applicable
+signed server identity or active route/grant, never from an unauthenticated claim.
+At most 16 active client attempts/server; one 15-second deadline and existing
+frame/byte/candidate budgets and replay retention remain. Bound costs and state
+without per-IP buckets or persistent per-guess rows. Unknown codes cannot drain
+a claimed server budget.
+
+Application code MUST NOT extract request-source IP addresses or forwarded-IP
+headers for identification, rate limiting, tracking or diagnostics. It MUST NOT
+hash, HMAC, otherwise derive, persist or expose address-based requester identifiers.
+This prohibition includes token last-use/history/audit records, rate-limit state,
+logs, metrics and administrative responses. Grant/ticket replay aliases remain
+permitted only when derived from their random protocol values, never addresses.
+
+Network stacks necessarily handle peer addresses to deliver packets. Candidate
+addresses may exist only in bounded, short-lived live rendezvous routing state
+and must be discarded on completion, expiry or teardown; never copy them into
+application history, audit, diagnostics, metrics or reusable requester identities.
+Explicit operator-configured server hostname/port fields remain routing metadata;
+never infer them from a request-source address. This contract requires no
+application collection of player IP addresses and makes no claim about provider
+network infrastructure outside the application's control.
 
 ## Game connection state
 
