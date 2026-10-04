@@ -85,6 +85,7 @@ cp -R fixtures/metaserver-directory-v1 fixtures/metaserver-directory-v2 "${outpu
 cp fixtures/metaserver-directory-v2.json fixtures/metaserver-game-publisher-v2.json \
   fixtures/access-tokens-v1.json fixtures/access-auth-v1.bin \
   fixtures/access-routes-v1.json fixtures/access-route-state-v1.json \
+  fixtures/access-route-bounds-v1.json fixtures/access-client-hello-v1.tsv \
   fixtures/access-resolve-v1.json fixtures/metaserver-classic-publisher-v3.json \
   schema/access-route-v1.schema.json schema/access-resolve-v1.schema.json \
   schema/metaserver-directory-v2.schema.json \
@@ -123,20 +124,8 @@ jq -n \
 
 (
   cd "${output}"
-  mapfile -t directory_fixtures < <(
-    find metaserver-directory-v1 -type f -print | LC_ALL=C sort
-  )
-  checksum_files=("${archive}")
-  if [[ ${crate_included} == true ]]; then
-    checksum_files+=("${crate_asset}")
-  fi
-  checksum_files+=(atrinik-game-v1.binpb framing.json \
-    metaserver-directory-v1.json metaserver-game-publisher-v1.json \
-    metaserver-classic-publisher-v2.json \
-    metaserver-publisher-v1.json metaserver-directory-v1.schema.json \
-    metaserver-classic-publisher-v2.schema.json \
-    metaserver-game-publisher-v1.schema.json metaserver-directory.md \
-    metaserver-publisher.md "${directory_fixtures[@]}" sbom.cdx.json \
-    provenance.json THIRD_PARTY_NOTICES.md LICENSE)
-  sha256sum "${checksum_files[@]}" >SHA256SUMS
+  # Cover every shipped artifact, including nested current-version fixtures.
+  # NUL separators preserve exact file names; SHA256SUMS cannot cover itself.
+  find . -type f ! -name SHA256SUMS -printf '%P\0' \
+    | LC_ALL=C sort -z | xargs -0 sha256sum >SHA256SUMS
 )

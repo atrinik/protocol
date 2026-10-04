@@ -19,6 +19,7 @@ go test -run '^$' -fuzz '^FuzzPublisher$' -fuzztime=2s ./metaserver
 go test -run '^$' -fuzz '^FuzzDirectoryJSON$' -fuzztime=2s ./metaserver
 go test -run '^$' -fuzz '^FuzzGamePublishJSON$' -fuzztime=2s ./metaserver
 go test -run '^$' -fuzz '^FuzzGamePublishJSON$' -fuzztime=2s ./metaserver/v2
+go test -run '^$' -fuzz '^FuzzClassicV3PublishJSON$' -fuzztime=2s ./metaserver/v2
 go test -run '^$' -fuzz '^FuzzDirectoryJSON$' -fuzztime=2s ./metaserver/v2
 go test -run '^$' -fuzz '^FuzzClassicV2PublishJSON$' -fuzztime=2s ./metaserver
 
@@ -32,10 +33,19 @@ cmp LICENSE crates/atrinik-protocol/LICENSE
 tools/check-dependencies.sh
 tools/test-check-dependencies.sh
 python3 tools/check-crate-release-policy.py
-python3 -m unittest tools/test_crate_release_policy.py
+python3 -m unittest tools/test_crate_release_policy.py tools/test_access_route_schema.py
+# Cargo itself must reject publication before registry authentication or upload.
+if publication_error=$(cargo publish --dry-run --locked --offline \
+  --manifest-path crates/atrinik-protocol/Cargo.toml 2>&1); then
+  echo "Unpublished candidate unexpectedly permits cargo publish." >&2
+  exit 1
+fi
+grep -Fq 'cannot be published' <<<"${publication_error}"
+unset publication_error
 jq empty \
   fixtures/access-tokens-v1.json \
   fixtures/access-routes-v1.json \
+  fixtures/access-route-bounds-v1.json \
   fixtures/access-route-state-v1.json \
   fixtures/access-resolve-v1.json \
   fixtures/metaserver-classic-publisher-v3.json \
@@ -91,6 +101,7 @@ release_output=$(mktemp -d /tmp/atrinik-protocol-release.XXXXXX)
 rmdir "${release_output}"
 tools/package-release.sh "${release_output}" 999.0.0-validation
 test -s "${release_output}/SHA256SUMS"
+python3 tools/test_release_checksums.py "${release_output}"
 (
   cd "${release_output}"
   sha256sum --check SHA256SUMS

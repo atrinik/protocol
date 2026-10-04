@@ -49,6 +49,9 @@ def main() -> None:
     if workspace_version != release["version"]:
         if not candidate_path.is_file():
             raise SystemExit("unpublished crate requires explicit candidate policy")
+        manifest = tomllib.loads((ROOT / "crates/atrinik-protocol/Cargo.toml").read_text())
+        if manifest["package"].get("publish") is not False:
+            raise SystemExit("unpublished crate manifest must set publish = false")
         candidate = load_json(candidate_path)
         expected_candidate = {
             "schema_version": 1, "name": release["name"],

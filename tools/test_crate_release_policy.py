@@ -24,6 +24,7 @@ class CrateReleasePolicyTests(unittest.TestCase):
         for relative in (
             "AGENTS.md",
             "Cargo.toml",
+            "crates/atrinik-protocol/Cargo.toml",
             "policy/rust-crate-candidate.json",
             "README.md",
             "policy/rust-crate-publishing.json",
@@ -59,6 +60,14 @@ class CrateReleasePolicyTests(unittest.TestCase):
     def test_current_policy_is_disabled_and_valid(self) -> None:
         result = self.run_check()
         self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_rejects_manifest_publication(self) -> None:
+        path = self.root / "crates/atrinik-protocol/Cargo.toml"
+        original = path.read_text()
+        for setting in ('publish = true', 'publish = ["crates-io"]', ''):
+            with self.subTest(setting=setting):
+                path.write_text(original.replace('publish = false', setting))
+                self.assert_rejected("manifest must set publish = false")
 
     def test_rejects_candidate_publication(self) -> None:
         path = self.root / "policy/rust-crate-candidate.json"

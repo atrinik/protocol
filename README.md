@@ -107,6 +107,10 @@ Git revision.
 
 ## Rust registry publication
 
+The unpublished 0.2.0 candidate sets `package.publish = false`; both Cargo and
+the policy checker reject publication. Enabling publication requires a separate
+reviewed source and policy activation, with a new immutable package checksum.
+
 Crate `atrinik-protocol` version `0.1.0` is registered on crates.io with
 SHA-256
 `413c4da6c1b304d4a622065efe0d36c3f591041972f1a5ee76c538926f3c0b6b`.

@@ -13,8 +13,8 @@ import (
 )
 
 type classicV3FuzzFixture struct {
-	Body    string `json:"body"`
-	Open    struct {
+	Body string `json:"body"`
+	Open struct {
 		Body string `json:"body"`
 	} `json:"open"`
 	Private struct {
