@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://protocol.atrinik.org/schema/metaserver-directory-v2.schema.json",
-  "title": "Atrinik metaserver static directory v1",
+  "title": "Atrinik metaserver static directory v2",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema", "generation", "generatedAt", "expiresAt", "servers"],

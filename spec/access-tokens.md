@@ -54,7 +54,7 @@ Other Classic bounds remain unchanged. Its directory schema is
 `atrinik-classic-directory-v6`, protocol 6, `accessRequired` / XML `AccessRequired`.
 Game publisher v2 uses `/v2/servers/{serverId}/publish`, tag/schema
 `atrinik-game-publish-v2`; replace `passwordRequired` with `accessRequired` in the
-same canonical key position. Game directory is `atrinik-game-directory-v2`, using
+same canonical key position. Game XML projection uses the `access-required` attribute and never the retired `password-required` attribute. Game directory is `atrinik-game-directory-v2`, using
 `atrinik.metaserver.v2` messages. Retain immutable v1 definitions only as history;
 new v2 reserves field 13 and name `password_required`, keeps endpoint field 14,
 and assigns `access_required` field 15. Current APIs/parsers use v2 only.
@@ -76,7 +76,7 @@ JSON, no duplicate/unknown keys, no redirects. Exact key order for all operation
 `schema,profile,serverId,certificate,operation,requestId,tokenId,tokenRevision,index,reservationId,expiresAt`.
 
 Schema is `atrinik-access-route-v1`; operation is `reserve`, `activate`, `revoke`
-or `result`. requestId/tokenId are 32 lowercase hex (16 independently random bytes).
+or `result`. tokenId is 32 lowercase hex encoding16independently random bytes. requestId has the same shape and at least128bits of CSPRNG-derived entropy: generate it independently or derive a distinct phase ID with a domain-separated SHA256 of a random128bit root mutation ID and the bounded operation name, retaining16bytes. IDs are opaque to receivers; no operation may reuse an ID for changed payload.
 tokenRevision is canonical unsigned-64 decimal string greater than zero; index
 is I. reservationId is null for initial reserve or a 32-lowercase-hex handle for
 activate/revoke; revoke may use null to establish a terminal deny before reserve.

@@ -8,9 +8,11 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -459,4 +461,29 @@ func equalOptionalString(left *string, right *string) bool {
 		return left == nil && right == nil
 	}
 	return *left == *right
+}
+
+func TestCurrentXMLAccessPolicyMatchesJSON(t *testing.T) {
+	manifest := loadDirectoryManifest(t)
+	snapshot, err := metaserver.ParseDirectoryJSON(readDirectoryFixture(t, manifest.Positive.JSON))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var projection struct {
+		Servers []struct {
+			Access string `xml:"access-required,attr"`
+			Legacy string `xml:"password-required,attr"`
+		} `xml:"server"`
+	}
+	if err := xml.Unmarshal(readDirectoryFixture(t, manifest.Positive.XML), &projection); err != nil {
+		t.Fatal(err)
+	}
+	if len(projection.Servers) != len(snapshot.Servers) {
+		t.Fatal("projection server count drift")
+	}
+	for i, server := range projection.Servers {
+		if server.Legacy != "" || server.Access != strconv.FormatBool(snapshot.Servers[i].AccessRequired) {
+			t.Fatal("XML access policy differs from current JSON")
+		}
+	}
 }
