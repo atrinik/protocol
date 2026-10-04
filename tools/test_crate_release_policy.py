@@ -26,6 +26,7 @@ class CrateReleasePolicyTests(unittest.TestCase):
             "Cargo.toml",
             "crates/atrinik-protocol/Cargo.toml",
             "policy/rust-crate-candidate.json",
+            "policy/rust-crate-next.json",
             "README.md",
             "policy/rust-crate-publishing.json",
             "policy/rust-crate-release.json",
@@ -64,10 +65,10 @@ class CrateReleasePolicyTests(unittest.TestCase):
     def test_rejects_manifest_publication(self) -> None:
         path = self.root / "crates/atrinik-protocol/Cargo.toml"
         original = path.read_text()
-        for setting in ('publish = true', 'publish = ["crates-io"]', ''):
+        for setting in ('publish = true', 'publish = false', ''):
             with self.subTest(setting=setting):
-                path.write_text(original.replace('publish = false', setting))
-                self.assert_rejected("manifest must set publish = false")
+                path.write_text(original.replace('publish = ["crates-io"]', setting))
+                self.assert_rejected("manifest must restrict publish to crates-io")
 
     def test_rejects_candidate_publication(self) -> None:
         path = self.root / "policy/rust-crate-candidate.json"
@@ -92,10 +93,18 @@ class CrateReleasePolicyTests(unittest.TestCase):
         path.write_text(json.dumps(policy), encoding="utf-8")
         self.assert_rejected("reviewed Rust registry policy changed")
 
-    def test_rejects_publish_workflow_reintroduction(self) -> None:
-        path = self.root / ".github" / "workflows" / "publish-crate.yml"
-        path.write_text("name: Publish\n", encoding="utf-8")
-        self.assert_rejected("Rust registry publication is not activated")
+    def test_rejects_publish_capability_before_artifact_review(self) -> None:
+        path = self.root / ".github/workflows/publish-crate.yml"
+        with path.open("a") as stream:
+            stream.write("\n# id-token: write\n")
+        self.assert_rejected("preparation workflow must remain credential-free")
+
+    def test_rejects_unreviewed_artifact_pins(self) -> None:
+        path = self.root / "policy/rust-crate-next.json"
+        value = json.loads(path.read_text())
+        value["artifact"] = {"revision": "a" * 40}
+        path.write_text(json.dumps(value))
+        self.assert_rejected("separate activation review")
 
     def test_rejects_any_unreviewed_workflow(self) -> None:
         path = self.root / ".github" / "workflows" / "other.yml"

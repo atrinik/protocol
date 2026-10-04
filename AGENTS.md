@@ -10,8 +10,11 @@
   v2 schemas/adapters and GP1 1.1 access negotiation. Retained v1 schemas and
   adapters are immutable baseline history, never a current runtime fallback.
 - A newer Rust source version requires `policy/rust-crate-candidate.json`; it
-  stays unpublished and registry publication disabled until a separate reviewed
-  release policy. Local candidate packaging cannot rewrite the published digest.
+  stays unpublished and registry upload disabled until a separate reviewed
+  release policy. Prepared source may allow only crates.io in Cargo; the manual
+  preparation workflow must remain credential-free with no OIDC or upload job.
+  Actual source-release artifact pins are recorded only after reproducible
+  preparation, never predicted from a future merge or substituted from HEAD. Local candidate packaging cannot rewrite the published digest.
 - GP1 is not the numeric C/Python registry in `atrinik/classic/protocol`. Do
   not add classic IDs, MAP2/ADS compatibility, C/Python bindings, or a dual
   protocol path here.
@@ -99,7 +102,10 @@
   short-lived token only to the upload step; and verify the public checksum.
   Never publish from a pull request, moving branch, dirty tree, unreviewed
   artifact, long-lived registry secret, or automatic semantic-release side
-  effect. Keep publication disabled until a separate policy activation review.
+  effect. Keep registry upload disabled until a separate policy activation review.
+  The current preparation-only workflow cannot request credentials or upload.
+  Preserve a flat downloadable release inventory and a deterministic nested
+  contract bundle, each with complete checksum coverage.
 - Run the aggregate contract now present:
 
   ```sh

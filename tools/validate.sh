@@ -33,15 +33,7 @@ cmp LICENSE crates/atrinik-protocol/LICENSE
 tools/check-dependencies.sh
 tools/test-check-dependencies.sh
 python3 tools/check-crate-release-policy.py
-python3 -m unittest tools/test_crate_release_policy.py tools/test_access_route_schema.py
-# Cargo itself must reject publication before registry authentication or upload.
-if publication_error=$(cargo publish --dry-run --locked --offline \
-  --manifest-path crates/atrinik-protocol/Cargo.toml 2>&1); then
-  echo "Unpublished candidate unexpectedly permits cargo publish." >&2
-  exit 1
-fi
-grep -Fq 'cannot be published' <<<"${publication_error}"
-unset publication_error
+python3 -m unittest tools/test_crate_release_policy.py tools/test_access_route_schema.py tools/test_crate_publication.py
 jq empty \
   fixtures/access-tokens-v1.json \
   fixtures/access-routes-v1.json \
@@ -58,6 +50,7 @@ jq empty \
   schema/metaserver-game-publisher-v2.schema.json \
   schema/metaserver-classic-publisher-v3.schema.json \
   policy/rust-crate-candidate.json \
+  policy/rust-crate-next.json \
   fixtures/framing.json \
   fixtures/metaserver-directory-v1.json \
   fixtures/metaserver-directory-v1/*.json \
@@ -157,6 +150,12 @@ cargo package --locked --offline --allow-dirty \
   --manifest-path crates/atrinik-protocol/Cargo.toml \
   --target-dir "${protocol_crate_target}"
 test -s "${protocol_crate_target}/package/${protocol_crate_asset}"
+python3 - "${protocol_crate_target}/package/${protocol_crate_asset}" "$(git rev-parse HEAD)" <<'PYTHON'
+from pathlib import Path
+import sys
+from tools.crate_publication import verify_crate
+verify_crate(Path(sys.argv[1]), sys.argv[2], Path("policy/rust-crate-files.txt").read_text().splitlines())
+PYTHON
 protocol_crate_listing=$(mktemp /tmp/atrinik-protocol-crate-files.XXXXXX)
 protocol_crate_extract=$(mktemp -d /tmp/atrinik-protocol-crate-extract.XXXXXX)
 tar -tzf "${protocol_crate_target}/package/${protocol_crate_asset}" \

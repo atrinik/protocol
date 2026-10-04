@@ -96,7 +96,12 @@ and evaluates resolved Cargo license expressions against the SPDX policy.
 
 The aggregate required check is `Protocol validation`. Release tags create a
 source/bindings/schema archive, descriptor, fixtures, checksums, CycloneDX
-SBOM, build provenance, notices, and MIT license. A Rust crate version has
+SBOM, build provenance, notices, and MIT license. Every release asset is a flat
+file covered by the outer `SHA256SUMS`. The deterministic
+`atrinik-protocol-contracts-VERSION.tar.gz` additionally contains the complete
+contract layout, both nested directory fixture trees, and its own checksum
+manifest. Extract that bundle to validate nested fixtures; the GitHub asset
+glob cannot upload directories. A Rust crate version has
 exactly one policy-owned repository release, revision, asset name, and digest
 in `policy/rust-crate-release.json`. Only that owning release may include the
 self-contained registry-ready `.crate`; later repository releases omit it
@@ -107,9 +112,12 @@ Git revision.
 
 ## Rust registry publication
 
-The unpublished 0.2.0 candidate sets `package.publish = false`; both Cargo and
-the policy checker reject publication. Enabling publication requires a separate
-reviewed source and policy activation, with a new immutable package checksum.
+The unpublished 0.2.0 candidate is prepared for a future registry release. Its
+manifest allows only crates.io so the next reviewed source release can produce
+its final publishable bytes. This is not an upload authorization: the manual
+workflow has no OIDC permission, registry token, or upload command.
+`policy/rust-crate-next.json` contains no invented revision or checksum; it
+remains `awaiting-source-release` until actual artifacts receive separate review.
 
 Crate `atrinik-protocol` version `0.1.0` is registered on crates.io with
 SHA-256
@@ -127,7 +135,7 @@ policy digest. It is retained as immutable release history; ordinary future
 repository releases omit crate `0.1.0` rather than regenerating it.
 
 `policy/rust-crate-publishing.json` records the registered coordinates and
-keeps future publication `disabled-until-reviewed-activation`. Publishing is
+keeps future publication `prepared-awaiting-reviewed-artifact`. Publishing is
 permanent and is never implied by merging ordinary protocol changes or by the
 semantic-release workflow.
 
@@ -149,10 +157,49 @@ before proposing contract material. The cross-repository roadmap is
 ## Unpublished access-token crate candidate
 
 `policy/rust-crate-candidate.json` records source version 0.2.0 as explicitly
-unpublished with publication disabled. Aggregate validation packages and builds
+unpublished with registry upload disabled. Aggregate validation packages and builds
 that candidate locally; source releases omit a registry crate until a separately
 reviewed immutable release policy assigns its version, revision and digest.
 The existing published 0.1.0 release policy and checksum are unchanged. A temporary
 task-owned dependency override may validate coordinated consumers, but consumers
 must pin an actual immutable release before readiness; no permanent sibling path
 or fabricated release is accepted.
+
+
+## Preparing the next Rust crate
+
+The manual `publish-crate.yml` workflow currently prepares only. Run it on main
+with an actual published source tag and its full revision after separately
+approving that dispatch. It checks local and public tag identity, release
+provenance, source ancestry and cleanliness, packages twice with Rust 1.97.1,
+checks package inventory/VCS metadata/registry-only dependencies, and emits the
+actual `.crate` and `artifact.json`. It never requests a registry token or
+uploads to crates.io. Release v2.6.0 has `publish = false` and is deliberately
+rejected: changing its manifest would create different, unreviewed bytes.
+
+After a separately approved source merge and release, use the resulting exact
+artifact evidence in a small activation PR. That PR must replace the pending
+artifact policy with the real repository release, source revision, asset name
+and SHA-256; retain the immutable published 0.1.0 record; and add the reviewed
+Trusted Publishing upload job. Do not package activation HEAD: reproduce the
+pinned prepared-source release. Attach the exact reviewed crate to its owning
+release only with explicit authorization, then verify the public asset digest.
+GitHub currently reports v2.6.0 as `immutable: false`; a pinned content digest
+and repeated tag/asset checks detect drift but do not enable release immutability.
+
+The activation must bind crates.io Trusted Publishing to `atrinik/protocol`,
+`publish-crate.yml`, and `crates-io-release`. The proposed GitHub environment is
+main-only with owner review and no secrets or variables; setup is a separate
+owner action. Grant `id-token: write` only to the future upload job. Reproduce
+and verify the reviewed crate before token exchange, including again after
+environment review. Pass the short-lived token only to `cargo publish --locked
+--no-verify`; retain the action's token revocation. Recheck both the public API
+and sparse-index checksum after upload. Matching existing bytes are idempotent
+success, different bytes are terminal, and an indeterminate result requires
+public-state inspection before retry. No long-lived registry token is allowed.
+
+The credential-free verifier already tests these artifact and registry checks,
+but adding pins or upload capability still requires a separate policy review.
+The current policy checker rejects that activation until reviewed code changes
+make it explicit. See the [official token action](https://github.com/rust-lang/crates-io-auth-action)
+and [Cargo publication contract](https://doc.rust-lang.org/cargo/commands/cargo-publish.html).

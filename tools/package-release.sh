@@ -43,7 +43,7 @@ metadata_crate_version=$(cargo metadata --locked --offline --no-deps \
 python3 tools/check-crate-release-policy.py
 if [[ ${metadata_crate_version} != "${crate_version}" ]]; then
   test "$(jq -er '.version' policy/rust-crate-candidate.json)" = "${metadata_crate_version}"
-  test "$(jq -er '.publication' policy/rust-crate-candidate.json)" = disabled
+  test "$(jq -er '.publication' policy/rust-crate-candidate.json)" = prepared-without-upload
 fi
 
 crate_included=false

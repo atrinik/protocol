@@ -15,10 +15,10 @@ RELEASE_POLICY = ROOT / "policy" / "rust-crate-release.json"
 WORKFLOWS = ROOT / ".github" / "workflows"
 PUBLISH_WORKFLOW = WORKFLOWS / "publish-crate.yml"
 BOOTSTRAP_CHECK = ROOT / "tools" / "check-crate-publication.py"
-EXPECTED_WORKFLOWS = {"pr-title.yml", "release.yml", "validate.yml"}
+EXPECTED_WORKFLOWS = {"pr-title.yml", "release.yml", "validate.yml", "publish-crate.yml"}
 
 EXPECTED_FUTURE_POLICY = {
-    "status": "disabled-until-reviewed-activation",
+    "status": "prepared-awaiting-reviewed-artifact",
     "authentication": "trusted-publishing",
     "repository_owner": "atrinik",
     "repository": "protocol",
@@ -50,13 +50,13 @@ def main() -> None:
         if not candidate_path.is_file():
             raise SystemExit("unpublished crate requires explicit candidate policy")
         manifest = tomllib.loads((ROOT / "crates/atrinik-protocol/Cargo.toml").read_text())
-        if manifest["package"].get("publish") is not False:
-            raise SystemExit("unpublished crate manifest must set publish = false")
+        if manifest["package"].get("publish") != ["crates-io"]:
+            raise SystemExit("prepared crate manifest must restrict publish to crates-io")
         candidate = load_json(candidate_path)
         expected_candidate = {
             "schema_version": 1, "name": release["name"],
             "version": workspace_version, "base_published_version": release["version"],
-            "status": "unpublished", "publication": "disabled",
+            "status": "unpublished", "publication": "prepared-without-upload",
         }
         if candidate != expected_candidate or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", workspace_version):
             raise SystemExit("unpublished crate candidate policy changed")
@@ -85,8 +85,18 @@ def main() -> None:
     if publishing != expected:
         raise SystemExit("reviewed Rust registry policy changed")
 
-    if PUBLISH_WORKFLOW.exists():
-        raise SystemExit("Rust registry publication is not activated")
+    next_policy = load_json(ROOT / "policy/rust-crate-next.json")
+    if next_policy != {"schema_version": 1, "name": release["name"],
+                       "version": workspace_version, "status": "awaiting-source-release",
+                       "artifact": None}:
+        raise SystemExit("actual artifact pins require a separate activation review")
+    if not PUBLISH_WORKFLOW.is_file():
+        raise SystemExit("credential-free preparation workflow is required")
+    preparation = PUBLISH_WORKFLOW.read_text()
+    for forbidden in ("id-token:", "contents: write", "push:", "pull_request:",
+                      "workflow_call:", "secrets.", "environment:"):
+        if forbidden in preparation:
+            raise SystemExit("preparation workflow must remain credential-free and manual")
     if BOOTSTRAP_CHECK.exists():
         raise SystemExit("one-time bootstrap checker must remain removed")
 
@@ -111,7 +121,7 @@ def main() -> None:
     required_readme = (
         "The one-use bootstrap workflow",
         "has been removed",
-        "disabled-until-reviewed-activation",
+        "prepared-awaiting-reviewed-artifact",
         "crates-io-release",
         "Trusted Publishing",
     )
