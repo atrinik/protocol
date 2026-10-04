@@ -28,7 +28,7 @@ class PublicationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / 'policy.json'
             path.write_text(json.dumps(self.policy()))
-            with patch('sys.argv', ['checker', 'verify-publish', '--policy', str(path)]), patch.object(P, 'prepare') as prepare:
+            with patch.dict(os.environ, {}, clear=True), patch('sys.argv', ['checker', 'verify-publish', '--policy', str(path)]), patch.object(P, 'prepare') as prepare:
                 with self.assertRaisesRegex(ValueError, 'publication disabled'):
                     P.main()
                 prepare.assert_not_called()
@@ -64,6 +64,16 @@ class PublicationTests(unittest.TestCase):
         with patch.dict(os.environ, {'CARGO_REGISTRY_TOKEN': 'synthetic-test-only'}, clear=True), self.assertRaisesRegex(ValueError, 'without registry credentials'):
             P.execution_boundary()
         with patch.dict(os.environ, {'GITHUB_ACTIONS': 'true', 'GITHUB_REPOSITORY': 'other/protocol'}, clear=True), self.assertRaisesRegex(ValueError, 'workflow identity'):
+            P.execution_boundary()
+
+    def test_accepts_exact_manual_workflow_identity(self):
+        environment = {
+            'GITHUB_ACTIONS': 'true', 'GITHUB_REPOSITORY': 'atrinik/protocol',
+            'GITHUB_REPOSITORY_ID': '1327106950', 'GITHUB_REF': 'refs/heads/main',
+            'GITHUB_EVENT_NAME': 'workflow_dispatch',
+            'GITHUB_WORKFLOW_REF': 'atrinik/protocol/.github/workflows/publish-crate.yml@refs/heads/main',
+        }
+        with patch.dict(os.environ, environment, clear=True):
             P.execution_boundary()
 
     def test_tag_drift_fails_before_packaging(self):
