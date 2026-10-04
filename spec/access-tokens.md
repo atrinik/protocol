@@ -97,6 +97,10 @@ owner-authenticated reads and consume a fresh signature sequence like mutations.
 
 Authentication/signature/clock checks happen before idempotency. All access and
 publisher operations share the authenticated profile/server replay lineage. A
+route operation requires an already registered publisher replay identity; access
+CRUD never allocates a new publisher identity. Reserve additionally requires
+fresh signed presence. Revoke/result may use the retained registered identity
+after presence expires, without resetting its sequence or nonce history. A
 freshly signed retry MUST use a new reserved monotonic sequence and nonce with the
 same requestId and identical canonical operation payload. After authenticating and
 charging bounded request cost, compare requestId's immutable SHA256(body) before
@@ -116,6 +120,11 @@ no larger revision may resurrect it. Reissuing requires new tokenId, C and I.
 Revoke stores the maximum observed revision, invalidates all associated pending
 grants and prevents delayed reserve/activate for older or later revisions from
 reviving that identity. Delayed requests never reverse a tombstone.
+Once the authenticated tuple identifies a terminal revoked token, a delayed
+reserve/activate returns `revoked`, including a request with a larger revision;
+it does not return `conflict` merely because the token is terminal. An expired
+reservation returns `expired`. Immutable request-ID payload conflicts still take
+precedence, and revoke continues to retain the maximum observed revision.
 
 Global I uniqueness is serialized in D1 across profiles/servers. Each server has
 at most 1024 active/pending registrations and at most 4096 total retained records
