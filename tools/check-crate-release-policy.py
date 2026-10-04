@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import json
+import re
+import tomllib
 from pathlib import Path
 
 
@@ -41,6 +43,28 @@ def load_json(path: Path) -> object:
 def main() -> None:
     publishing = load_json(PUBLISHING_POLICY)
     release = load_json(RELEASE_POLICY)
+    workspace = tomllib.loads((ROOT / "Cargo.toml").read_text())
+    workspace_version = workspace["workspace"]["package"]["version"]
+    candidate_path = ROOT / "policy" / "rust-crate-candidate.json"
+    if workspace_version != release["version"]:
+        if not candidate_path.is_file():
+            raise SystemExit("unpublished crate requires explicit candidate policy")
+        manifest = tomllib.loads((ROOT / "crates/atrinik-protocol/Cargo.toml").read_text())
+        if manifest["package"].get("publish") is not False:
+            raise SystemExit("unpublished crate manifest must set publish = false")
+        candidate = load_json(candidate_path)
+        expected_candidate = {
+            "schema_version": 1, "name": release["name"],
+            "version": workspace_version, "base_published_version": release["version"],
+            "status": "unpublished", "publication": "disabled",
+        }
+        if candidate != expected_candidate or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", workspace_version):
+            raise SystemExit("unpublished crate candidate policy changed")
+        if tuple(map(int, workspace_version.split("."))) <= tuple(map(int, release["version"].split("."))):
+            raise SystemExit("unpublished crate must advance the immutable published version")
+    elif candidate_path.exists():
+        raise SystemExit("published crate cannot be relabeled as an unpublished candidate")
+
     expected_published = {
         key: release[key]
         for key in (

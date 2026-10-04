@@ -1,5 +1,9 @@
 # Metaserver static directory v1
 
+Current access-token consumers follow [Access tokens v1](access-tokens.md), which
+supersedes admission and current publisher/directory version semantics below.
+Historical versions remain immutable baseline contracts only.
+
 This specification defines the bounded public directory model and canonical
 JSON representation served at `https://meta.atrinik.org/index.json`. The model
 is independent from gameplay messages, publisher authentication, classic

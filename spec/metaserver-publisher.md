@@ -1,5 +1,9 @@
 # Metaserver publisher authentication
 
+Current access-token consumers follow [Access tokens v1](access-tokens.md), which
+supersedes admission and current publisher/directory version semantics below.
+Historical versions remain immutable baseline contracts only.
+
 This specification defines Atrinik's certificate-bound, one-request
 metaserver publisher authentication profile. It is independent from gameplay
 messages and from static directory representations. RFC 9421 HTTP Message

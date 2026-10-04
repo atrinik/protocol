@@ -27,10 +27,11 @@ const (
 type Capability int32
 
 const (
-	Capability_CAPABILITY_UNSPECIFIED Capability = 0
-	Capability_CAPABILITY_CONTROL_V1  Capability = 1
-	Capability_CAPABILITY_GAMEPLAY_V1 Capability = 2
-	Capability_CAPABILITY_RESOURCE_V1 Capability = 3
+	Capability_CAPABILITY_UNSPECIFIED      Capability = 0
+	Capability_CAPABILITY_CONTROL_V1       Capability = 1
+	Capability_CAPABILITY_GAMEPLAY_V1      Capability = 2
+	Capability_CAPABILITY_RESOURCE_V1      Capability = 3
+	Capability_CAPABILITY_ACCESS_TOKENS_V1 Capability = 4
 )
 
 // Enum value maps for Capability.
@@ -40,12 +41,14 @@ var (
 		1: "CAPABILITY_CONTROL_V1",
 		2: "CAPABILITY_GAMEPLAY_V1",
 		3: "CAPABILITY_RESOURCE_V1",
+		4: "CAPABILITY_ACCESS_TOKENS_V1",
 	}
 	Capability_value = map[string]int32{
-		"CAPABILITY_UNSPECIFIED": 0,
-		"CAPABILITY_CONTROL_V1":  1,
-		"CAPABILITY_GAMEPLAY_V1": 2,
-		"CAPABILITY_RESOURCE_V1": 3,
+		"CAPABILITY_UNSPECIFIED":      0,
+		"CAPABILITY_CONTROL_V1":       1,
+		"CAPABILITY_GAMEPLAY_V1":      2,
+		"CAPABILITY_RESOURCE_V1":      3,
+		"CAPABILITY_ACCESS_TOKENS_V1": 4,
 	}
 )
 
@@ -320,6 +323,105 @@ func (ErrorCode) EnumDescriptor() ([]byte, []int) {
 	return file_atrinik_game_v1_transport_proto_rawDescGZIP(), []int{4}
 }
 
+// Access policy is mandatory in GP1 1.1, including open/direct connections.
+type AccessPolicy int32
+
+const (
+	AccessPolicy_ACCESS_POLICY_UNSPECIFIED AccessPolicy = 0
+	AccessPolicy_ACCESS_POLICY_OPEN        AccessPolicy = 1
+	AccessPolicy_ACCESS_POLICY_PROTECTED   AccessPolicy = 2
+)
+
+// Enum value maps for AccessPolicy.
+var (
+	AccessPolicy_name = map[int32]string{
+		0: "ACCESS_POLICY_UNSPECIFIED",
+		1: "ACCESS_POLICY_OPEN",
+		2: "ACCESS_POLICY_PROTECTED",
+	}
+	AccessPolicy_value = map[string]int32{
+		"ACCESS_POLICY_UNSPECIFIED": 0,
+		"ACCESS_POLICY_OPEN":        1,
+		"ACCESS_POLICY_PROTECTED":   2,
+	}
+)
+
+func (x AccessPolicy) Enum() *AccessPolicy {
+	p := new(AccessPolicy)
+	*p = x
+	return p
+}
+
+func (x AccessPolicy) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AccessPolicy) Descriptor() protoreflect.EnumDescriptor {
+	return file_atrinik_game_v1_transport_proto_enumTypes[5].Descriptor()
+}
+
+func (AccessPolicy) Type() protoreflect.EnumType {
+	return &file_atrinik_game_v1_transport_proto_enumTypes[5]
+}
+
+func (x AccessPolicy) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AccessPolicy.Descriptor instead.
+func (AccessPolicy) EnumDescriptor() ([]byte, []int) {
+	return file_atrinik_game_v1_transport_proto_rawDescGZIP(), []int{5}
+}
+
+type AccessStatus int32
+
+const (
+	AccessStatus_ACCESS_STATUS_UNSPECIFIED AccessStatus = 0
+	AccessStatus_ACCESS_STATUS_ACCEPTED    AccessStatus = 1
+	AccessStatus_ACCESS_STATUS_UNAVAILABLE AccessStatus = 2
+)
+
+// Enum value maps for AccessStatus.
+var (
+	AccessStatus_name = map[int32]string{
+		0: "ACCESS_STATUS_UNSPECIFIED",
+		1: "ACCESS_STATUS_ACCEPTED",
+		2: "ACCESS_STATUS_UNAVAILABLE",
+	}
+	AccessStatus_value = map[string]int32{
+		"ACCESS_STATUS_UNSPECIFIED": 0,
+		"ACCESS_STATUS_ACCEPTED":    1,
+		"ACCESS_STATUS_UNAVAILABLE": 2,
+	}
+)
+
+func (x AccessStatus) Enum() *AccessStatus {
+	p := new(AccessStatus)
+	*p = x
+	return p
+}
+
+func (x AccessStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AccessStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_atrinik_game_v1_transport_proto_enumTypes[6].Descriptor()
+}
+
+func (AccessStatus) Type() protoreflect.EnumType {
+	return &file_atrinik_game_v1_transport_proto_enumTypes[6]
+}
+
+func (x AccessStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AccessStatus.Descriptor instead.
+func (AccessStatus) EnumDescriptor() ([]byte, []int) {
+	return file_atrinik_game_v1_transport_proto_rawDescGZIP(), []int{6}
+}
+
 type StreamHeader struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Role          StreamRole             `protobuf:"varint,1,opt,name=role,proto3,enum=atrinik.game.v1.StreamRole" json:"role,omitempty"`
@@ -465,6 +567,7 @@ type ServerHello struct {
 	MaximumGameplayFrameBytes uint32                 `protobuf:"varint,5,opt,name=maximum_gameplay_frame_bytes,json=maximumGameplayFrameBytes,proto3" json:"maximum_gameplay_frame_bytes,omitempty"`
 	MaximumResourceFrameBytes uint32                 `protobuf:"varint,6,opt,name=maximum_resource_frame_bytes,json=maximumResourceFrameBytes,proto3" json:"maximum_resource_frame_bytes,omitempty"`
 	IdleTimeout               *DurationMillis        `protobuf:"bytes,7,opt,name=idle_timeout,json=idleTimeout,proto3" json:"idle_timeout,omitempty"`
+	AccessPolicy              AccessPolicy           `protobuf:"varint,9,opt,name=access_policy,json=accessPolicy,proto3,enum=atrinik.game.v1.AccessPolicy" json:"access_policy,omitempty"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
 }
@@ -548,6 +651,109 @@ func (x *ServerHello) GetIdleTimeout() *DurationMillis {
 	return nil
 }
 
+func (x *ServerHello) GetAccessPolicy() AccessPolicy {
+	if x != nil {
+		return x.AccessPolicy
+	}
+	return AccessPolicy_ACCESS_POLICY_UNSPECIFIED
+}
+
+type AccessAuth struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Code          []byte                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	SessionId     *SessionId             `protobuf:"bytes,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AccessAuth) Reset() {
+	*x = AccessAuth{}
+	mi := &file_atrinik_game_v1_transport_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AccessAuth) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AccessAuth) ProtoMessage() {}
+
+func (x *AccessAuth) ProtoReflect() protoreflect.Message {
+	mi := &file_atrinik_game_v1_transport_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AccessAuth.ProtoReflect.Descriptor instead.
+func (*AccessAuth) Descriptor() ([]byte, []int) {
+	return file_atrinik_game_v1_transport_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *AccessAuth) GetCode() []byte {
+	if x != nil {
+		return x.Code
+	}
+	return nil
+}
+
+func (x *AccessAuth) GetSessionId() *SessionId {
+	if x != nil {
+		return x.SessionId
+	}
+	return nil
+}
+
+type AccessResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        AccessStatus           `protobuf:"varint,1,opt,name=status,proto3,enum=atrinik.game.v1.AccessStatus" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AccessResult) Reset() {
+	*x = AccessResult{}
+	mi := &file_atrinik_game_v1_transport_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AccessResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AccessResult) ProtoMessage() {}
+
+func (x *AccessResult) ProtoReflect() protoreflect.Message {
+	mi := &file_atrinik_game_v1_transport_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AccessResult.ProtoReflect.Descriptor instead.
+func (*AccessResult) Descriptor() ([]byte, []int) {
+	return file_atrinik_game_v1_transport_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *AccessResult) GetStatus() AccessStatus {
+	if x != nil {
+		return x.Status
+	}
+	return AccessStatus_ACCESS_STATUS_UNSPECIFIED
+}
+
 type ConnectionRejected struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ErrorClass    ErrorClass             `protobuf:"varint,1,opt,name=error_class,json=errorClass,proto3,enum=atrinik.game.v1.ErrorClass" json:"error_class,omitempty"`
@@ -561,7 +767,7 @@ type ConnectionRejected struct {
 
 func (x *ConnectionRejected) Reset() {
 	*x = ConnectionRejected{}
-	mi := &file_atrinik_game_v1_transport_proto_msgTypes[3]
+	mi := &file_atrinik_game_v1_transport_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -573,7 +779,7 @@ func (x *ConnectionRejected) String() string {
 func (*ConnectionRejected) ProtoMessage() {}
 
 func (x *ConnectionRejected) ProtoReflect() protoreflect.Message {
-	mi := &file_atrinik_game_v1_transport_proto_msgTypes[3]
+	mi := &file_atrinik_game_v1_transport_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -586,7 +792,7 @@ func (x *ConnectionRejected) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectionRejected.ProtoReflect.Descriptor instead.
 func (*ConnectionRejected) Descriptor() ([]byte, []int) {
-	return file_atrinik_game_v1_transport_proto_rawDescGZIP(), []int{3}
+	return file_atrinik_game_v1_transport_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ConnectionRejected) GetErrorClass() ErrorClass {
@@ -633,7 +839,7 @@ type Ping struct {
 
 func (x *Ping) Reset() {
 	*x = Ping{}
-	mi := &file_atrinik_game_v1_transport_proto_msgTypes[4]
+	mi := &file_atrinik_game_v1_transport_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -645,7 +851,7 @@ func (x *Ping) String() string {
 func (*Ping) ProtoMessage() {}
 
 func (x *Ping) ProtoReflect() protoreflect.Message {
-	mi := &file_atrinik_game_v1_transport_proto_msgTypes[4]
+	mi := &file_atrinik_game_v1_transport_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -658,7 +864,7 @@ func (x *Ping) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Ping.ProtoReflect.Descriptor instead.
 func (*Ping) Descriptor() ([]byte, []int) {
-	return file_atrinik_game_v1_transport_proto_rawDescGZIP(), []int{4}
+	return file_atrinik_game_v1_transport_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Ping) GetNonce() uint64 {
@@ -677,7 +883,7 @@ type Pong struct {
 
 func (x *Pong) Reset() {
 	*x = Pong{}
-	mi := &file_atrinik_game_v1_transport_proto_msgTypes[5]
+	mi := &file_atrinik_game_v1_transport_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -689,7 +895,7 @@ func (x *Pong) String() string {
 func (*Pong) ProtoMessage() {}
 
 func (x *Pong) ProtoReflect() protoreflect.Message {
-	mi := &file_atrinik_game_v1_transport_proto_msgTypes[5]
+	mi := &file_atrinik_game_v1_transport_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -702,7 +908,7 @@ func (x *Pong) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Pong.ProtoReflect.Descriptor instead.
 func (*Pong) Descriptor() ([]byte, []int) {
-	return file_atrinik_game_v1_transport_proto_rawDescGZIP(), []int{5}
+	return file_atrinik_game_v1_transport_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *Pong) GetNonce() uint64 {
@@ -722,7 +928,7 @@ type GracefulDrain struct {
 
 func (x *GracefulDrain) Reset() {
 	*x = GracefulDrain{}
-	mi := &file_atrinik_game_v1_transport_proto_msgTypes[6]
+	mi := &file_atrinik_game_v1_transport_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -734,7 +940,7 @@ func (x *GracefulDrain) String() string {
 func (*GracefulDrain) ProtoMessage() {}
 
 func (x *GracefulDrain) ProtoReflect() protoreflect.Message {
-	mi := &file_atrinik_game_v1_transport_proto_msgTypes[6]
+	mi := &file_atrinik_game_v1_transport_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -747,7 +953,7 @@ func (x *GracefulDrain) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GracefulDrain.ProtoReflect.Descriptor instead.
 func (*GracefulDrain) Descriptor() ([]byte, []int) {
-	return file_atrinik_game_v1_transport_proto_rawDescGZIP(), []int{6}
+	return file_atrinik_game_v1_transport_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GracefulDrain) GetDeadline() *DurationMillis {
@@ -775,6 +981,8 @@ type ControlEnvelope struct {
 	//	*ControlEnvelope_Ping
 	//	*ControlEnvelope_Pong
 	//	*ControlEnvelope_Drain
+	//	*ControlEnvelope_AccessAuth
+	//	*ControlEnvelope_AccessResult
 	Payload       isControlEnvelope_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -782,7 +990,7 @@ type ControlEnvelope struct {
 
 func (x *ControlEnvelope) Reset() {
 	*x = ControlEnvelope{}
-	mi := &file_atrinik_game_v1_transport_proto_msgTypes[7]
+	mi := &file_atrinik_game_v1_transport_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -794,7 +1002,7 @@ func (x *ControlEnvelope) String() string {
 func (*ControlEnvelope) ProtoMessage() {}
 
 func (x *ControlEnvelope) ProtoReflect() protoreflect.Message {
-	mi := &file_atrinik_game_v1_transport_proto_msgTypes[7]
+	mi := &file_atrinik_game_v1_transport_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -807,7 +1015,7 @@ func (x *ControlEnvelope) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ControlEnvelope.ProtoReflect.Descriptor instead.
 func (*ControlEnvelope) Descriptor() ([]byte, []int) {
-	return file_atrinik_game_v1_transport_proto_rawDescGZIP(), []int{7}
+	return file_atrinik_game_v1_transport_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ControlEnvelope) GetSequence() uint64 {
@@ -878,6 +1086,24 @@ func (x *ControlEnvelope) GetDrain() *GracefulDrain {
 	return nil
 }
 
+func (x *ControlEnvelope) GetAccessAuth() *AccessAuth {
+	if x != nil {
+		if x, ok := x.Payload.(*ControlEnvelope_AccessAuth); ok {
+			return x.AccessAuth
+		}
+	}
+	return nil
+}
+
+func (x *ControlEnvelope) GetAccessResult() *AccessResult {
+	if x != nil {
+		if x, ok := x.Payload.(*ControlEnvelope_AccessResult); ok {
+			return x.AccessResult
+		}
+	}
+	return nil
+}
+
 type isControlEnvelope_Payload interface {
 	isControlEnvelope_Payload()
 }
@@ -906,6 +1132,14 @@ type ControlEnvelope_Drain struct {
 	Drain *GracefulDrain `protobuf:"bytes,7,opt,name=drain,proto3,oneof"`
 }
 
+type ControlEnvelope_AccessAuth struct {
+	AccessAuth *AccessAuth `protobuf:"bytes,8,opt,name=access_auth,json=accessAuth,proto3,oneof"`
+}
+
+type ControlEnvelope_AccessResult struct {
+	AccessResult *AccessResult `protobuf:"bytes,9,opt,name=access_result,json=accessResult,proto3,oneof"`
+}
+
 func (*ControlEnvelope_ClientHello) isControlEnvelope_Payload() {}
 
 func (*ControlEnvelope_ServerHello) isControlEnvelope_Payload() {}
@@ -917,6 +1151,10 @@ func (*ControlEnvelope_Ping) isControlEnvelope_Payload() {}
 func (*ControlEnvelope_Pong) isControlEnvelope_Payload() {}
 
 func (*ControlEnvelope_Drain) isControlEnvelope_Payload() {}
+
+func (*ControlEnvelope_AccessAuth) isControlEnvelope_Payload() {}
+
+func (*ControlEnvelope_AccessResult) isControlEnvelope_Payload() {}
 
 var File_atrinik_game_v1_transport_proto protoreflect.FileDescriptor
 
@@ -932,7 +1170,7 @@ const file_atrinik_game_v1_transport_proto_rawDesc = "" +
 	"\x06locale\x18\x03 \x01(\tR\x06locale\x125\n" +
 	"\bplatform\x18\x04 \x01(\x0e2\x19.atrinik.game.v1.PlatformR\bplatform\x12\x19\n" +
 	"\bbuild_id\x18\x05 \x01(\tR\abuildId\x12!\n" +
-	"\fclient_nonce\x18\x06 \x01(\fR\vclientNonce\"\xd0\x03\n" +
+	"\fclient_nonce\x18\x06 \x01(\fR\vclientNonce\"\x94\x04\n" +
 	"\vServerHello\x12:\n" +
 	"\aversion\x18\x01 \x01(\v2 .atrinik.game.v1.ProtocolVersionR\aversion\x12?\n" +
 	"\fcapabilities\x18\x02 \x03(\x0e2\x1b.atrinik.game.v1.CapabilityR\fcapabilities\x129\n" +
@@ -941,7 +1179,15 @@ const file_atrinik_game_v1_transport_proto_rawDesc = "" +
 	"\x0fserver_identity\x18\x04 \x01(\v2\x1a.atrinik.game.v1.Digest256R\x0eserverIdentity\x12?\n" +
 	"\x1cmaximum_gameplay_frame_bytes\x18\x05 \x01(\rR\x19maximumGameplayFrameBytes\x12?\n" +
 	"\x1cmaximum_resource_frame_bytes\x18\x06 \x01(\rR\x19maximumResourceFrameBytes\x12B\n" +
-	"\fidle_timeout\x18\a \x01(\v2\x1f.atrinik.game.v1.DurationMillisR\vidleTimeout\"\x87\x02\n" +
+	"\fidle_timeout\x18\a \x01(\v2\x1f.atrinik.game.v1.DurationMillisR\vidleTimeout\x12B\n" +
+	"\raccess_policy\x18\t \x01(\x0e2\x1d.atrinik.game.v1.AccessPolicyR\faccessPolicy\"[\n" +
+	"\n" +
+	"AccessAuth\x12\x12\n" +
+	"\x04code\x18\x01 \x01(\fR\x04code\x129\n" +
+	"\n" +
+	"session_id\x18\x02 \x01(\v2\x1a.atrinik.game.v1.SessionIdR\tsessionId\"E\n" +
+	"\fAccessResult\x125\n" +
+	"\x06status\x18\x01 \x01(\x0e2\x1d.atrinik.game.v1.AccessStatusR\x06status\"\x87\x02\n" +
 	"\x12ConnectionRejected\x12<\n" +
 	"\verror_class\x18\x01 \x01(\x0e2\x1b.atrinik.game.v1.ErrorClassR\n" +
 	"errorClass\x12.\n" +
@@ -956,7 +1202,7 @@ const file_atrinik_game_v1_transport_proto_rawDesc = "" +
 	"\rGracefulDrain\x12;\n" +
 	"\bdeadline\x18\x01 \x01(\v2\x1f.atrinik.game.v1.DurationMillisR\bdeadline\x12\x1f\n" +
 	"\vsafe_reason\x18\x02 \x01(\tR\n" +
-	"safeReason\"\x93\x03\n" +
+	"safeReason\"\x99\x04\n" +
 	"\x0fControlEnvelope\x12\x1a\n" +
 	"\bsequence\x18\x01 \x01(\x04R\bsequence\x12A\n" +
 	"\fclient_hello\x18\x02 \x01(\v2\x1c.atrinik.game.v1.ClientHelloH\x00R\vclientHello\x12A\n" +
@@ -964,14 +1210,18 @@ const file_atrinik_game_v1_transport_proto_rawDesc = "" +
 	"\brejected\x18\x04 \x01(\v2#.atrinik.game.v1.ConnectionRejectedH\x00R\brejected\x12+\n" +
 	"\x04ping\x18\x05 \x01(\v2\x15.atrinik.game.v1.PingH\x00R\x04ping\x12+\n" +
 	"\x04pong\x18\x06 \x01(\v2\x15.atrinik.game.v1.PongH\x00R\x04pong\x126\n" +
-	"\x05drain\x18\a \x01(\v2\x1e.atrinik.game.v1.GracefulDrainH\x00R\x05drainB\t\n" +
-	"\apayload*{\n" +
+	"\x05drain\x18\a \x01(\v2\x1e.atrinik.game.v1.GracefulDrainH\x00R\x05drain\x12>\n" +
+	"\vaccess_auth\x18\b \x01(\v2\x1b.atrinik.game.v1.AccessAuthH\x00R\n" +
+	"accessAuth\x12D\n" +
+	"\raccess_result\x18\t \x01(\v2\x1d.atrinik.game.v1.AccessResultH\x00R\faccessResultB\t\n" +
+	"\apayload*\x9c\x01\n" +
 	"\n" +
 	"Capability\x12\x1a\n" +
 	"\x16CAPABILITY_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15CAPABILITY_CONTROL_V1\x10\x01\x12\x1a\n" +
 	"\x16CAPABILITY_GAMEPLAY_V1\x10\x02\x12\x1a\n" +
-	"\x16CAPABILITY_RESOURCE_V1\x10\x03*N\n" +
+	"\x16CAPABILITY_RESOURCE_V1\x10\x03\x12\x1f\n" +
+	"\x1bCAPABILITY_ACCESS_TOKENS_V1\x10\x04*N\n" +
 	"\bPlatform\x12\x18\n" +
 	"\x14PLATFORM_UNSPECIFIED\x10\x00\x12\x12\n" +
 	"\x0ePLATFORM_LINUX\x10\x01\x12\x14\n" +
@@ -1006,7 +1256,15 @@ const file_atrinik_game_v1_transport_proto_rawDesc = "" +
 	"\x17ERROR_CODE_RATE_LIMITED\x10\t\x12\x1e\n" +
 	"\x1aERROR_CODE_SERVER_DRAINING\x10\n" +
 	"\x12\x17\n" +
-	"\x13ERROR_CODE_INTERNAL\x10\vB;Z9github.com/atrinik/protocol/gen/go/atrinik/game/v1;gamev1b\x06proto3"
+	"\x13ERROR_CODE_INTERNAL\x10\v*b\n" +
+	"\fAccessPolicy\x12\x1d\n" +
+	"\x19ACCESS_POLICY_UNSPECIFIED\x10\x00\x12\x16\n" +
+	"\x12ACCESS_POLICY_OPEN\x10\x01\x12\x1b\n" +
+	"\x17ACCESS_POLICY_PROTECTED\x10\x02*h\n" +
+	"\fAccessStatus\x12\x1d\n" +
+	"\x19ACCESS_STATUS_UNSPECIFIED\x10\x00\x12\x1a\n" +
+	"\x16ACCESS_STATUS_ACCEPTED\x10\x01\x12\x1d\n" +
+	"\x19ACCESS_STATUS_UNAVAILABLE\x10\x02B;Z9github.com/atrinik/protocol/gen/go/atrinik/game/v1;gamev1b\x06proto3"
 
 var (
 	file_atrinik_game_v1_transport_proto_rawDescOnce sync.Once
@@ -1020,53 +1278,62 @@ func file_atrinik_game_v1_transport_proto_rawDescGZIP() []byte {
 	return file_atrinik_game_v1_transport_proto_rawDescData
 }
 
-var file_atrinik_game_v1_transport_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_atrinik_game_v1_transport_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_atrinik_game_v1_transport_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
+var file_atrinik_game_v1_transport_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_atrinik_game_v1_transport_proto_goTypes = []any{
 	(Capability)(0),            // 0: atrinik.game.v1.Capability
 	(Platform)(0),              // 1: atrinik.game.v1.Platform
 	(StreamRole)(0),            // 2: atrinik.game.v1.StreamRole
 	(ErrorClass)(0),            // 3: atrinik.game.v1.ErrorClass
 	(ErrorCode)(0),             // 4: atrinik.game.v1.ErrorCode
-	(*StreamHeader)(nil),       // 5: atrinik.game.v1.StreamHeader
-	(*ClientHello)(nil),        // 6: atrinik.game.v1.ClientHello
-	(*ServerHello)(nil),        // 7: atrinik.game.v1.ServerHello
-	(*ConnectionRejected)(nil), // 8: atrinik.game.v1.ConnectionRejected
-	(*Ping)(nil),               // 9: atrinik.game.v1.Ping
-	(*Pong)(nil),               // 10: atrinik.game.v1.Pong
-	(*GracefulDrain)(nil),      // 11: atrinik.game.v1.GracefulDrain
-	(*ControlEnvelope)(nil),    // 12: atrinik.game.v1.ControlEnvelope
-	(*ProtocolVersion)(nil),    // 13: atrinik.game.v1.ProtocolVersion
-	(*SessionId)(nil),          // 14: atrinik.game.v1.SessionId
-	(*Digest256)(nil),          // 15: atrinik.game.v1.Digest256
-	(*DurationMillis)(nil),     // 16: atrinik.game.v1.DurationMillis
-	(*DiagnosticId)(nil),       // 17: atrinik.game.v1.DiagnosticId
+	(AccessPolicy)(0),          // 5: atrinik.game.v1.AccessPolicy
+	(AccessStatus)(0),          // 6: atrinik.game.v1.AccessStatus
+	(*StreamHeader)(nil),       // 7: atrinik.game.v1.StreamHeader
+	(*ClientHello)(nil),        // 8: atrinik.game.v1.ClientHello
+	(*ServerHello)(nil),        // 9: atrinik.game.v1.ServerHello
+	(*AccessAuth)(nil),         // 10: atrinik.game.v1.AccessAuth
+	(*AccessResult)(nil),       // 11: atrinik.game.v1.AccessResult
+	(*ConnectionRejected)(nil), // 12: atrinik.game.v1.ConnectionRejected
+	(*Ping)(nil),               // 13: atrinik.game.v1.Ping
+	(*Pong)(nil),               // 14: atrinik.game.v1.Pong
+	(*GracefulDrain)(nil),      // 15: atrinik.game.v1.GracefulDrain
+	(*ControlEnvelope)(nil),    // 16: atrinik.game.v1.ControlEnvelope
+	(*ProtocolVersion)(nil),    // 17: atrinik.game.v1.ProtocolVersion
+	(*SessionId)(nil),          // 18: atrinik.game.v1.SessionId
+	(*Digest256)(nil),          // 19: atrinik.game.v1.Digest256
+	(*DurationMillis)(nil),     // 20: atrinik.game.v1.DurationMillis
+	(*DiagnosticId)(nil),       // 21: atrinik.game.v1.DiagnosticId
 }
 var file_atrinik_game_v1_transport_proto_depIdxs = []int32{
 	2,  // 0: atrinik.game.v1.StreamHeader.role:type_name -> atrinik.game.v1.StreamRole
-	13, // 1: atrinik.game.v1.ClientHello.version:type_name -> atrinik.game.v1.ProtocolVersion
+	17, // 1: atrinik.game.v1.ClientHello.version:type_name -> atrinik.game.v1.ProtocolVersion
 	0,  // 2: atrinik.game.v1.ClientHello.capabilities:type_name -> atrinik.game.v1.Capability
 	1,  // 3: atrinik.game.v1.ClientHello.platform:type_name -> atrinik.game.v1.Platform
-	13, // 4: atrinik.game.v1.ServerHello.version:type_name -> atrinik.game.v1.ProtocolVersion
+	17, // 4: atrinik.game.v1.ServerHello.version:type_name -> atrinik.game.v1.ProtocolVersion
 	0,  // 5: atrinik.game.v1.ServerHello.capabilities:type_name -> atrinik.game.v1.Capability
-	14, // 6: atrinik.game.v1.ServerHello.session_id:type_name -> atrinik.game.v1.SessionId
-	15, // 7: atrinik.game.v1.ServerHello.server_identity:type_name -> atrinik.game.v1.Digest256
-	16, // 8: atrinik.game.v1.ServerHello.idle_timeout:type_name -> atrinik.game.v1.DurationMillis
-	3,  // 9: atrinik.game.v1.ConnectionRejected.error_class:type_name -> atrinik.game.v1.ErrorClass
-	4,  // 10: atrinik.game.v1.ConnectionRejected.code:type_name -> atrinik.game.v1.ErrorCode
-	17, // 11: atrinik.game.v1.ConnectionRejected.diagnostic_id:type_name -> atrinik.game.v1.DiagnosticId
-	16, // 12: atrinik.game.v1.GracefulDrain.deadline:type_name -> atrinik.game.v1.DurationMillis
-	6,  // 13: atrinik.game.v1.ControlEnvelope.client_hello:type_name -> atrinik.game.v1.ClientHello
-	7,  // 14: atrinik.game.v1.ControlEnvelope.server_hello:type_name -> atrinik.game.v1.ServerHello
-	8,  // 15: atrinik.game.v1.ControlEnvelope.rejected:type_name -> atrinik.game.v1.ConnectionRejected
-	9,  // 16: atrinik.game.v1.ControlEnvelope.ping:type_name -> atrinik.game.v1.Ping
-	10, // 17: atrinik.game.v1.ControlEnvelope.pong:type_name -> atrinik.game.v1.Pong
-	11, // 18: atrinik.game.v1.ControlEnvelope.drain:type_name -> atrinik.game.v1.GracefulDrain
-	19, // [19:19] is the sub-list for method output_type
-	19, // [19:19] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	18, // 6: atrinik.game.v1.ServerHello.session_id:type_name -> atrinik.game.v1.SessionId
+	19, // 7: atrinik.game.v1.ServerHello.server_identity:type_name -> atrinik.game.v1.Digest256
+	20, // 8: atrinik.game.v1.ServerHello.idle_timeout:type_name -> atrinik.game.v1.DurationMillis
+	5,  // 9: atrinik.game.v1.ServerHello.access_policy:type_name -> atrinik.game.v1.AccessPolicy
+	18, // 10: atrinik.game.v1.AccessAuth.session_id:type_name -> atrinik.game.v1.SessionId
+	6,  // 11: atrinik.game.v1.AccessResult.status:type_name -> atrinik.game.v1.AccessStatus
+	3,  // 12: atrinik.game.v1.ConnectionRejected.error_class:type_name -> atrinik.game.v1.ErrorClass
+	4,  // 13: atrinik.game.v1.ConnectionRejected.code:type_name -> atrinik.game.v1.ErrorCode
+	21, // 14: atrinik.game.v1.ConnectionRejected.diagnostic_id:type_name -> atrinik.game.v1.DiagnosticId
+	20, // 15: atrinik.game.v1.GracefulDrain.deadline:type_name -> atrinik.game.v1.DurationMillis
+	8,  // 16: atrinik.game.v1.ControlEnvelope.client_hello:type_name -> atrinik.game.v1.ClientHello
+	9,  // 17: atrinik.game.v1.ControlEnvelope.server_hello:type_name -> atrinik.game.v1.ServerHello
+	12, // 18: atrinik.game.v1.ControlEnvelope.rejected:type_name -> atrinik.game.v1.ConnectionRejected
+	13, // 19: atrinik.game.v1.ControlEnvelope.ping:type_name -> atrinik.game.v1.Ping
+	14, // 20: atrinik.game.v1.ControlEnvelope.pong:type_name -> atrinik.game.v1.Pong
+	15, // 21: atrinik.game.v1.ControlEnvelope.drain:type_name -> atrinik.game.v1.GracefulDrain
+	10, // 22: atrinik.game.v1.ControlEnvelope.access_auth:type_name -> atrinik.game.v1.AccessAuth
+	11, // 23: atrinik.game.v1.ControlEnvelope.access_result:type_name -> atrinik.game.v1.AccessResult
+	24, // [24:24] is the sub-list for method output_type
+	24, // [24:24] is the sub-list for method input_type
+	24, // [24:24] is the sub-list for extension type_name
+	24, // [24:24] is the sub-list for extension extendee
+	0,  // [0:24] is the sub-list for field type_name
 }
 
 func init() { file_atrinik_game_v1_transport_proto_init() }
@@ -1075,21 +1342,23 @@ func file_atrinik_game_v1_transport_proto_init() {
 		return
 	}
 	file_atrinik_game_v1_common_proto_init()
-	file_atrinik_game_v1_transport_proto_msgTypes[7].OneofWrappers = []any{
+	file_atrinik_game_v1_transport_proto_msgTypes[9].OneofWrappers = []any{
 		(*ControlEnvelope_ClientHello)(nil),
 		(*ControlEnvelope_ServerHello)(nil),
 		(*ControlEnvelope_Rejected)(nil),
 		(*ControlEnvelope_Ping)(nil),
 		(*ControlEnvelope_Pong)(nil),
 		(*ControlEnvelope_Drain)(nil),
+		(*ControlEnvelope_AccessAuth)(nil),
+		(*ControlEnvelope_AccessResult)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_atrinik_game_v1_transport_proto_rawDesc), len(file_atrinik_game_v1_transport_proto_rawDesc)),
-			NumEnums:      5,
-			NumMessages:   8,
+			NumEnums:      7,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

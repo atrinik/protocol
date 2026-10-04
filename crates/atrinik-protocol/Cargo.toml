@@ -10,7 +10,7 @@ readme = "README.md"
 repository.workspace = true
 rust-version.workspace = true
 version.workspace = true
-publish = ["crates-io"]
+publish = false
 
 [dependencies]
 bytes.workspace = true

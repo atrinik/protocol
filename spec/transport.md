@@ -1,5 +1,9 @@
 # Game Protocol 1 QUIC transport
 
+Current access-token consumers follow [Access tokens v1](access-tokens.md), which
+supersedes admission and current publisher/directory version semantics below.
+Historical versions remain immutable baseline contracts only.
+
 This document is normative for Game Protocol 1 transport. The schemas define
 control messages; this document defines bytes, state, limits, authorization,
 and failure behavior that Protobuf cannot express.

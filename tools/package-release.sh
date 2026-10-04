@@ -38,7 +38,13 @@ metadata_crate_version=$(cargo metadata --locked --offline --no-deps \
   --format-version 1 \
   | jq -er --arg name "${crate_name}" \
     '.packages[] | select(.name == $name) | .version')
-test "${metadata_crate_version}" = "${crate_version}"
+# A newer source candidate is testable but cannot publish or replace the
+# immutable policy-owned registry artifact.
+python3 tools/check-crate-release-policy.py
+if [[ ${metadata_crate_version} != "${crate_version}" ]]; then
+  test "$(jq -er '.version' policy/rust-crate-candidate.json)" = "${metadata_crate_version}"
+  test "$(jq -er '.publication' policy/rust-crate-candidate.json)" = disabled
+fi
 
 crate_included=false
 crate_target=
@@ -75,7 +81,17 @@ cp fixtures/framing.json fixtures/metaserver-directory-v1.json \
   schema/metaserver-game-publisher-v1.schema.json \
   spec/metaserver-directory.md spec/metaserver-publisher.md \
   THIRD_PARTY_NOTICES.md LICENSE "${output}/"
-cp -R fixtures/metaserver-directory-v1 "${output}/"
+cp -R fixtures/metaserver-directory-v1 fixtures/metaserver-directory-v2 "${output}/"
+cp fixtures/metaserver-directory-v2.json fixtures/metaserver-game-publisher-v2.json \
+  fixtures/access-tokens-v1.json fixtures/access-auth-v1.bin \
+  fixtures/access-routes-v1.json fixtures/access-route-state-v1.json \
+  fixtures/access-route-bounds-v1.json fixtures/access-client-hello-v1.tsv \
+  fixtures/access-resolve-v1.json fixtures/metaserver-classic-publisher-v3.json \
+  schema/access-route-v1.schema.json schema/access-resolve-v1.schema.json \
+  schema/metaserver-directory-v2.schema.json \
+  schema/metaserver-game-publisher-v2.schema.json \
+  schema/metaserver-classic-publisher-v3.schema.json \
+  spec/access-tokens.md "${output}/"
 
 SYFT_CHECK_FOR_APP_UPDATE=false syft dir:. \
   --source-name atrinik-protocol --source-version "${version}" \
@@ -108,20 +124,8 @@ jq -n \
 
 (
   cd "${output}"
-  mapfile -t directory_fixtures < <(
-    find metaserver-directory-v1 -type f -print | LC_ALL=C sort
-  )
-  checksum_files=("${archive}")
-  if [[ ${crate_included} == true ]]; then
-    checksum_files+=("${crate_asset}")
-  fi
-  checksum_files+=(atrinik-game-v1.binpb framing.json \
-    metaserver-directory-v1.json metaserver-game-publisher-v1.json \
-    metaserver-classic-publisher-v2.json \
-    metaserver-publisher-v1.json metaserver-directory-v1.schema.json \
-    metaserver-classic-publisher-v2.schema.json \
-    metaserver-game-publisher-v1.schema.json metaserver-directory.md \
-    metaserver-publisher.md "${directory_fixtures[@]}" sbom.cdx.json \
-    provenance.json THIRD_PARTY_NOTICES.md LICENSE)
-  sha256sum "${checksum_files[@]}" >SHA256SUMS
+  # Cover every shipped artifact, including nested current-version fixtures.
+  # NUL separators preserve exact file names; SHA256SUMS cannot cover itself.
+  find . -type f ! -name SHA256SUMS -printf '%P\0' \
+    | LC_ALL=C sort -z | xargs -0 sha256sum >SHA256SUMS
 )

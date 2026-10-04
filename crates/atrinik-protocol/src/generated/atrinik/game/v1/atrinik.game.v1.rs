@@ -271,6 +271,20 @@ pub struct ServerHello {
     pub maximum_resource_frame_bytes: u32,
     #[prost(message, optional, tag="7")]
     pub idle_timeout: ::core::option::Option<DurationMillis>,
+    #[prost(enumeration="AccessPolicy", tag="9")]
+    pub access_policy: i32,
+}
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct AccessAuth {
+    #[prost(bytes="bytes", tag="1")]
+    pub code: ::prost::bytes::Bytes,
+    #[prost(message, optional, tag="2")]
+    pub session_id: ::core::option::Option<SessionId>,
+}
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct AccessResult {
+    #[prost(enumeration="AccessStatus", tag="1")]
+    pub status: i32,
 }
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct ConnectionRejected {
@@ -306,7 +320,7 @@ pub struct GracefulDrain {
 pub struct ControlEnvelope {
     #[prost(uint64, tag="1")]
     pub sequence: u64,
-    #[prost(oneof="control_envelope::Payload", tags="2, 3, 4, 5, 6, 7")]
+    #[prost(oneof="control_envelope::Payload", tags="2, 3, 4, 5, 6, 7, 8, 9")]
     pub payload: ::core::option::Option<control_envelope::Payload>,
 }
 /// Nested message and enum types in `ControlEnvelope`.
@@ -325,6 +339,10 @@ pub mod control_envelope {
         Pong(super::Pong),
         #[prost(message, tag="7")]
         Drain(super::GracefulDrain),
+        #[prost(message, tag="8")]
+        AccessAuth(super::AccessAuth),
+        #[prost(message, tag="9")]
+        AccessResult(super::AccessResult),
     }
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -334,6 +352,7 @@ pub enum Capability {
     ControlV1 = 1,
     GameplayV1 = 2,
     ResourceV1 = 3,
+    AccessTokensV1 = 4,
 }
 impl Capability {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -346,6 +365,7 @@ impl Capability {
             Self::ControlV1 => "CAPABILITY_CONTROL_V1",
             Self::GameplayV1 => "CAPABILITY_GAMEPLAY_V1",
             Self::ResourceV1 => "CAPABILITY_RESOURCE_V1",
+            Self::AccessTokensV1 => "CAPABILITY_ACCESS_TOKENS_V1",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -355,6 +375,7 @@ impl Capability {
             "CAPABILITY_CONTROL_V1" => Some(Self::ControlV1),
             "CAPABILITY_GAMEPLAY_V1" => Some(Self::GameplayV1),
             "CAPABILITY_RESOURCE_V1" => Some(Self::ResourceV1),
+            "CAPABILITY_ACCESS_TOKENS_V1" => Some(Self::AccessTokensV1),
             _ => None,
         }
     }
@@ -519,6 +540,65 @@ impl ErrorCode {
             "ERROR_CODE_RATE_LIMITED" => Some(Self::RateLimited),
             "ERROR_CODE_SERVER_DRAINING" => Some(Self::ServerDraining),
             "ERROR_CODE_INTERNAL" => Some(Self::Internal),
+            _ => None,
+        }
+    }
+}
+/// Access policy is mandatory in GP1 1.1, including open/direct connections.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum AccessPolicy {
+    Unspecified = 0,
+    Open = 1,
+    Protected = 2,
+}
+impl AccessPolicy {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Self::Unspecified => "ACCESS_POLICY_UNSPECIFIED",
+            Self::Open => "ACCESS_POLICY_OPEN",
+            Self::Protected => "ACCESS_POLICY_PROTECTED",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "ACCESS_POLICY_UNSPECIFIED" => Some(Self::Unspecified),
+            "ACCESS_POLICY_OPEN" => Some(Self::Open),
+            "ACCESS_POLICY_PROTECTED" => Some(Self::Protected),
+            _ => None,
+        }
+    }
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum AccessStatus {
+    Unspecified = 0,
+    Accepted = 1,
+    Unavailable = 2,
+}
+impl AccessStatus {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Self::Unspecified => "ACCESS_STATUS_UNSPECIFIED",
+            Self::Accepted => "ACCESS_STATUS_ACCEPTED",
+            Self::Unavailable => "ACCESS_STATUS_UNAVAILABLE",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "ACCESS_STATUS_UNSPECIFIED" => Some(Self::Unspecified),
+            "ACCESS_STATUS_ACCEPTED" => Some(Self::Accepted),
+            "ACCESS_STATUS_UNAVAILABLE" => Some(Self::Unavailable),
             _ => None,
         }
     }

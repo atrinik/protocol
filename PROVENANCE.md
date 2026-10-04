@@ -31,3 +31,24 @@ destination, transformation, copyright, grant, and reviewer. Generated files
 are admitted only as mechanical outputs of the repository's MIT schemas and
 pinned permissive generators. Content and assets remain external data under
 their actual licenses; describing a digest or ID never relicenses them.
+
+Access-token v1, metaserver v2/v3 specifications, schema additions and new
+synthetic fixtures are MIT-authored contract work. Current versioned directory
+adapters/tests derive from this repository's MIT adapters at
+`da5e1247f064284a4e81e870d2031990d3b7bdd6`; they do not copy Classic source.
+Classic framing semantics were coordinated as interoperability facts, while
+numeric command allocation remains solely in Classic. Current signed fixtures
+use a public synthetic P-256 scalar of 1 and fixed 2026–2036 certificate dates,
+with deterministic ECDSA signatures; they contain no production identity.
+Go/Rust bindings were regenerated using the repository's exact pinned tools.
+
+`tools/generate-access-fixtures` reproducibly derives current signed publisher
+vectors from this repository's immutable MIT v1 fixture templates, the embedded
+public synthetic certificate, and scalar1. It uses the pinned Go standard
+library's explicit RFC6979 signing mode, recomputes every root/nested digest and
+signature, and adds an open-policy publication before the protected Classic
+root sequence. Run `go run ./tools/generate-access-fixtures`; validation runs
+its read-only `--check` mode and independently verifies all seven Classic
+signed scenarios plus the Game and route signatures. Nested replay cases are
+cryptographically valid requests whose rejection belongs to replay state,
+not malformed authentication.

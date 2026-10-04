@@ -1,0 +1,97 @@
+{
+  "schema": "atrinik-access-route-state-fixtures-v1",
+  "cases": [
+    {
+      "name": "activate without reserve",
+      "before": "absent",
+      "operation": "activate",
+      "expected": "not_found",
+      "mutates": false
+    },
+    {
+      "name": "activate expired reserve",
+      "before": "reserved deadline=1000",
+      "now": 1000,
+      "operation": "activate",
+      "expected": "expired",
+      "mutates": false
+    },
+    {
+      "name": "same request ID different payload",
+      "before": "recorded request ID A / payload H1",
+      "request": "A / H2",
+      "expected": "conflict",
+      "mutates": false
+    },
+    {
+      "name": "delayed activate after revoke",
+      "before": "revoked token T revision2",
+      "request": "activate T revision1",
+      "expected": "revoked",
+      "mutates": false
+    },
+    {
+      "name": "larger revision cannot resurrect",
+      "before": "revoked token T revision2",
+      "request": "reserve T revision3",
+      "expected": "revoked",
+      "mutates": false
+    },
+    {
+      "name": "revoke at reserved outcome capacity",
+      "before": {
+        "outcomes": 4095,
+        "nonterminal_routes": 1
+      },
+      "operation": "revoke existing nonterminal",
+      "after": {
+        "outcomes": 4096,
+        "nonterminal_routes": 0
+      },
+      "expected": "revoked"
+    },
+    {
+      "name": "absent revoke cannot consume reserved slot",
+      "before": {
+        "outcomes": 4095,
+        "nonterminal_routes": 1
+      },
+      "operation": "revoke absent",
+      "expected": "unavailable",
+      "mutates": false
+    },
+    {
+      "name": "revoke wins redemption",
+      "order": [
+        "revoke commit",
+        "redeem conditional transaction"
+      ],
+      "expected": "access_unavailable",
+      "candidate_disclosure": false
+    },
+    {
+      "name": "redeem wins revoke",
+      "order": [
+        "redeem commit",
+        "revoke commit",
+        "game access attempt"
+      ],
+      "expected": "access_unavailable",
+      "game_admitted": false
+    },
+    {
+      "name": "audit cannot invalidate session",
+      "before": {
+        "management_revision": 3,
+        "token_authorization_revision": 2,
+        "commit_sequence": 10
+      },
+      "operation": "successful admission audit",
+      "after": {
+        "management_revision": 3,
+        "token_authorization_revision": 2,
+        "commit_sequence": 11
+      }
+    }
+  ]
+}

@@ -23,6 +23,9 @@ class CrateReleasePolicyTests(unittest.TestCase):
         self.root = Path(self.temporary.name)
         for relative in (
             "AGENTS.md",
+            "Cargo.toml",
+            "crates/atrinik-protocol/Cargo.toml",
+            "policy/rust-crate-candidate.json",
             "README.md",
             "policy/rust-crate-publishing.json",
             "policy/rust-crate-release.json",
@@ -57,6 +60,30 @@ class CrateReleasePolicyTests(unittest.TestCase):
     def test_current_policy_is_disabled_and_valid(self) -> None:
         result = self.run_check()
         self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_rejects_manifest_publication(self) -> None:
+        path = self.root / "crates/atrinik-protocol/Cargo.toml"
+        original = path.read_text()
+        for setting in ('publish = true', 'publish = ["crates-io"]', ''):
+            with self.subTest(setting=setting):
+                path.write_text(original.replace('publish = false', setting))
+                self.assert_rejected("manifest must set publish = false")
+
+    def test_rejects_candidate_publication(self) -> None:
+        path = self.root / "policy/rust-crate-candidate.json"
+        candidate = json.loads(path.read_text())
+        candidate["publication"] = "enabled"
+        path.write_text(json.dumps(candidate))
+        self.assert_rejected("candidate policy changed")
+
+    def test_rejects_missing_candidate(self) -> None:
+        (self.root / "policy/rust-crate-candidate.json").unlink()
+        self.assert_rejected("requires explicit candidate policy")
+
+    def test_rejects_reusing_published_version(self) -> None:
+        path = self.root / "Cargo.toml"
+        path.write_text(path.read_text().replace('version = "0.2.0"', 'version = "0.1.0"'))
+        self.assert_rejected("cannot be relabeled")
 
     def test_rejects_policy_drift(self) -> None:
         path = self.root / "policy" / "rust-crate-publishing.json"

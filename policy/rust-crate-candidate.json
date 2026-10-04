@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "atrinik-protocol",
+  "version": "0.2.0",
+  "base_published_version": "0.1.0",
+  "status": "unpublished",
+  "publication": "disabled"
+}

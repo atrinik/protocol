@@ -1,0 +1,41 @@
+{
+  "schema": "atrinik-access-vectors-v1",
+  "vectors": [
+    {
+      "entropy_hex": "00000000000000000000",
+      "code": "0000000000000000",
+      "server_id": "0000000000000000000000000000000000000000000000000000000000000000",
+      "route_capability": "9ea31a2f5bb0b471ae66033c5e0e7ee8dddb5eb94fc89ceadadc4c4429b7b76e",
+      "index": "6128199c2e3ad6b5022a86fa42ed5d43709c80023bd21a485a049dcdd898596f",
+      "verifier": "c53009341774c1e7b14001bfa4052714313aa428983b8d74365039ef135c31a4"
+    },
+    {
+      "entropy_hex": "00010203040506070809",
+      "code": "000G40R40M30E209",
+      "server_id": "0000000000000000000000000000000000000000000000000000000000000000",
+      "route_capability": "b0bb0cb469e574fc840ada88796841765251c2647adfe54a01672f125555140c",
+      "index": "b254254cf95cd21e0732fef3fca4233b12a69f04c9a300da581a2583fbccc1bf",
+      "verifier": "6e4fd63f79b2c0c6c94993a0eff78a1628473972b6ee80bddf36908d41a71497"
+    },
+    {
+      "entropy_hex": "ffffffffffffffffffff",
+      "code": "ZZZZZZZZZZZZZZZZ",
+      "server_id": "0000000000000000000000000000000000000000000000000000000000000000",
+      "route_capability": "558424c07a74f534307b181dab4058ac82f4ff1abed3f543cefc60dbedda24e4",
+      "index": "1219b083f75feec59029df295c9613e7263ffb9afcc259487d1402e5ab014499",
+      "verifier": "a1f42f7b411fd639c245ebf940bf15a27cc3d5743bba5ec77c75195c5c315c7f"
+    }
+  ],
+  "invalid_codes": [
+    "",
+    "000000000000000",
+    "00000000000000000",
+    "OOOOOOOOOOOOOOOO",
+    "IIIIIIIIIIIIIIII",
+    "LLLLLLLLLLLLLLLL",
+    "UUUUUUUUUUUUUUUU",
+    "0000-0000-0000-0000",
+    "\uff10\uff10\uff10\uff10\uff10\uff10\uff10\uff10\uff10\uff10\uff10\uff10\uff10\uff10\uff10\uff10",
+    "00000000 0000000"
+  ]
+}
