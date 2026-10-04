@@ -220,6 +220,24 @@ def main():
     with tempfile.TemporaryDirectory(prefix="atrinik-checksum-regression-") as temporary:
         temporary = Path(temporary)
 
+        for nested_root in bundle_spec.NESTED_ROOTS:
+            staging = temporary / ("symlink-root-" + nested_root)
+            staging.mkdir()
+            for relative in bundle_spec.PAYLOAD_PATHS:
+                path = staging / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(b"synthetic contract fixture")
+            outside = temporary / ("outside-" + nested_root)
+            (staging / nested_root).rename(outside)
+            (staging / nested_root).symlink_to(outside, target_is_directory=True)
+            try:
+                bundle_spec.build_bundle(staging, "0.0.0-symlink-test")
+            except ValueError as error:
+                if "unsafe nested contract root" not in str(error):
+                    raise
+            else:
+                raise AssertionError("symlinked fixture root was packaged")
+
         for name in required:
             root = temporary / ("missing-" + name.replace(".", "-"))
             shutil.copytree(source, root)

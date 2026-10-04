@@ -71,6 +71,10 @@ VERSION_PATTERN = re.compile(r"[0-9A-Za-z][0-9A-Za-z.+-]*")
 def _read_payloads(output: Path) -> dict[str, bytes]:
     if output.is_symlink() or not output.is_dir():
         raise ValueError("release output must be a real directory")
+    for root_name in NESTED_ROOTS:
+        root = output / root_name
+        if root.is_symlink() or not root.is_dir():
+            raise ValueError(f"unsafe nested contract root: {root_name}")
     if len(PAYLOAD_PATHS) > MAX_FILES:
         raise ValueError("contract bundle exceeds its file-count bound")
     payloads = {}

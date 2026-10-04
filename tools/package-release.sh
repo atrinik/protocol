@@ -131,6 +131,9 @@ jq -n \
   # Semantic-release uploads build/release/*, so the downloadable output and
   # its checksum inventory must both be flat. SHA256SUMS cannot cover itself.
   test -z "$(find . -mindepth 1 -type d -print -quit)"
-  find . -mindepth 1 -maxdepth 1 -type f ! -name SHA256SUMS -printf '%P\0' \
-    | LC_ALL=C sort -z | xargs -0 sha256sum >SHA256SUMS
+  mapfile -d '' -t checksum_files < <(
+    find . -mindepth 1 -maxdepth 1 -type f ! -name SHA256SUMS -printf '%P\0' \
+      | LC_ALL=C sort -z
+  )
+  sha256sum "${checksum_files[@]}" >SHA256SUMS
 )
