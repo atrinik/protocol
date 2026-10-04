@@ -34,7 +34,8 @@ those values are represented; they do not create or author the game world.
 ## Repository contract
 
 - `proto/atrinik/game/v1` owns gameplay schemas;
-  `proto/atrinik/metaserver/v1` owns the adjacent public directory model.
+  `proto/atrinik/metaserver/v2` owns the current public directory model; v1
+  remains immutable historical baseline evidence.
 - `spec` owns bounds, units, ordering, state, authorization, privacy, framing,
   stream, close, and compatibility rules that Protobuf cannot express.
 - `gen` contains reproducible generated Go bindings and descriptors. Generated
@@ -47,6 +48,13 @@ those values are represented; they do not create or author the game world.
   previously committed consumer state unchanged.
 - `compatibility/baseline.binpb` is the M1 Buf breaking baseline. Never replace
   it to hide an incompatible change.
+
+The current [access-token contract](spec/access-tokens.md) defines Classic
+publisher v3, Game publisher/directory v2, bounded code routing, and mandatory
+GP1 1.1 access-policy negotiation. Current Go consumers import
+`github.com/atrinik/protocol/metaserver/v2`; Rust uses `metaserver::v2`,
+`metaserver::directory_v2` and `metaserver::access`. Earlier versioned adapters
+are historical contracts, not runtime fallbacks.
 
 The current ALPN is `atrinik-game/1`. Frames use canonical unsigned LEB128
 lengths and are capped at 1 MiB for gameplay/control or 4 MiB for resources.
@@ -133,3 +141,14 @@ updates the machine-readable policy and its fail-closed validation together.
 Read [CONTRIBUTING.md](CONTRIBUTING.md) and [PROVENANCE.md](PROVENANCE.md)
 before proposing contract material. The cross-repository roadmap is
 [atrinik/atrinik#168](https://github.com/atrinik/atrinik/issues/168).
+
+## Unpublished access-token crate candidate
+
+`policy/rust-crate-candidate.json` records source version 0.2.0 as explicitly
+unpublished with publication disabled. Aggregate validation packages and builds
+that candidate locally; source releases omit a registry crate until a separately
+reviewed immutable release policy assigns its version, revision and digest.
+The existing published 0.1.0 release policy and checksum are unchanged. A temporary
+task-owned dependency override may validate coordinated consumers, but consumers
+must pin an actual immutable release before readiness; no permanent sibling path
+or fabricated release is accepted.

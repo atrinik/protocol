@@ -19,7 +19,11 @@
       "history_evidence": "New MIT schemas introduced by this change; no historical source import.",
       "verified_identity": "Destination pull-request authorship and complete repository history.",
       "embedded_material_review": "No copied fixtures, classic IDs, or third-party schema text.",
-      "destination_paths": ["gen/go", "gen/rust", "gen/descriptor"],
+      "destination_paths": [
+        "gen/go",
+        "gen/rust",
+        "gen/descriptor"
+      ],
       "transformation": "Pinned protoc-gen-go/protoc-gen-prost generation and Buf descriptor build.",
       "copyright": "Copyright 2026 The Atrinik Project",
       "grant": "Not required; independently authored MIT input.",
@@ -30,7 +34,9 @@
       "decision": "excluded",
       "source_repository": "atrinik/classic",
       "source_revision": "main",
-      "source_paths": ["protocol/schema/game-commands.json"],
+      "source_paths": [
+        "protocol/schema/game-commands.json"
+      ],
       "history_evidence": "GPL classic interoperability registry; not audited as an independently separable approved-grantor work.",
       "verified_identity": "Not applicable because exclusion fails closed before reuse.",
       "embedded_material_review": "Potential mixed historical implementation provenance.",
@@ -39,6 +45,33 @@
       "copyright": "Retained only in the classic repository.",
       "grant": "No grant asserted.",
       "reviewer": "Destination pull-request reviewer"
+    },
+    {
+      "id": "access-token-contract-v1",
+      "decision": "admitted",
+      "source_repository": "atrinik/protocol",
+      "source_revision": "da5e1247f064284a4e81e870d2031990d3b7bdd6",
+      "source_paths": [
+        "metaserver/",
+        "crates/atrinik-protocol/src/metaserver/",
+        "fixtures/",
+        "proto/"
+      ],
+      "history_evidence": "Existing MIT repository files and newly authored MIT shared access contract; no Classic implementation input copied.",
+      "verified_identity": "Repository authorship and source-license history.",
+      "embedded_material_review": "Synthetic fixture identities only; schema adapters retain existing MIT notices.",
+      "destination_paths": [
+        "metaserver/v2",
+        "crates/atrinik-protocol/src/metaserver/directory_v2.rs",
+        "crates/atrinik-protocol/src/metaserver/access.rs",
+        "proto/atrinik/metaserver/v2",
+        "spec/access-tokens.md",
+        "fixtures/"
+      ],
+      "transformation": "Versioned MIT adapter extension, independent bounded access parser, deterministic pinned Protobuf generation and synthetic vectors.",
+      "copyright": "Copyright 2026 The Atrinik Project",
+      "grant": "Not required; compatible MIT source and new MIT work.",
+      "reviewer": "Independent integrated review required."
     }
   ]
 }

@@ -7,7 +7,10 @@ README.md
 src/framing.rs
 src/generated/atrinik/game/v1/atrinik.game.v1.rs
 src/generated/atrinik/metaserver/v1/atrinik.metaserver.v1.rs
+src/generated/atrinik/metaserver/v2/atrinik.metaserver.v2.rs
 src/lib.rs
 src/metaserver.rs
+src/metaserver/access.rs
 src/metaserver/directory.rs
+src/metaserver/directory_v2.rs
 src/validation.rs

@@ -154,3 +154,113 @@ mod tests {
         );
     }
 }
+
+/// Mandatory access-policy validation for negotiated GP1 1.1 and later minors.
+pub fn access_server_hello(value: &crate::game::v1::ServerHello) -> Result<(), InvalidBound> {
+    use crate::game::v1::{AccessPolicy, Capability};
+    let version = value.version.as_ref().ok_or(InvalidBound)?;
+    if version.major != 1
+        || version.minor < 1
+        || !matches!(
+            AccessPolicy::try_from(value.access_policy),
+            Ok(AccessPolicy::Open | AccessPolicy::Protected)
+        )
+        || value
+            .capabilities
+            .iter()
+            .filter(|&&v| v == Capability::AccessTokensV1 as i32)
+            .count()
+            != 1
+    {
+        return Err(InvalidBound);
+    }
+    Ok(())
+}
+
+/// Validate wire shape and session binding; the consumer still owns admission.
+pub fn access_auth(
+    value: &crate::game::v1::AccessAuth,
+    session_id: &[u8],
+) -> Result<(), InvalidBound> {
+    opaque_16(session_id)?;
+    let session = value.session_id.as_ref().ok_or(InvalidBound)?;
+    if session.value.as_ref() != session_id
+        || value.code.len() != 16
+        || !value
+            .code
+            .iter()
+            .all(|c| b"0123456789ABCDEFGHJKMNPQRSTVWXYZ".contains(c))
+    {
+        return Err(InvalidBound);
+    }
+    Ok(())
+}
+
+pub fn access_result(value: &crate::game::v1::AccessResult) -> Result<(), InvalidBound> {
+    use crate::game::v1::AccessStatus;
+    if !matches!(
+        AccessStatus::try_from(value.status),
+        Ok(AccessStatus::Accepted | AccessStatus::Unavailable)
+    ) {
+        return Err(InvalidBound);
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod access_tests {
+    use super::{access_auth, access_result, access_server_hello};
+    use crate::game::v1::{
+        AccessAuth, AccessPolicy, AccessResult, AccessStatus, Capability, ProtocolVersion,
+        ServerHello,
+    };
+    use bytes::Bytes;
+    use prost::Message;
+
+    #[test]
+    fn shared_access_fixture_and_rejection_bounds() {
+        let mut request = AccessAuth::decode(
+            include_bytes!(concat!(
+                env!("CARGO_MANIFEST_DIR"),
+                "/../../fixtures/access-auth-v1.bin"
+            ))
+            .as_slice(),
+        )
+        .expect("shared fixture");
+        let mut session = request.session_id.as_ref().expect("session").value.to_vec();
+        assert!(access_auth(&request, &session).is_ok());
+        session[0] ^= 1;
+        assert!(access_auth(&request, &session).is_err());
+        session[0] ^= 1;
+        for code in [
+            "",
+            "000000000000000",
+            "00000000000000000",
+            "OOOOOOOOOOOOOOOO",
+        ] {
+            request.code = Bytes::copy_from_slice(code.as_bytes());
+            assert!(access_auth(&request, &session).is_err());
+        }
+        for status in [0, 3, -1] {
+            assert!(access_result(&AccessResult { status }).is_err());
+        }
+        assert!(
+            access_result(&AccessResult {
+                status: AccessStatus::Accepted as i32
+            })
+            .is_ok()
+        );
+        let mut hello = ServerHello {
+            version: Some(ProtocolVersion { major: 1, minor: 1 }),
+            capabilities: vec![Capability::AccessTokensV1 as i32],
+            access_policy: AccessPolicy::Open as i32,
+            ..Default::default()
+        };
+        assert!(access_server_hello(&hello).is_ok());
+        hello.access_policy = 0;
+        assert!(access_server_hello(&hello).is_err());
+        hello.access_policy = AccessPolicy::Protected as i32;
+        hello.capabilities.clear();
+        assert!(access_server_hello(&hello).is_err());
+    }
+}

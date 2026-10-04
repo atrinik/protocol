@@ -14,6 +14,7 @@ enum Capability {
   CAPABILITY_CONTROL_V1 = 1;
   CAPABILITY_GAMEPLAY_V1 = 2;
   CAPABILITY_RESOURCE_V1 = 3;
+  CAPABILITY_ACCESS_TOKENS_V1 = 4;
 }
 
 enum Platform {
@@ -78,6 +79,29 @@ message ServerHello {
   uint32 maximum_gameplay_frame_bytes = 5;
   uint32 maximum_resource_frame_bytes = 6;
   DurationMillis idle_timeout = 7;
+  AccessPolicy access_policy = 9;
+}
+
+// Access policy is mandatory in GP1 1.1, including open/direct connections.
+enum AccessPolicy {
+  ACCESS_POLICY_UNSPECIFIED = 0;
+  ACCESS_POLICY_OPEN = 1;
+  ACCESS_POLICY_PROTECTED = 2;
+}
+
+enum AccessStatus {
+  ACCESS_STATUS_UNSPECIFIED = 0;
+  ACCESS_STATUS_ACCEPTED = 1;
+  ACCESS_STATUS_UNAVAILABLE = 2;
+}
+
+message AccessAuth {
+  bytes code = 1;
+  SessionId session_id = 2;
+}
+
+message AccessResult {
+  AccessStatus status = 1;
 }
 
 message ConnectionRejected {
@@ -110,5 +134,7 @@ message ControlEnvelope {
     Ping ping = 5;
     Pong pong = 6;
     GracefulDrain drain = 7;
+    AccessAuth access_auth = 8;
+    AccessResult access_result = 9;
   }
 }

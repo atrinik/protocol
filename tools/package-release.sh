@@ -38,7 +38,13 @@ metadata_crate_version=$(cargo metadata --locked --offline --no-deps \
   --format-version 1 \
   | jq -er --arg name "${crate_name}" \
     '.packages[] | select(.name == $name) | .version')
-test "${metadata_crate_version}" = "${crate_version}"
+# A newer source candidate is testable but cannot publish or replace the
+# immutable policy-owned registry artifact.
+python3 tools/check-crate-release-policy.py
+if [[ ${metadata_crate_version} != "${crate_version}" ]]; then
+  test "$(jq -er '.version' policy/rust-crate-candidate.json)" = "${metadata_crate_version}"
+  test "$(jq -er '.publication' policy/rust-crate-candidate.json)" = disabled
+fi
 
 crate_included=false
 crate_target=
@@ -75,7 +81,16 @@ cp fixtures/framing.json fixtures/metaserver-directory-v1.json \
   schema/metaserver-game-publisher-v1.schema.json \
   spec/metaserver-directory.md spec/metaserver-publisher.md \
   THIRD_PARTY_NOTICES.md LICENSE "${output}/"
-cp -R fixtures/metaserver-directory-v1 "${output}/"
+cp -R fixtures/metaserver-directory-v1 fixtures/metaserver-directory-v2 "${output}/"
+cp fixtures/metaserver-directory-v2.json fixtures/metaserver-game-publisher-v2.json \
+  fixtures/access-tokens-v1.json fixtures/access-auth-v1.bin \
+  fixtures/access-routes-v1.json fixtures/access-route-state-v1.json \
+  fixtures/access-resolve-v1.json fixtures/metaserver-classic-publisher-v3.json \
+  schema/access-route-v1.schema.json schema/access-resolve-v1.schema.json \
+  schema/metaserver-directory-v2.schema.json \
+  schema/metaserver-game-publisher-v2.schema.json \
+  schema/metaserver-classic-publisher-v3.schema.json \
+  spec/access-tokens.md "${output}/"
 
 SYFT_CHECK_FOR_APP_UPDATE=false syft dir:. \
   --source-name atrinik-protocol --source-version "${version}" \

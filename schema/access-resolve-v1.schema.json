@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "$id": "https://atrinik.org/protocol/schema/access-resolve-v1.schema.json",
+  "required": [
+    "schema",
+    "routeCapability",
+    "clientNonce"
+  ],
+  "properties": {
+    "schema": {
+      "const": "atrinik-access-resolve-v1"
+    },
+    "routeCapability": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "clientNonce": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

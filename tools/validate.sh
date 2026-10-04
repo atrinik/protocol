@@ -17,6 +17,8 @@ go test -run '^$' -fuzz '^Fuzz' -fuzztime=2s ./framing
 go test -run '^$' -fuzz '^FuzzPublisher$' -fuzztime=2s ./metaserver
 go test -run '^$' -fuzz '^FuzzDirectoryJSON$' -fuzztime=2s ./metaserver
 go test -run '^$' -fuzz '^FuzzGamePublishJSON$' -fuzztime=2s ./metaserver
+go test -run '^$' -fuzz '^FuzzGamePublishJSON$' -fuzztime=2s ./metaserver/v2
+go test -run '^$' -fuzz '^FuzzDirectoryJSON$' -fuzztime=2s ./metaserver/v2
 go test -run '^$' -fuzz '^FuzzClassicV2PublishJSON$' -fuzztime=2s ./metaserver
 
 cargo fmt --all --check
@@ -31,6 +33,20 @@ tools/test-check-dependencies.sh
 python3 tools/check-crate-release-policy.py
 python3 -m unittest tools/test_crate_release_policy.py
 jq empty \
+  fixtures/access-tokens-v1.json \
+  fixtures/access-routes-v1.json \
+  fixtures/access-route-state-v1.json \
+  fixtures/access-resolve-v1.json \
+  fixtures/metaserver-classic-publisher-v3.json \
+  schema/access-route-v1.schema.json \
+  schema/access-resolve-v1.schema.json \
+  fixtures/metaserver-directory-v2.json \
+  fixtures/metaserver-directory-v2/*.json \
+  fixtures/metaserver-game-publisher-v2.json \
+  schema/metaserver-directory-v2.schema.json \
+  schema/metaserver-game-publisher-v2.schema.json \
+  schema/metaserver-classic-publisher-v3.schema.json \
+  policy/rust-crate-candidate.json \
   fixtures/framing.json \
   fixtures/metaserver-directory-v1.json \
   fixtures/metaserver-directory-v1/*.json \
@@ -100,10 +116,12 @@ if grep -Fq "  ${protocol_crate_asset}" "${release_output}/SHA256SUMS"; then
   exit 1
 fi
 
-test "$(jq -er '.version' policy/rust-crate-release.json)" \
-  = "${protocol_crate_version}"
-test "$(jq -er '.asset' policy/rust-crate-release.json)" \
-  = "${protocol_crate_asset}"
+# Published artifact policy remains immutable while source advances a
+# separately validated, explicitly unpublished candidate.
+python3 tools/check-crate-release-policy.py
+if [[ "$(jq -er '.version' policy/rust-crate-release.json)" != "${protocol_crate_version}" ]]; then
+  test "$(jq -er '.version' policy/rust-crate-candidate.json)" = "${protocol_crate_version}"
+fi
 protocol_crate_release=$(jq -er '.repository_release' \
   policy/rust-crate-release.json)
 protocol_crate_revision=$(jq -er '.revision' policy/rust-crate-release.json)

@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "$id": "https://atrinik.org/protocol/schema/access-route-v1.schema.json",
+  "required": [
+    "schema",
+    "profile",
+    "serverId",
+    "certificate",
+    "operation",
+    "requestId",
+    "tokenId",
+    "tokenRevision",
+    "index",
+    "reservationId",
+    "expiresAt"
+  ],
+  "properties": {
+    "schema": {
+      "const": "atrinik-access-route-v1"
+    },
+    "profile": {
+      "enum": [
+        "classic",
+        "game"
+      ]
+    },
+    "serverId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "certificate": {
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 2732
+    },
+    "operation": {
+      "enum": [
+        "reserve",
+        "activate",
+        "revoke",
+        "result"
+      ]
+    },
+    "requestId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "tokenId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "tokenRevision": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,19}$"
+    },
+    "index": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "reservationId": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        }
+      ]
+    },
+    "expiresAt": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^[1-9][0-9]{0,11}$"
+        }
+      ]
+    }
+  }
+}

@@ -6,6 +6,12 @@
   shared metaserver publisher/public-directory contracts: Protobuf schemas,
   Buf policy, normative specifications, descriptors, generated Go/Rust
   contracts, and language-neutral conformance fixtures.
+- Current access-token interfaces live in `spec/access-tokens.md`, metaserver
+  v2 schemas/adapters and GP1 1.1 access negotiation. Retained v1 schemas and
+  adapters are immutable baseline history, never a current runtime fallback.
+- A newer Rust source version requires `policy/rust-crate-candidate.json`; it
+  stays unpublished and registry publication disabled until a separate reviewed
+  release policy. Local candidate packaging cannot rewrite the published digest.
 - GP1 is not the numeric C/Python registry in `atrinik/classic/protocol`. Do
   not add classic IDs, MAP2/ADS compatibility, C/Python bindings, or a dual
   protocol path here.
