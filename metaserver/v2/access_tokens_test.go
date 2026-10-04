@@ -29,7 +29,9 @@ func TestAccessTokenVectors(t *testing.T) {
 	if err = json.Unmarshal(data, &fixture); err != nil {
 		t.Fatal(err)
 	}
-	if len(fixture.Vectors) != 3 || len(fixture.Invalid) < 8 { t.Fatal("incomplete access vectors") }
+	if len(fixture.Vectors) != 3 || len(fixture.Invalid) < 8 {
+		t.Fatal("incomplete access vectors")
+	}
 	for _, v := range fixture.Vectors {
 		var identity [32]byte
 		decoded, err := hex.DecodeString(v.ServerID)
