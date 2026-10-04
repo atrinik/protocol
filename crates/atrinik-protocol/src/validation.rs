@@ -155,6 +155,25 @@ mod tests {
     }
 }
 
+/// Validate the mandatory GP1 1.1 access offer (a single version, not a range).
+/// Consumers still enforce ordering and all other hello bounds before secrets.
+pub fn access_client_hello(value: &crate::game::v1::ClientHello) -> Result<(), InvalidBound> {
+    use crate::game::v1::Capability;
+    let version = value.version.as_ref().ok_or(InvalidBound)?;
+    if version.major != 1
+        || version.minor < 1
+        || value
+            .capabilities
+            .iter()
+            .filter(|&&v| v == Capability::AccessTokensV1 as i32)
+            .count()
+            != 1
+    {
+        return Err(InvalidBound);
+    }
+    Ok(())
+}
+
 /// Mandatory access-policy validation for negotiated GP1 1.1 and later minors.
 pub fn access_server_hello(value: &crate::game::v1::ServerHello) -> Result<(), InvalidBound> {
     use crate::game::v1::{AccessPolicy, Capability};
@@ -209,13 +228,53 @@ pub fn access_result(value: &crate::game::v1::AccessResult) -> Result<(), Invali
 
 #[cfg(test)]
 mod access_tests {
-    use super::{access_auth, access_result, access_server_hello};
+    use super::{
+        InvalidBound, access_auth, access_client_hello, access_result, access_server_hello,
+    };
     use crate::game::v1::{
-        AccessAuth, AccessPolicy, AccessResult, AccessStatus, Capability, ProtocolVersion,
-        ServerHello,
+        AccessAuth, AccessPolicy, AccessResult, AccessStatus, Capability, ClientHello,
+        ProtocolVersion, ServerHello,
     };
     use bytes::Bytes;
     use prost::Message;
+
+    #[test]
+    fn shared_client_hello_vectors() {
+        let data = include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../fixtures/access-client-hello-v1.tsv"
+        ));
+        for line in data
+            .lines()
+            .filter(|line| !line.is_empty() && !line.starts_with('#'))
+        {
+            let fields: Vec<_> = line.split_whitespace().collect();
+            assert_eq!(fields.len(), 5, "invalid fixture row: {line}");
+            let version = (fields[1] != "-").then(|| ProtocolVersion {
+                major: fields[1].parse().expect("major"),
+                minor: fields[2].parse().expect("minor"),
+            });
+            let capabilities = if fields[3] == "-" {
+                Vec::new()
+            } else {
+                fields[3]
+                    .split(',')
+                    .map(|raw| raw.parse().expect("capability"))
+                    .collect()
+            };
+            let hello = ClientHello {
+                version,
+                capabilities,
+                ..Default::default()
+            };
+            let expected = if fields[4].parse::<bool>().expect("accepted") {
+                Ok(())
+            } else {
+                Err(InvalidBound)
+            };
+            assert_eq!(access_client_hello(&hello), expected, "{}", fields[0]);
+        }
+    }
 
     #[test]
     fn shared_access_fixture_and_rejection_bounds() {

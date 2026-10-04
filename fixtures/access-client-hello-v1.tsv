@@ -1,0 +1,18 @@
+# Copyright 2026 The Atrinik Project
+# SPDX-License-Identifier: MIT
+# name major minor capabilities(comma-separated; - means absent) accepted
+minimum	1	1	4	true
+later-minor	1	2	1,4,2,3	true
+maximum-minor	1	4294967295	4	true
+unrelated-capability	1	1	99,4	true
+missing-version	-	-	4	false
+zero-version	0	0	4	false
+old-minor	1	0	4	false
+other-major	2	1	4	false
+maximum-major	4294967295	1	4	false
+missing-capabilities	1	1	-	false
+unspecified-capability	1	1	0	false
+missing-access-capability	1	1	1,2,3	false
+unknown-only	1	1	99,-1	false
+duplicate-access	1	1	4,4	false
+separated-duplicate	1	1	4,1,4	false

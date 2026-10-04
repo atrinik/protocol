@@ -8,6 +8,8 @@ import (
 	"github.com/atrinik/protocol/validation"
 	"google.golang.org/protobuf/proto"
 	"os"
+	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -52,5 +54,55 @@ func TestAccessAuthGoldenAndBounds(t *testing.T) {
 	hello.Capabilities = nil
 	if validation.AccessServerHello(hello) == nil {
 		t.Fatal("missing capability accepted")
+	}
+}
+
+func TestAccessClientHelloSharedVectors(t *testing.T) {
+	if err := validation.AccessClientHello(nil); err != validation.ErrInvalidBound {
+		t.Fatalf("nil hello: got %v", err)
+	}
+	data, err := os.ReadFile("../fixtures/access-client-hello-v1.tsv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		fields := strings.Fields(line)
+		if len(fields) != 5 {
+			t.Fatalf("invalid fixture row: %q", line)
+		}
+		t.Run(fields[0], func(t *testing.T) {
+			hello := &gamev1.ClientHello{}
+			if fields[1] != "-" {
+				major, err := strconv.ParseUint(fields[1], 10, 32)
+				if err != nil {
+					t.Fatal(err)
+				}
+				minor, err := strconv.ParseUint(fields[2], 10, 32)
+				if err != nil {
+					t.Fatal(err)
+				}
+				hello.Version = &gamev1.ProtocolVersion{Major: uint32(major), Minor: uint32(minor)}
+			}
+			if fields[3] != "-" {
+				for _, raw := range strings.Split(fields[3], ",") {
+					capability, err := strconv.ParseInt(raw, 10, 32)
+					if err != nil {
+						t.Fatal(err)
+					}
+					hello.Capabilities = append(hello.Capabilities, gamev1.Capability(capability))
+				}
+			}
+			accepted, err := strconv.ParseBool(fields[4])
+			if err != nil {
+				t.Fatal(err)
+			}
+			got := validation.AccessClientHello(hello)
+			if (accepted && got != nil) || (!accepted && got != validation.ErrInvalidBound) {
+				t.Fatalf("accepted=%v: got %v", accepted, got)
+			}
+		})
 	}
 }

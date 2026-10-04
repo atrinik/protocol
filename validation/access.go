@@ -9,6 +9,28 @@ import (
 	access "github.com/atrinik/protocol/metaserver/v2"
 )
 
+// AccessClientHello validates the mandatory GP1 1.1 access offer. The schema
+// offers a single major/minor version, not a range. Callers still enforce
+// connection ordering and all other ClientHello bounds before sending secrets.
+func AccessClientHello(value *gamev1.ClientHello) error {
+	if value == nil || value.Version == nil || value.Version.Major != 1 || value.Version.Minor < 1 {
+		return ErrInvalidBound
+	}
+	found := false
+	for _, capability := range value.Capabilities {
+		if capability == gamev1.Capability_CAPABILITY_ACCESS_TOKENS_V1 {
+			if found {
+				return ErrInvalidBound
+			}
+			found = true
+		}
+	}
+	if !found {
+		return ErrInvalidBound
+	}
+	return nil
+}
+
 // AccessServerHello validates the mandatory GP1 1.1 access policy. Callers still
 // enforce connection ordering and all other ServerHello bounds transactionally.
 func AccessServerHello(value *gamev1.ServerHello) error {
