@@ -1,19 +1,30 @@
-name: Prepare Rust crate
+name: Prepare or publish reviewed Rust crate
 
 on:
   workflow_dispatch:
     inputs:
+      operation:
+        description: Prepare evidence or explicitly publish reviewed bytes
+        type: choice
+        options: [prepare, publish]
+        default: prepare
+        required: true
       source_tag:
-        description: Published source tag
+        description: Reviewed published source tag
         type: string
+        default: v2.8.0
         required: true
       source_revision:
-        description: Exact published source revision
+        description: Exact reviewed source revision
         type: string
+        default: a47537790f5ea8a08adf7e6dffee4fa794cf3665
         required: true
 
 permissions:
   contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
 
 concurrency:
   group: protocol-crate-publication
@@ -21,7 +32,7 @@ concurrency:
 
 jobs:
   prepare:
-    if: github.repository == 'atrinik/protocol' && github.ref == 'refs/heads/main'
+    if: github.repository == 'atrinik/protocol' && github.repository_id == '1327106950' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.operation == 'prepare'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -30,11 +41,11 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
       - run: rustup toolchain install 1.97.1 --profile minimal
-      - id: prepare
-        env:
+      - env:
           SOURCE_TAG: ${{ inputs.source_tag }}
           SOURCE_REVISION: ${{ inputs.source_revision }}
         run: |
@@ -49,3 +60,65 @@ jobs:
             ${{ runner.temp }}/crate-prepared/artifact.json
           if-no-files-found: error
           retention-days: 7
+
+  verify:
+    if: github.repository == 'atrinik/protocol' && github.repository_id == '1327106950' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.operation == 'publish'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    outputs:
+      ready: ${{ steps.verify.outputs.ready_for_upload }}
+    env:
+      CARGO_HOME: /tmp/atrinik-crate-verify-cargo
+      CARGO_TARGET_DIR: /tmp/atrinik-crate-verify-target
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - run: rustup toolchain install 1.97.1 --profile minimal
+      - id: verify
+        env:
+          SOURCE_TAG: ${{ inputs.source_tag }}
+          SOURCE_REVISION: ${{ inputs.source_revision }}
+        run: |
+          set -euo pipefail
+          python3 tools/crate_publication.py verify-publish --source-tag "$SOURCE_TAG" \
+            --source-revision "$SOURCE_REVISION" --output "$RUNNER_TEMP/crate-verified"
+
+  publish:
+    needs: verify
+    if: github.repository == 'atrinik/protocol' && github.repository_id == '1327106950' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.operation == 'publish' && needs.verify.outputs.ready == 'true'
+    environment: crates-io-release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      CARGO_HOME: /tmp/atrinik-crate-publish-cargo
+      CARGO_TARGET_DIR: /tmp/atrinik-crate-publish-target
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - run: rustup toolchain install 1.97.1 --profile minimal
+      - id: verify
+        env:
+          SOURCE_TAG: ${{ inputs.source_tag }}
+          SOURCE_REVISION: ${{ inputs.source_revision }}
+        run: |
+          set -euo pipefail
+          python3 tools/crate_publication.py verify-publish --source-tag "$SOURCE_TAG" \
+            --source-revision "$SOURCE_REVISION" --output "$RUNNER_TEMP/crate-verified"
+      - id: auth
+        if: steps.verify.outputs.ready_for_upload == 'true'
+        uses: rust-lang/crates-io-auth-action@c6f97d42243bad5fab37ca0427f495c86d5b1a18 # v1.0.5
+      - if: steps.verify.outputs.ready_for_upload == 'true'
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+          CRATE_PUBLICATION_OPERATION: publish
+        run: python3 tools/crate_upload.py --crate "$RUNNER_TEMP/crate-verified/atrinik-protocol-0.2.0.crate"
+      - run: python3 tools/crate_publication.py verify-registry

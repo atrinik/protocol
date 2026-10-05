@@ -2,6 +2,11 @@
   "schema_version": 1,
   "name": "atrinik-protocol",
   "version": "0.2.0",
-  "status": "awaiting-source-release",
-  "artifact": null
+  "status": "ready-for-publication",
+  "artifact": {
+    "repository_release": "2.8.0",
+    "revision": "a47537790f5ea8a08adf7e6dffee4fa794cf3665",
+    "asset": "atrinik-protocol-0.2.0.crate",
+    "sha256": "cda65c3c322993cfab378454fb9b1182df8a000216f4abd1170e53cdfdc3b3bb"
+  }
 }

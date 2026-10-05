@@ -135,7 +135,7 @@ policy digest. It is retained as immutable release history; ordinary future
 repository releases omit crate `0.1.0` rather than regenerating it.
 
 `policy/rust-crate-publishing.json` records the registered coordinates and
-keeps future publication `prepared-awaiting-reviewed-artifact`. Publishing is
+records future publication as `reviewed-manual-publication`. Publishing is
 permanent and is never implied by merging ordinary protocol changes or by the
 semantic-release workflow.
 
@@ -154,52 +154,65 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) and [PROVENANCE.md](PROVENANCE.md)
 before proposing contract material. The cross-repository roadmap is
 [atrinik/atrinik#168](https://github.com/atrinik/atrinik/issues/168).
 
-## Unpublished access-token crate candidate
+## Reviewed access-token crate candidate
 
-`policy/rust-crate-candidate.json` records source version 0.2.0 as explicitly
-unpublished with registry upload disabled. Aggregate validation packages and builds
-that candidate locally; source releases omit a registry crate until a separately
-reviewed immutable release policy assigns its version, revision and digest.
-The existing published 0.1.0 release policy and checksum are unchanged. A temporary
-task-owned dependency override may validate coordinated consumers, but consumers
-must pin an actual immutable release before readiness; no permanent sibling path
-or fabricated release is accepted.
+Crate 0.2.0 remains unpublished until the separately authorized registry operation
+succeeds. `policy/rust-crate-next.json` pins its prepared source release `v2.8.0`,
+revision `a47537790f5ea8a08adf7e6dffee4fa794cf3665`, asset
+`atrinik-protocol-0.2.0.crate` and SHA-256
+`cda65c3c322993cfab378454fb9b1182df8a000216f4abd1170e53cdfdc3b3bb`.
+The approved preparation [run](https://github.com/atrinik/protocol/actions/runs/37225929702)
+packaged that clean source twice, and an isolated local reproduction matched.
+The immutable published 0.1.0 policy remains unchanged. Ordinary source releases
+omit registry crates; they cannot regenerate or replace these prepared bytes.
 
+## Preparing and publishing the reviewed Rust crate
 
-## Preparing the next Rust crate
+The manual `publish-crate.yml` workflow has explicit `prepare` and `publish`
+operations. Its default is `prepare`, which requests no OIDC token and only emits
+an Actions artifact. A preparation approval never authorizes publication. Inputs
+for publication must match the exact reviewed tag and revision above. Both
+operations run only on main in repository ID 1327106950; checkout uses the fixed
+workflow-run revision, while packaging uses the separately pinned source release.
+Never package activation HEAD as a substitute for the prepared source.
 
-The manual `publish-crate.yml` workflow currently prepares only. Run it on main
-with an actual published source tag and its full revision after separately
-approving that dispatch. It checks local and public tag identity, release
-provenance, source ancestry and cleanliness, packages twice with Rust 1.97.1,
-checks package inventory/VCS metadata/registry-only dependencies, and emits the
-actual `.crate` and `artifact.json`. It never requests a registry token or
-uploads to crates.io. Release v2.6.0 has `publish = false` and is deliberately
-rejected: changing its manifest would create different, unreviewed bytes.
+Before publication, separately authorize attaching the exact prepared archive to
+[v2.8.0](https://github.com/atrinik/protocol/releases/tag/v2.8.0), then verify its
+public asset digest. The verifier refuses a missing or mismatched asset; it cannot
+substitute an Actions artifact. GitHub reports the source release as mutable, so
+repeated tag, provenance and asset-digest checks detect drift rather than claiming
+GitHub release immutability. Attaching a new asset also requires a separately
+reviewed complete checksum-inventory update; never leave an unchecked extra asset
+or silently alter an existing contract/source archive.
 
-After a separately approved source merge and release, use the resulting exact
-artifact evidence in a small activation PR. That PR must replace the pending
-artifact policy with the real repository release, source revision, asset name
-and SHA-256; retain the immutable published 0.1.0 record; and add the reviewed
-Trusted Publishing upload job. Do not package activation HEAD: reproduce the
-pinned prepared-source release. Attach the exact reviewed crate to its owning
-release only with explicit authorization, then verify the public asset digest.
-GitHub currently reports v2.6.0 as `immutable: false`; a pinned content digest
-and repeated tag/asset checks detect drift but do not enable release immutability.
+A credential-free `verify` job reproduces the pinned source twice and validates
+its release asset, public package/owner identity and registry API/sparse-index
+state. Missing or conflicting evidence stops before the protected publication
+job. An already published identical version is an idempotent success; different
+bytes or an indeterminate registry state stop without upload.
 
-The activation must bind crates.io Trusted Publishing to `atrinik/protocol`,
-`publish-crate.yml`, and `crates-io-release`. The proposed GitHub environment is
-main-only with owner review and no secrets or variables; setup is a separate
-owner action. Grant `id-token: write` only to the future upload job. Reproduce
-and verify the reviewed crate before token exchange, including again after
-environment review. Pass the short-lived token only to `cargo publish --locked
---no-verify`; retain the action's token revocation. Recheck both the public API
-and sparse-index checksum after upload. Matching existing bytes are idempotent
-success, different bytes are terminal, and an indeterminate result requires
-public-state inspection before retry. No long-lived registry token is allowed.
+The publication job requires `operation=publish`, that successful preflight and
+the `crates-io-release` environment. The proposed environment is main-only with
+owner review and no secrets or variables; the owner may review their own run.
+Environment and crates.io Trusted Publisher setup are separately authorized owner
+operations, tracked in [github-settings#86](https://github.com/atrinik/github-settings/pull/86).
+Trusted Publishing binds `atrinik/protocol`, `publish-crate.yml` and that exact
+environment. Only this job grants `id-token: write`; it repeats reproduction and
+remote checks after environment review and before token exchange. Only the upload
+step receives the short-lived token from the pinned official action; its post step
+revokes the token. No long-lived registry credential is allowed.
 
-The credential-free verifier already tests these artifact and registry checks,
-but adding pins or upload capability still requires a separate policy review.
-The current policy checker rejects that activation until reviewed code changes
-make it explicit. See the [official token action](https://github.com/rust-lang/crates-io-auth-action)
-and [Cargo publication contract](https://doc.rust-lang.org/cargo/commands/cargo-publish.html).
+The bounded uploader verifies the archive snapshot and public state again, then
+sends those exact archive bytes using the documented
+[Cargo registry publish API](https://doc.rust-lang.org/cargo/reference/registry-web-api.html#publish).
+It does not invoke `cargo publish`, which would repackage the source. The request
+uses a fixed HTTPS endpoint, refuses redirects, never retries an uncertain write,
+and never logs the token or response body. Afterward the credential-free verifier
+checks public package/owner identity and agreement between the registry API and
+sparse-index checksum. An uncertain result requires inspection before another
+separately authorized publication attempt.
+
+This source workflow is not evidence that the environment, Trusted Publisher,
+release asset or registry publication has been configured or executed. Consumers
+still need the actual registry release and normal dependency-lock validation.
+See the [official token action](https://github.com/rust-lang/crates-io-auth-action).

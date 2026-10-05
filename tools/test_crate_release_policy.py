@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression tests for the disabled post-bootstrap registry boundary."""
+"""Regression tests for the reviewed manual registry boundary."""
 
 from __future__ import annotations
 
@@ -58,7 +58,7 @@ class CrateReleasePolicyTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn(expected, result.stderr)
 
-    def test_current_policy_is_disabled_and_valid(self) -> None:
+    def test_current_policy_is_reviewed_and_valid(self) -> None:
         result = self.run_check()
         self.assertEqual(result.returncode, 0, result.stderr)
 
@@ -97,14 +97,31 @@ class CrateReleasePolicyTests(unittest.TestCase):
         path = self.root / ".github/workflows/publish-crate.yml"
         with path.open("a") as stream:
             stream.write("\n# id-token: write\n")
-        self.assert_rejected("preparation workflow must remain credential-free")
+        self.assert_rejected("reviewed publication workflow changed")
 
     def test_rejects_unreviewed_artifact_pins(self) -> None:
         path = self.root / "policy/rust-crate-next.json"
         value = json.loads(path.read_text())
         value["artifact"] = {"revision": "a" * 40}
         path.write_text(json.dumps(value))
-        self.assert_rejected("separate activation review")
+        self.assert_rejected("reviewed next-crate artifact pins changed")
+
+    def test_rejects_publication_workflow_guard_drift(self) -> None:
+        path = self.root / ".github/workflows/publish-crate.yml"
+        original = path.read_text()
+        for old, new in (
+            ("default: prepare", "default: publish"),
+            ("environment: crates-io-release", "environment: other"),
+            ("needs.verify.outputs.ready == 'true'", "always()"),
+            ("persist-credentials: false", "persist-credentials: true"),
+            ("ref: ${{ github.sha }}", "ref: main"),
+            ("c6f97d42243bad5fab37ca0427f495c86d5b1a18", "v1"),
+            ("contents: read", "contents: write"),
+        ):
+            with self.subTest(old=old):
+                self.assertIn(old, original)
+                path.write_text(original.replace(old, new))
+                self.assert_rejected("reviewed publication workflow changed")
 
     def test_rejects_any_unreviewed_workflow(self) -> None:
         path = self.root / ".github" / "workflows" / "other.yml"

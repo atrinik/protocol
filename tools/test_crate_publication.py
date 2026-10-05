@@ -52,13 +52,40 @@ class PublicationTests(unittest.TestCase):
 
     def test_registry_states_and_conflict(self):
         def values(api, index):
-            return [None if api is None else json.dumps({'version': {'checksum': api}}).encode(),
-                    None if index is None else json.dumps({'vers': P.VERSION, 'cksum': index}).encode()]
+            return [None if api is None else json.dumps({'version': {'crate': P.NAME, 'num': P.VERSION, 'yanked': False, 'checksum': api}}).encode(),
+                    None if index is None else json.dumps({'name': P.NAME, 'vers': P.VERSION, 'yanked': False, 'cksum': index}).encode()]
         for api, index, expected in [(None, None, 'absent'), (DIGEST, DIGEST, 'present'), (DIGEST, None, 'indeterminate')]:
             with patch.object(P, 'download', side_effect=values(api, index)):
                 self.assertEqual(P.registry_state(DIGEST), expected)
         with patch.object(P, 'download', side_effect=values('c' * 64, DIGEST)), self.assertRaisesRegex(ValueError, 'conflict'):
             P.registry_state(DIGEST)
+
+    def test_registry_package_and_owner_identity(self):
+        package = {'crate': {'id': P.NAME, 'name': P.NAME,
+                            'repository': 'https://github.com/atrinik/protocol'}}
+        owners = {'users': [{'kind': 'user', 'id': 437663, 'login': 'zoeyrose',
+                             'github_username_matches': True}]}
+        with patch.object(P, 'download', side_effect=[json.dumps(package).encode(), json.dumps(owners).encode()]):
+            P.verify_registry_identity()
+        for bad_package, bad_owners in (
+            ({'crate': {**package['crate'], 'repository': 'https://example.invalid'}}, owners),
+            (package, {'users': [{**owners['users'][0], 'id': 1}]}),
+            (package, {'users': []}),
+        ):
+            with self.subTest(package=bad_package, owners=bad_owners), patch.object(P, 'download', side_effect=[json.dumps(bad_package).encode(), json.dumps(bad_owners).encode()]):
+                with self.assertRaisesRegex(ValueError, 'identity changed'):
+                    P.verify_registry_identity()
+
+    def test_publish_inputs_must_match_reviewed_pins(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / 'policy.json'
+            path.write_text(json.dumps(self.policy(ARTIFACT)))
+            for tag, revision in [('v9.0.0', REVISION), ('v2.7.0', 'c' * 40)]:
+                argv = ['checker', 'verify-publish', '--policy', str(path), '--output', str(Path(temporary) / 'out'), '--source-tag', tag, '--source-revision', revision]
+                with patch.dict(os.environ, {}, clear=True), patch('sys.argv', argv), patch.object(P, 'prepare') as prepare:
+                    with self.assertRaisesRegex(ValueError, 'inputs differ'):
+                        P.main()
+                    prepare.assert_not_called()
 
     def test_rejects_registry_credentials_and_wrong_workflow(self):
         with patch.dict(os.environ, {'CARGO_REGISTRY_TOKEN': 'synthetic-test-only'}, clear=True), self.assertRaisesRegex(ValueError, 'without registry credentials'):
@@ -93,6 +120,18 @@ class PublicationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'redirect'):
             P.SafeRedirect().redirect_request(None, None, 302, '', {}, 'http://attacker.invalid/')
 
+    def test_release_manifest_covers_exact_flat_asset_inventory(self):
+        manifest = (DIGEST + '  ' + P.ASSET + '\n').encode()
+        def asset(name, digest):
+            return {'name': name, 'digest': 'sha256:' + digest, 'state': 'uploaded', 'size': 1}
+        release = {'assets': [asset('SHA256SUMS', 'c' * 64), asset(P.ASSET, DIGEST)]}
+        with patch.object(P, 'release_asset', return_value=manifest):
+            P.verify_release_inventory(release, 'v2.8.0')
+        for changed in (b'', manifest + manifest, manifest.replace(DIGEST.encode(), b'd' * 64), manifest.replace(P.ASSET.encode(), b'nested/file'), manifest + ('a' * 64 + '  extra\n').encode()):
+            with self.subTest(manifest=changed), patch.object(P, 'release_asset', return_value=changed):
+                with self.assertRaises(ValueError):
+                    P.verify_release_inventory(release, 'v2.8.0')
+
     def test_crate_identity_inventory_and_dependency_checks(self):
         entries = {
             '.cargo_vcs_info.json': json.dumps({'git': {'sha1': REVISION}, 'path_in_vcs': 'crates/atrinik-protocol'}).encode(),
@@ -109,6 +148,7 @@ class PublicationTests(unittest.TestCase):
                         archive.addfile(member, io.BytesIO(content))
             write(entries)
             P.verify_crate(path, REVISION, entries)
+            P.verify_crate(path.read_bytes(), REVISION, entries)
             for name, replacement, error in [
                 ('.cargo_vcs_info.json', b'{"git":{"sha1":"wrong"}}', 'VCS'),
                 ('Cargo.toml', entries['Cargo.toml'].replace(b'["crates-io"]', b'false'), 'publishable'),
