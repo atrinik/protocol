@@ -141,6 +141,14 @@ class CrateReleasePolicyTests(unittest.TestCase):
             stream.write("\n# id-token: write\n")
         self.assert_rejected("disabled registry capability")
 
+    def test_rejects_registry_capabilities_in_dependency_review(self) -> None:
+        path = self.root / ".github" / "workflows" / "dependency-review.yml"
+        original = path.read_text(encoding="utf-8")
+        for fragment in ("id-token: write", "CARGO_REGISTRY_TOKEN", "cargo publish"):
+            with self.subTest(fragment=fragment):
+                path.write_text(original + f"\n# {fragment}\n", encoding="utf-8")
+                self.assert_rejected("disabled registry capability")
+
     def test_rejects_bootstrap_checker_reintroduction(self) -> None:
         path = self.root / "tools" / "check-crate-publication.py"
         path.write_text("# retired\n", encoding="utf-8")
