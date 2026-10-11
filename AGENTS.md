@@ -106,6 +106,11 @@
   credential may reach Cargo/build scripts. The write-enabled semantic-release job
   only checks and publishes the complete prebuilt inventory. It must refuse any
   difference in its independently analyzed source version or revision.
+  Governance enables immutable releases before activation; the source job does
+  not acquire administration credentials. If misconfigured, a mutable source
+  release can be created, but every registry path must refuse it. Recovery needs
+  explicit owner review and preserved evidence; never automatically delete or
+  rewrite its release/tag or publish from a mutable artifact.
 - Automatic dispatch selects exact source release ID, revision and manifest digest;
   these inputs are verified against immutable public source assets, protected-main
   ancestry and successful required checks. Every step in the protected upload job

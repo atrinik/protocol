@@ -246,10 +246,11 @@ even when ordinary commit rules would otherwise skip it.
 
 A separate write-enabled job reanalyzes the repository release and verifies the
 complete prebuilt payload with the inert finalizer before publishing it. Source
-releases must have owner-enforced immutability enabled before any new crate
-tag is created. The finalizer checks the live setting and fails before publication
-if setup is incomplete. The pinned GitHub release plugin creates a draft, uploads
-the complete asset inventory, and only then makes it public. Semantic-release
+release immutability is enabled once through `github-settings` before activation.
+The finalizer uses no administration credential: the settings endpoint cannot be
+read using `GITHUB_TOKEN`. The pinned GitHub release plugin creates a draft, uploads
+the complete asset inventory, and only then makes it public. Every registry path
+requires the resulting public release to report `immutable=true`. Semantic-release
 then explicitly dispatches `publish-crate.yml` with `operation=automatic`, exact
 `source_release_id`, `source_revision` and `manifest_sha256`. This avoids GitHub's
 suppression of release events created with `GITHUB_TOKEN`, and crates.io's rejection
@@ -264,6 +265,15 @@ next crate proceeds. Matching existing versions are skipped, conflicting bytes
 or yanked versions fail, and an uncertain PUT is followed only by bounded reads.
 Hourly reconciliation dispatches one incomplete source release through these same
 gates. It does not change versions, overwrite artifacts, yank crates or merge PRs.
+
+If repository immutability is misconfigured, a source release can become public
+but bootstrap and OIDC publication both fail before any registry write. Enabling
+the setting does not retroactively make that release immutable. Stop automatic
+reconciliation for the affected lineage and use explicit owner-reviewed recovery:
+confirm that none of its crate coordinates were published, preserve its evidence,
+and replace the mutable source release/tag under the corrected setting. The
+automation never deletes or rewrites a release to recover. Resume only when the
+exact source, checksums and immutable public release pass the ordinary gates.
 
 Local candidate verification is credential-free:
 
