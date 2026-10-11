@@ -41,6 +41,8 @@ TOP_LEVEL_FILES = (
     "metaserver-game-publisher-v2.schema.json",
     "metaserver-publisher-v1.json",
     "metaserver-publisher.md",
+    "rendezvous-admission-v1.json",
+    "rendezvous-admission.md",
 )
 NESTED_ROOTS = ("metaserver-directory-v1", "metaserver-directory-v2")
 NESTED_FILES = (

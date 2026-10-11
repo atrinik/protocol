@@ -210,6 +210,8 @@ def main():
     required = (
         "access-auth-v1.bin",
         "access-tokens.md",
+        "rendezvous-admission.md",
+        "rendezvous-admission-v1.json",
         "access-route-v1.schema.json",
         "metaserver-directory-v2.json",
         "metaserver-game-publisher-v2.json",
