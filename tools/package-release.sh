@@ -83,7 +83,8 @@ cp fixtures/framing.json fixtures/metaserver-directory-v1.json \
   THIRD_PARTY_NOTICES.md LICENSE "${output}/"
 cp -R fixtures/metaserver-directory-v1 fixtures/metaserver-directory-v2 "${output}/"
 cp fixtures/metaserver-directory-v2.json fixtures/metaserver-game-publisher-v2.json \
-  fixtures/access-tokens-v1.json fixtures/access-auth-v1.bin \
+  fixtures/access-tokens-v1.json fixtures/rendezvous-admission-v1.json \
+  fixtures/access-auth-v1.bin \
   fixtures/access-routes-v1.json fixtures/access-route-state-v1.json \
   fixtures/access-route-bounds-v1.json fixtures/access-client-hello-v1.tsv \
   fixtures/access-resolve-v1.json fixtures/metaserver-classic-publisher-v3.json \
@@ -91,7 +92,7 @@ cp fixtures/metaserver-directory-v2.json fixtures/metaserver-game-publisher-v2.j
   schema/metaserver-directory-v2.schema.json \
   schema/metaserver-game-publisher-v2.schema.json \
   schema/metaserver-classic-publisher-v3.schema.json \
-  spec/access-tokens.md "${output}/"
+  spec/access-tokens.md spec/rendezvous-admission.md "${output}/"
 
 python3 tools/contract_release_bundle.py "${output}" "${version}"
 rm -rf -- "${output}/metaserver-directory-v1" \

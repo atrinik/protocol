@@ -161,17 +161,28 @@ is fresh32random bytes/64lowerhex; expiresAt is positive decimal UTC-seconds tex
 at most15seconds ahead. Optional endpoint has canonical `hostname,port` fields
 using existing DNS/port validation. Neither I nor tokenId/revision appears.
 
-Client opens WSS `/v1/access/rendezvous/{profile}/{serverId}` with subprotocol
-`atrinik-access-rendezvous-v1`, then sends exactly one frame within two seconds:
+Before opening any Classic client rendezvous socket, obtain and solve the
+mandatory [rendezvous admission v1](rendezvous-admission.md) challenge with the
+grant as ticket. Open WSS `/v1/access/rendezvous/{profile}/{serverId}` with
+subprotocol `atrinik-access-rendezvous-v1`, admission proof header,
+`Authorization: Bearer grant64lowerhex`, and
+`X-Atrinik-Access-Client-Nonce: nonce64lowerhex`. No ordinary ticket header.
+Core verifies admission before room dispatch; the room redeems the grant
+atomically before WebSocketPair creation or acceptWebSocket. Invalid/expired/
+revoked grants allocate no socket. Admission never extends the grant deadline.
+
+Then send exactly one confirmation frame within two seconds:
 `{"type":"access_init","version":1,"grant":"64lowerhex","client_nonce":"64lowerhex"}`.
-This auth frame maximum256bytes, validUTF8, exact keys/order. No candidate before
-acceptance. Success server frame is `{"type":"access_ready","version":1}`;
-failure closes with existing fixed authorization-failure behavior. Subsequent
-candidate/completion frames retain existing bounded ticket semantics: use grant
-as the attempt's existing64hex ticket, but never put grant in URL/query/protocol.
-The authenticated server control connection uses this same new subprotocol on
-existing server-role rendezvous route, with profile-aware room dispatch. Game
-transport can remain circuit-disabled until a real consumer exists.
+This frame maximum256bytes, validUTF8, exact keys/order, must match the already
+redeemed grant and bound client nonce. It never redeems or replaces credentials.
+No candidate before confirmation. Success server frame is
+`{"type":"access_ready","version":1}`; failure closes with existing fixed
+authorization-failure behavior. Subsequent candidate/completion frames retain
+existing bounded ticket semantics: grant is the attempt's existing64hex ticket,
+never in URL/query/protocol. The authenticated server control connection retains
+its current subprotocol on the existing server-role rendezvous route and forbids
+client-only admission/ticket/client-nonce headers. Game transport remains
+circuit-disabled until a real coordinated admission consumer exists.
 
 Each grant binds profile/server/presence generation/I/token revision/client nonce,
 expires within15seconds, and permits one client socket. Global route authority
