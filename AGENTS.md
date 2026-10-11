@@ -113,12 +113,22 @@
   rewrite its release/tag or publish from a mutable artifact.
 - Automatic dispatch selects exact source release ID, revision and manifest digest;
   these inputs are verified against immutable public source assets, protected-main
-  ancestry and successful required checks. Every step in the protected upload job
+  ancestry and successful required checks. The manifest must carry a verified
+  GitHub artifact attestation from the exact main `release.yml` commit and successful
+  certificate-bound run attempt. Sign in a separate inert OIDC job, never the
+  npm-enabled semantic-release or Cargo job. The installed `gh` verifier receives
+  only a local bundle, an empty auth config and a credential-free environment.
+  Every step in the protected upload job
   has OIDC capability: never run Cargo, toolchain setup, package installation or
   dependency code there. Upload only the checked byte snapshot, expose the
   short-lived token only to that step, and confirm API/index/download checksums
   before advancing dependency graphs. Failed/uncertain uploads use bounded reads;
-  never blindly replay writes or silently change crate versions. No automatic yank.
+  never blindly replay writes or silently change crate versions. Atomically reserve
+  the coordinate-global `crate-upload-intent/<crate>/<version>` Git tag before any
+  PUT; only explicit create acknowledgement and readback authorize that attempt.
+  Existing/ambiguous intent blocks retries even when both registry views are absent.
+  No automated intent deletion/reset or yank. Owner recovery preserves evidence and
+  needs authoritative confirmation that no write was accepted before a new attempt.
 - Each name/version has exactly one owning source release. Later source releases
   omit unchanged registry archives; content changes require reviewed version bumps.
   Maintenance source/binary releases never own registry coordinates or attach the

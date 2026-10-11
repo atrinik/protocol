@@ -16,7 +16,9 @@ RELEASE_POLICY = ROOT / "policy" / "rust-crate-release.json"
 WORKFLOWS = ROOT / ".github" / "workflows"
 PUBLISH_WORKFLOW = WORKFLOWS / "publish-crate.yml"
 BOOTSTRAP_CHECK = ROOT / "tools" / "check-crate-publication.py"
-EXPECTED_PUBLICATION_WORKFLOW_SHA256 = "57249e4cbce10489e9632f5d3140cb3d0adbbbbb4b76037626d3390f5b5c3b78"
+SOURCE_WORKFLOW = WORKFLOWS / "release.yml"
+EXPECTED_SOURCE_WORKFLOW_SHA256 = "5551f2b26724b1680a7918499f392d98857e3bd171a19862ef53904b6910a2e6"
+EXPECTED_PUBLICATION_WORKFLOW_SHA256 = "b21e9b715650b5f0b3f5b77eb563a4b78a0e5dbe9f07c09953fc64c6fe3f3c41"
 EXPECTED_WORKFLOWS = {
     "dependency-review.yml", "pr-title.yml", "release.yml", "validate.yml",
     "publish-crate.yml", "crate-release-reconcile.yml",
@@ -122,6 +124,9 @@ def main() -> None:
     for workflow in workflow_paths:
         text = workflow.read_text(encoding="utf-8")
         for fragment in FORBIDDEN_WORKFLOW_FRAGMENTS:
+            if (workflow == SOURCE_WORKFLOW and fragment == "id-token: write"
+                    and hashlib.sha256(workflow.read_bytes()).hexdigest() == EXPECTED_SOURCE_WORKFLOW_SHA256):
+                continue
             if workflow != PUBLISH_WORKFLOW and fragment in text:
                 raise SystemExit(
                     f"disabled registry capability in {workflow.name}: {fragment}"
@@ -132,7 +137,7 @@ def main() -> None:
     required_readme = (
         "The one-use bootstrap workflow",
         "has been removed",
-        "reviewed-manual-publication",
+        "reviewed-automatic-publication",
         "crates-io-release",
         "Trusted Publishing",
     )

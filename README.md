@@ -112,10 +112,10 @@ Git revision.
 
 ## Rust registry publication
 
-Registry publication follows the reviewed manual workflow described below.
-The [0.2.0 candidate](#reviewed-access-token-crate-candidate) has reviewed source
-and artifact pins, but remains unpublished until a separately authorized
-publication succeeds. Its manifest allows only crates.io.
+Protocol 0.2.0 is published. Future reviewed Cargo version bumps use the
+[automatic library release contract](#automatic-rust-library-releases). The
+manual procedure below records the original 0.2.0 publication and its pinned
+artifact; it does not govern later versions. The manifest allows only crates.io.
 
 Crate `atrinik-protocol` version `0.1.0` is registered on crates.io with
 SHA-256
@@ -132,16 +132,12 @@ bytes. That historical asset must never be published or substituted for the
 policy digest. It is retained as immutable release history; ordinary future
 repository releases omit crate `0.1.0` rather than regenerating it.
 
-`policy/rust-crate-publishing.json` records the registered coordinates and
-records future publication as `reviewed-manual-publication`. Publishing is
-permanent and is never implied by merging ordinary protocol changes or by the
-semantic-release workflow.
-
-The source workflow and fail-closed policy validation are present. Environment
-and Trusted Publisher setup, release-asset attachment with its complete checksum
-inventory, and publication dispatch each require separate authorization; merging
-this source does not authorize those operations. See
-[the preparation and publication procedure](#preparing-and-publishing-the-reviewed-rust-crate).
+`policy/rust-crate-publishing.json` records future publication as
+`reviewed-automatic-publication`; `policy/crate-release.json` owns the current
+allowlist and historical archive lineage. A reviewed Cargo version change,
+merged to protected main with required checks, authorizes automatic publication.
+One-time environment, Trusted Publisher and immutable-release setup remains
+an owner operation coordinated through `github-settings`.
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) and [PROVENANCE.md](PROVENANCE.md)
 before proposing contract material. The cross-repository roadmap is
@@ -219,9 +215,9 @@ fails. It skips cancelled runs and skipped uploads; a matching checksum does not
 turn a failed upload step into workflow success. An uncertain result requires
 inspection before another separately authorized publication attempt.
 
-This source workflow is not evidence that the environment, Trusted Publisher,
-release asset or registry publication has been configured or executed. Consumers
-still need the actual registry release and normal dependency-lock validation.
+The historical 0.2.0 publication is confirmed by the registry evidence above.
+Consumers still require the production registry release and normal dependency-lock
+validation; source workflow success alone does not establish registry readiness.
 See the [official token action](https://github.com/rust-lang/crates-io-auth-action).
 
 
@@ -249,7 +245,10 @@ assets. Only mainline preparation may establish a crate's owning source release;
 the inert finalizer independently rejects a nonempty maintenance manifest.
 
 A separate write-enabled job reanalyzes the repository release and verifies the
-complete prebuilt payload with the inert finalizer before publishing it. Source
+complete prebuilt payload with the inert finalizer before publishing it. A separate
+inert signing job verifies the same payload and attests `crate-release.json` with
+the pinned official action. This job has OIDC and attestation-write permissions
+but runs no npm, Cargo, installation or package code. Source
 release immutability is enabled once through `github-settings` before activation.
 The finalizer uses no administration credential: the settings endpoint cannot be
 read using `GITHUB_TOKEN`. The pinned GitHub release plugin creates a draft, uploads
@@ -262,13 +261,34 @@ of `workflow_run` OIDC exchanges.
 
 The registry workflow checks protected-main ancestry, the exact source workflow
 and required checks, complete release checksums, safe archive inventory and
-metadata. Immediately before upload it rechecks release and asset identities,
+metadata. It cryptographically verifies the manifest's attestation using the
+preinstalled GitHub CLI (2.68 or later), an isolated empty config and no child
+credentials. The certificate must identify this repository ID, main ref, exact
+source and workflow commit, `release.yml`, and a successful producing run attempt.
+The predicate's claimed run ID alone is insufficient. The attested manifest binds
+every crate digest; manually forged releases cannot reuse an unrelated successful
+workflow run. Immediately before upload it rechecks release and asset identities,
 names, sizes and digests; download counters and editable release notes do not
 constitute artifact drift. Its fresh upload job runs no Cargo or package code. It exchanges OIDC
 immediately before sending exact verified archive bytes. Internal dependencies
 publish first; API, sparse-index and downloaded checksums must agree before the
-next crate proceeds. Matching existing versions are skipped, conflicting bytes
-or yanked versions fail, and an uncertain PUT is followed only by bounded reads.
+next crate proceeds. Matching existing versions are skipped and conflicting bytes
+or yanked versions fail. Before each PUT, the inert upload job uses repository contents-write authority, restricted in this helper
+to intent commits and the fixed tag namespace, to create an intent commit and atomically
+reserve `refs/tags/crate-upload-intent/<crate>/<version>`. The typed intent records
+source/manifest/archive digests, producing run and a random nonce. Only an acknowledged
+201 ref creation followed by matching readback permits the first PUT. This separate
+tag namespace never edits main or creates an application release.
+
+An existing reservation blocks every later PUT for that coordinate, including a
+new workflow, source release or changed digest. A lost reservation response, a
+crash before PUT, or an unresolved registry response remains blocked; no automatic
+reset is provided. Exact confirmed registry bytes can still be skipped safely.
+Owner-reviewed recovery must preserve the intent evidence and establish whether
+the registry accepted the write. Public absence alone is insufficient proof of a
+failed write. Only after authoritative confirmation of no accepted publication may
+an owner explicitly remove the reservation and authorize a fresh attempt. A matching
+published coordinate keeps its reservation permanently.
 Hourly reconciliation dispatches one incomplete source release through these same
 gates. It does not change versions, overwrite artifacts, yank crates or merge PRs.
 
@@ -300,7 +320,16 @@ with exact `--release-id`, `--revision`, `--manifest-sha256`, `--expected-owner`
 and `--expected-owner-id` arguments. It verifies the same immutable source and
 registry evidence, requires a typed owner confirmation, and prompts privately for
 a short-lived publish-new token. Create that token in the named owner's crates.io
-account; the API cannot introspect its identity. Never put it in chat, shell
+account; the API cannot introspect its identity. The owner also needs a separate
+existing `gh` login with repository contents-write permission for the atomic intent.
+The helper checks that GitHub actor against the named owner before reserving; the
+registry token never reaches the GitHub CLI. Never put it in chat, shell
 arguments, environment variables or GitHub secrets. The helper checks ownership
 after each confirmed first publication. Revoke the token and register Trusted
 Publishing once the names exist. Established protocol names cannot use this path.
+
+The protocol-specific extracted-package verifier intentionally checks exactly
+one archive, matching its one-crate policy. The shared preparation helper delegates
+verification to each physical repository: renderer and content-toolkit own their
+complete multi-crate graph verifiers. Adding another protocol crate requires a
+reviewed allowlist and protocol verifier change together.
