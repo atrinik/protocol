@@ -192,10 +192,16 @@ owner review and no secrets or variables; the owner may review their own run.
 Environment and crates.io Trusted Publisher setup are separately authorized owner
 operations, tracked in [github-settings#86](https://github.com/atrinik/github-settings/pull/86).
 Trusted Publishing binds `atrinik/protocol`, `publish-crate.yml` and that exact
-environment. Only this job grants `id-token: write`; it repeats reproduction and
-remote checks after environment review and before token exchange. Only the upload
-step receives the short-lived token from the pinned official action; its post step
-revokes the token. No long-lived registry credential is allowed.
+environment. Only this job grants `id-token: write`, which gives every step OIDC
+request authority. It never installs a toolchain or runs Cargo, package builds,
+proc macros or dependency code. After environment review, `verify-upload` fetches
+the exact public release archive as inert bytes and checks its reviewed digest,
+inventory and provenance. It freshly checks the workflow checkout, pinned source
+ancestry, public tag/release, complete release inventory, owner and registry state
+before token exchange. It writes the same checked archive snapshot for upload.
+All reproduction remains in the credential-free jobs; packaging also refuses
+OIDC request authority at runtime. Only the upload step receives the short-lived
+token from the pinned official action; its post step revokes the token. No long-lived registry credential is allowed.
 
 The bounded uploader verifies the archive snapshot and public state again, then
 sends those exact archive bytes using the documented

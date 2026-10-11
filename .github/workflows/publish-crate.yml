@@ -95,23 +95,19 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    env:
-      CARGO_HOME: /tmp/atrinik-crate-publish-cargo
-      CARGO_TARGET_DIR: /tmp/atrinik-crate-publish-target
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - run: rustup toolchain install 1.97.1 --profile minimal
       - id: verify
         env:
           SOURCE_TAG: ${{ inputs.source_tag }}
           SOURCE_REVISION: ${{ inputs.source_revision }}
         run: |
           set -euo pipefail
-          python3 tools/crate_publication.py verify-publish --source-tag "$SOURCE_TAG" \
+          python3 tools/crate_publication.py verify-upload --source-tag "$SOURCE_TAG" \
             --source-revision "$SOURCE_REVISION" --output "$RUNNER_TEMP/crate-verified"
       - id: auth
         if: steps.verify.outputs.ready_for_upload == 'true'

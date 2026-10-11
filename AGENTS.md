@@ -106,8 +106,11 @@
   effect. Keep source activation review separate from environment/Trusted Publisher
   setup, release-asset attachment and explicit publication dispatch. Preparation
   cannot request registry credentials or upload. Publication reproduces the pinned
-  source before and after environment review, verifies the attached original asset,
-  then uploads only its checked byte snapshot without repackaging.
+  source only in the credential-free job before environment review. Every step in
+  the protected job has OIDC request authority: never run Cargo, toolchain setup,
+  package builds or dependency code there. After review, verify the attached asset
+  as inert bytes against reviewed pins and fresh source/release/inventory/owner/
+  registry evidence, then upload only that checked byte snapshot without repackaging.
   Preserve a flat downloadable release inventory and a deterministic nested
   contract bundle, each with complete checksum coverage.
 - Run the aggregate contract now present:

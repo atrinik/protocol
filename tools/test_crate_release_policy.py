@@ -111,6 +111,9 @@ class CrateReleasePolicyTests(unittest.TestCase):
         original = path.read_text()
         for old, new in (
             ("default: prepare", "default: publish"),
+            ("crate_publication.py verify-upload", "crate_publication.py verify-publish"),
+            ("      - id: auth", "      - run: cargo package --locked\n      - id: auth"),
+            ("      - id: auth", "      - run: rustup toolchain install 1.97.1\n      - id: auth"),
             ("environment: crates-io-release", "environment: other"),
             ("needs.verify.outputs.ready == 'true'", "always()"),
             ("persist-credentials: false", "persist-credentials: true"),
