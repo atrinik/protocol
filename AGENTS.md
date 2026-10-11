@@ -121,6 +121,9 @@
   never blindly replay writes or silently change crate versions. No automatic yank.
 - Each name/version has exactly one owning source release. Later source releases
   omit unchanged registry archives; content changes require reviewed version bumps.
+  Maintenance source/binary releases never own registry coordinates or attach the
+  selected public crate archives; preparation and inert finalization both enforce
+  this boundary. Only mainline releases can introduce registry ownership.
   Keep flat downloadable assets with complete checksum coverage. Hourly reconciliation
   dispatches one unconfirmed release through the same gates; it does not bypass a
   failed check, owner bootstrap or missing registration. Registry readiness permits

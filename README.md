@@ -243,6 +243,10 @@ Changed package content with a reused Cargo version fails. Historical 0.1.0 and
 0.2.0 retain their original bytes; unchanged versions are omitted from subsequent
 source releases. A pending publish set forces at least a patch source release
 even when ordinary commit rules would otherwise skip it.
+Maintenance branches keep their ordinary source/binary releases, but their real
+publication manifests contain no registry coordinates and omit registry crate
+assets. Only mainline preparation may establish a crate's owning source release;
+the inert finalizer independently rejects a nonempty maintenance manifest.
 
 A separate write-enabled job reanalyzes the repository release and verifies the
 complete prebuilt payload with the inert finalizer before publishing it. Source
@@ -258,7 +262,9 @@ of `workflow_run` OIDC exchanges.
 
 The registry workflow checks protected-main ancestry, the exact source workflow
 and required checks, complete release checksums, safe archive inventory and
-metadata. Its fresh upload job runs no Cargo or package code. It exchanges OIDC
+metadata. Immediately before upload it rechecks release and asset identities,
+names, sizes and digests; download counters and editable release notes do not
+constitute artifact drift. Its fresh upload job runs no Cargo or package code. It exchanges OIDC
 immediately before sending exact verified archive bytes. Internal dependencies
 publish first; API, sparse-index and downloaded checksums must agree before the
 next crate proceeds. Matching existing versions are skipped, conflicting bytes
