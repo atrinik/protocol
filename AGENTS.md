@@ -9,13 +9,13 @@
 - Current access-token interfaces live in `spec/access-tokens.md`, metaserver
   v2 schemas/adapters and GP1 1.1 access negotiation. Retained v1 schemas and
   adapters are immutable baseline history, never a current runtime fallback.
-- A newer Rust source version requires `policy/rust-crate-candidate.json`; it
-  stays unpublished until a separately authorized registry operation succeeds.
-  Prepared source allows only crates.io in Cargo. The manual workflow defaults to
-  credential-free preparation; only explicit publication may enter the protected
-  OIDC job after verification of the separately reviewed actual artifact pins.
-  Never predict pins from a future merge or package workflow HEAD instead of the
-  pinned source release. Local packaging cannot rewrite the published digest.
+- Reviewed Cargo version changes authorize automatic publication after protected-main
+  merge, exact-revision checks and complete source-release preparation. Cargo and
+  repository semantic-release versions remain independent. `policy/crate-release.json`
+  owns the public allowlist, workflow identity, required checks and immutable
+  historical lineage. Keep the existing 0.1.0 and 0.2.0 pins unchanged; a future
+  source version updates its candidate declaration in the same reviewed change.
+  Generated release manifests record actual revisions/digests, never predicted pins.
 - GP1 is not the numeric C/Python registry in `atrinik/classic/protocol`. Do
   not add classic IDs, MAP2/ADS compatibility, C/Python bindings, or a dual
   protocol path here.
@@ -95,24 +95,49 @@
 - `atrinik/atrinik#168` is the program roadmap; owning issues define product
   semantics and milestone gates. Do not copy M1-M6 schedules into this guide.
 - Treat registry publication as an irreversible external operation. Version
-  `0.1.0` completed the one-use bootstrap and the bootstrap workflow, secret,
-  and token are retired. Future versions require crates.io Trusted Publishing
-  bound to the exact repository, reviewed workflow, and protected
-  `crates-io-release` environment. Pin the immutable release revision, version,
-  asset, and digest; reproduce bytes before authorization; expose the exchanged
-  short-lived token only to the upload step; and verify the public checksum.
-  Never publish from a pull request, moving branch, dirty tree, unreviewed
-  artifact, long-lived registry secret, or automatic semantic-release side
-  effect. Keep source activation review separate from environment/Trusted Publisher
-  setup, release-asset attachment and explicit publication dispatch. Preparation
-  cannot request registry credentials or upload. Publication reproduces the pinned
-  source only in the credential-free job before environment review. Every step in
-  the protected job has OIDC request authority: never run Cargo, toolchain setup,
-  package builds or dependency code there. After review, verify the attached asset
-  as inert bytes against reviewed pins and fresh source/release/inventory/owner/
-  registry evidence, then upload only that checked byte snapshot without repackaging.
-  Preserve a flat downloadable release inventory and a deterministic nested
-  contract bundle, each with complete checksum coverage.
+  `0.1.0` completed the one-use bootstrap; its workflow, secret and token stay
+  retired. Version 0.2.0 is confirmed in the registry; preserve its separately
+  pinned manual path and original source/archive lineage as historical evidence. Future reviewed version changes publish automatically through
+  Trusted Publishing in the main-only `crates-io-release` environment, without
+  required reviewers or wait timers. One-time environment/registration setup
+  remains an owner operation, tracked in `github-settings`.
+- Source packaging runs twice in a credential-free read-only job, with independent
+  extracted-package verification. No registry token, OIDC capability or GitHub write
+  credential may reach Cargo/build scripts. The write-enabled semantic-release job
+  only checks and publishes the complete prebuilt inventory. It must refuse any
+  difference in its independently analyzed source version or revision.
+  Governance enables immutable releases before activation; the source job does
+  not acquire administration credentials. If misconfigured, a mutable source
+  release can be created, but every registry path must refuse it. Recovery needs
+  explicit owner review and preserved evidence; never automatically delete or
+  rewrite its release/tag or publish from a mutable artifact.
+- Automatic dispatch selects exact source release ID, revision and manifest digest;
+  these inputs are verified against immutable public source assets, protected-main
+  ancestry and successful required checks. The manifest must carry a verified
+  GitHub artifact attestation from the exact main `release.yml` commit and successful
+  certificate-bound run attempt. Sign in a separate inert OIDC job, never the
+  npm-enabled semantic-release or Cargo job. The installed `gh` verifier receives
+  only a local bundle, an empty auth config and a credential-free environment.
+  Every step in the protected upload job
+  has OIDC capability: never run Cargo, toolchain setup, package installation or
+  dependency code there. Upload only the checked byte snapshot, expose the
+  short-lived token only to that step, and confirm API/index/download checksums
+  before advancing dependency graphs. Failed/uncertain uploads use bounded reads;
+  never blindly replay writes or silently change crate versions. Atomically reserve
+  the coordinate-global `crate-upload-intent/<crate>/<version>` Git tag before any
+  PUT; only explicit create acknowledgement and readback authorize that attempt.
+  Existing/ambiguous intent blocks retries even when both registry views are absent.
+  No automated intent deletion/reset or yank. Owner recovery preserves evidence and
+  needs authoritative confirmation that no write was accepted before a new attempt.
+- Each name/version has exactly one owning source release. Later source releases
+  omit unchanged registry archives; content changes require reviewed version bumps.
+  Maintenance source/binary releases never own registry coordinates or attach the
+  selected public crate archives; preparation and inert finalization both enforce
+  this boundary. Only mainline releases can introduce registry ownership.
+  Keep flat downloadable assets with complete checksum coverage. Hourly reconciliation
+  dispatches one unconfirmed release through the same gates; it does not bypass a
+  failed check, owner bootstrap or missing registration. Registry readiness permits
+  consumer update PRs, never automatic merges.
 - Run the aggregate contract now present:
 
   ```sh

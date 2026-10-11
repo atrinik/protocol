@@ -43,7 +43,6 @@ metadata_crate_version=$(cargo metadata --locked --offline --no-deps \
 python3 tools/check-crate-release-policy.py
 if [[ ${metadata_crate_version} != "${crate_version}" ]]; then
   test "$(jq -er '.version' policy/rust-crate-candidate.json)" = "${metadata_crate_version}"
-  test "$(jq -er '.publication' policy/rust-crate-candidate.json)" = reviewed-manual-publication
 fi
 
 crate_included=false
@@ -126,6 +125,13 @@ jq -n \
       included: $crate_included},
     tools: {go: $go, rust: $rust, buf: $buf, protoc: $protoc}
   }' >"${output}/provenance.json"
+
+prepare_options=()
+if [[ ${version} == *-validation || ${CRATE_RELEASE_DRY_RUN:-0} == 1 ]]; then
+  prepare_options+=(--dry-run)
+fi
+python3 tools/crate_prepare.py prepare "${prepare_options[@]}" \
+  --source-tag "v${version}" --output "$(realpath "${output}")"
 
 (
   cd "${output}"
