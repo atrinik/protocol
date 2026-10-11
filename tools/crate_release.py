@@ -415,6 +415,10 @@ def release_evidence(config, release_id, revision, manifest_sha256):
     assets = release['assets']
     require(len({row['name'] for row in assets}) == len(assets) and
             set(checksums) == {row['name'] for row in assets if row['name'] != 'SHA256SUMS'}, 'incomplete source checksum inventory')
+    for asset in assets:
+        if asset['name'] != 'SHA256SUMS':
+            require(asset.get('state') == 'uploaded' and asset.get('digest') == 'sha256:' + checksums[asset['name']],
+                    'source asset digest disagrees with checksum inventory')
     require(checksums[MANIFEST] == manifest_sha256, 'manifest absent from source checksums')
     snapshots = {}
     for row in manifest['crates']:
