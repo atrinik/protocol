@@ -98,36 +98,37 @@ class AdmissionFixtures(unittest.TestCase):
                 self.assertEqual(accepted, case['accepted'])
 
     def test_exact_challenge_request(self):
-        f = self.f
-        valid = ('{"schema":"' + SCHEMA + '","ticketHash":"' + f['ticketHash'] + '"}').encode()
-        fields = ['schema', 'ticketHash']
-        self.assertEqual(canonical_json(valid, 256, fields)['ticketHash'], f['ticketHash'])
-        invalid = [valid + b'\n', valid.replace(b',', b', '), valid[:-1] + b',"extra":0}',
-                   valid.replace(b'"ticketHash":', b'"schema":"x","ticketHash":'),
-                   b'[]', b' ' * 257, valid.replace(b'"schema"', b'"ticketHash"', 1)]
-        for raw in invalid:
-            with self.subTest(raw=raw[:100]), self.assertRaises(ValueError):
-                canonical_json(raw, 256, fields)
+        def parse(raw):
+            value = canonical_json(raw, 256, ['schema', 'ticketHash'])
+            if not isinstance(value['ticketHash'], str) or not HEX64.fullmatch(value['ticketHash']):
+                raise ValueError('ticketHash')
+            return value
+        for case in self.f['requestCases']:
+            with self.subTest(case=case['name']):
+                if case['accepted']:
+                    self.assertEqual(parse(case['raw'].encode())['ticketHash'], self.f['ticketHash'])
+                else:
+                    with self.assertRaises(ValueError):
+                        parse(case['raw'].encode())
 
     def test_exact_challenge_response(self):
-        f = self.f
-        valid = {'schema': SCHEMA, 'challenge': f['token'], 'difficulty': 24, 'expiresAt': f['expiresAt']}
         def parse(raw):
             result = canonical_json(raw, 512, ['schema', 'challenge', 'difficulty', 'expiresAt'])
             if type(result['difficulty']) is not int or result['difficulty'] != 24:
                 raise ValueError('difficulty')
+            if not isinstance(result['challenge'], str):
+                raise ValueError('challenge')
             matched = TOKEN.fullmatch(result['challenge'])
-            if matched is None or str(int(matched[2]) + 60) != result['expiresAt']:
+            if matched is None or int(matched[2]) + 60 > MAX_SECONDS or str(int(matched[2]) + 60) != result['expiresAt']:
                 raise ValueError('expiry')
             return result
-        self.assertEqual(parse(json.dumps(valid, separators=(',', ':')).encode()), valid)
-        for field, value in [('difficulty', 0), ('difficulty', 25), ('difficulty', True),
-                             ('difficulty', '24'), ('expiresAt', '1800000061'),
-                             ('expiresAt', 1800000060), ('challenge', f['token'].upper())]:
-            with self.subTest(field=field, value=value), self.assertRaises(ValueError):
-                parse(json.dumps({**valid, field: value}, separators=(',', ':')).encode())
-        with self.assertRaises(ValueError):
-            parse(b' ' * 513)
+        for case in self.f['responseCases']:
+            with self.subTest(case=case['name']):
+                if case['accepted']:
+                    parse(case['raw'].encode())
+                else:
+                    with self.assertRaises(ValueError):
+                        parse(case['raw'].encode())
 
 
 if __name__ == '__main__':

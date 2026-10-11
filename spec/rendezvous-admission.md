@@ -19,6 +19,13 @@ verify TLS. The signing authority is the configured URL authority (host and any
 explicit port, without scheme, path or trailing slash); host spelling is canonical
 lowercase. Never substitute the request's untrusted forwarded host.
 
+Send exactly one `Content-Type: application/json` request header, without media
+type parameters or a comma-separated list. A successful response is status 200
+with exactly one `Content-Type: application/json` header and
+`Cache-Control: no-store`; these values are exact. Reject duplicate media-type
+headers. Challenge success and failure responses are never cached; a non-200
+response never supplies a usable challenge.
+
 The request is at most 256 UTF-8 bytes and has precisely this compact JSON order,
 with no unknown/duplicate keys, whitespace or trailing bytes:
 
@@ -87,9 +94,12 @@ Ordinary upgrades also carry exactly one
 `Authorization: Bearer grant64lowerhex` and
 `X-Atrinik-Access-Client-Nonce: nonce64lowerhex`; ticket equals grant, and the
 ordinary ticket header is forbidden. Secrets never occur in URL, query or
-subprotocol. Authenticated server-role requests preserve their existing
-handshake/subprotocol and forbid all client-only admission/ticket/client-nonce
-headers; they do not perform client PoW.
+subprotocol. Authenticated server controls use GET
+`wss://authority/v1/classic/servers/{serverId}?role=server` with their existing
+`Authorization: Bearer serverRendezvousToken64lowerhex`. Protected server controls
+request exactly `Sec-WebSocket-Protocol: atrinik-access-rendezvous-v1`; ordinary
+server controls omit that header. Both forbid all client-only admission/ticket/
+client-nonce headers and do not perform client PoW.
 
 Core validates sizes, header mode, ticket hash, HMAC, work and expiry before
 room dispatch. The new internal v5 envelope attests validated 24-bit admission,
@@ -130,6 +140,9 @@ access-code authentication remain unchanged.
 Native challenge parsers require the exact response grammar, fixed difficulty
 24, token grammar, and expiresAt consistency. Solver trials are bounded by
 2^27 and its deadline is `min(original_attempt_deadline, solver_start + 10s)`.
+Measure solver start, the original attempt deadline and all duration comparisons
+on the same monotonic clock. UTC wall-clock seconds apply only to token/grant
+expiry; wall-clock corrections never extend or shorten the solver duration.
 Check cancellation and deadline at least once per 4096 trials, including before
 starting. Failure is terminal; retry requires a fresh grant/ticket. Do not extend
 the original 15-second protected grant/attempt deadline. Benchmark representative
@@ -145,8 +158,10 @@ schema regeneration accompanies this transport admission change.
 
 The `rendezvous-admission-v1.json` fixtures contain synthetic keys,
 identities, purpose input bytes, a solved fixed 24-bit work vector, current/previous
-rotation acceptance and negative cases. Verification recomputes HMAC and work;
-it never re-mines a solution. Required implementation acceptance also includes
+rotation acceptance and negative cases. Independent Go producer and Rust consumer
+tests read these same cases and exact request/response grammar vectors through
+the aggregate `tools/validate.sh`. Verification recomputes HMAC and work; it never
+re-mines a solution. Required implementation acceptance also includes
 concurrent proof admission at most once, allocation failure retaining replay,
 hibernation/rotation/generation fences, invalid grant before allocation, malicious
 bounds/substitution/difficulty/expiry, and native cancellation/deadline tests.

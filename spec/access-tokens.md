@@ -179,9 +179,12 @@ No candidate before confirmation. Success server frame is
 `{"type":"access_ready","version":1}`; failure closes with existing fixed
 authorization-failure behavior. Subsequent candidate/completion frames retain
 existing bounded ticket semantics: grant is the attempt's existing64hex ticket,
-never in URL/query/protocol. The authenticated server control connection retains
-its current subprotocol on the existing server-role rendezvous route and forbids
-client-only admission/ticket/client-nonce headers. Game transport remains
+never in URL/query/protocol. The authenticated server control uses GET
+`wss://authority/v1/classic/servers/{serverId}?role=server`, its existing
+`Authorization: Bearer serverRendezvousToken64lowerhex`, and exactly
+`Sec-WebSocket-Protocol: atrinik-access-rendezvous-v1` for protected servers.
+Ordinary server controls use the same route without a subprotocol header. Both
+forbid client-only admission/ticket/client-nonce headers. Game transport remains
 circuit-disabled until a real coordinated admission consumer exists.
 
 Each grant binds profile/server/presence generation/I/token revision/client nonce,
