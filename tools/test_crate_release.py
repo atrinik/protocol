@@ -339,7 +339,7 @@ class BoundaryTests(unittest.TestCase):
         entry, data = row()
         value = {'schema_version': 1, 'repository': CONFIG['repository'], 'repository_id': '123',
                  'revision': REVISION, 'source_tag': 'v1.0.0', 'crates': [entry]}
-        with tempfile.TemporaryDirectory() as temporary:
+        with tempfile.TemporaryDirectory() as temporary, patch.dict(os.environ, {}, clear=True):
             directory = Path(temporary)
             (directory / R.MANIFEST).write_bytes(R.canonical(value))
             (directory / 'provenance.json').write_bytes(R.canonical({'revision': REVISION, 'version': '1.0.0'}))
