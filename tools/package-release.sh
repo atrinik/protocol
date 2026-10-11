@@ -38,12 +38,12 @@ metadata_crate_version=$(cargo metadata --locked --offline --no-deps \
   --format-version 1 \
   | jq -er --arg name "${crate_name}" \
     '.packages[] | select(.name == $name) | .version')
-# A newer source candidate is testable but cannot publish or replace the
-# immutable policy-owned registry artifact.
+# Source-release packaging never uploads or replaces the immutable registry
+# artifact; reviewed manual publication is a separate workflow operation.
 python3 tools/check-crate-release-policy.py
 if [[ ${metadata_crate_version} != "${crate_version}" ]]; then
   test "$(jq -er '.version' policy/rust-crate-candidate.json)" = "${metadata_crate_version}"
-  test "$(jq -er '.publication' policy/rust-crate-candidate.json)" = prepared-without-upload
+  test "$(jq -er '.publication' policy/rust-crate-candidate.json)" = reviewed-manual-publication
 fi
 
 crate_included=false
