@@ -23,6 +23,8 @@ go test -run '^$' -fuzz '^FuzzClassicV3PublishJSON$' -fuzztime=2s ./metaserver/v
 go test -run '^$' -fuzz '^FuzzDirectoryJSON$' -fuzztime=2s ./metaserver/v2
 go test -run '^$' -fuzz '^FuzzClassicV2PublishJSON$' -fuzztime=2s ./metaserver
 
+# Fetch every locked target dependency before the offline graph-policy checks.
+cargo fetch --locked
 cargo fmt --all --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace --all-targets

@@ -80,17 +80,21 @@
       "source_revision": "this-change",
       "source_paths": [
         "spec/rendezvous-admission.md",
-        "tools/test_rendezvous_admission.py"
+        "tools/test_rendezvous_admission.py",
+        "metaserver/v2/rendezvous_admission_test.go",
+        "tools/rendezvous-conformance/"
       ],
-      "history_evidence": "Independently authored MIT normative contract and Python reference verifier; no historical or Classic implementation source copied.",
+      "history_evidence": "Independently authored MIT normative contract and Python, Go and Rust reference verifiers; expanded canonical JSON grammar fixtures derive only from this MIT contract and the synthetic fixture. No historical or Classic implementation source copied.",
       "verified_identity": "Destination change authorship and independent integrated review.",
       "embedded_material_review": "Only deliberately synthetic authority example.invalid, 32-byte key bytes 00..1f, server/ticket/nonce byte patterns and deterministic hashes; no production identity or private key.",
       "destination_paths": [
         "spec/rendezvous-admission.md",
         "fixtures/rendezvous-admission-v1.json",
-        "tools/test_rendezvous_admission.py"
+        "tools/test_rendezvous_admission.py",
+        "metaserver/v2/rendezvous_admission_test.go",
+        "tools/rendezvous-conformance/"
       ],
-      "transformation": "Python standard-library HMAC-SHA256 and SHA256 derivation; one bounded single-CPU search stores solved 24-bit proof. Independent read-only verifier recomputes exact inputs and digests without mining.",
+      "transformation": "Python standard-library HMAC-SHA256 and SHA256 derivation; one bounded single-CPU search stores solved 24-bit proof. Independent Python, Go standard-library and RustCrypto verifiers recompute exact inputs and digests without mining, and independently parse shared positive/negative request and response grammar vectors.",
       "copyright": "Copyright 2026 The Atrinik Project",
       "grant": "Not required; independently authored MIT input and synthetic output.",
       "reviewer": "Independent integrated review required."
