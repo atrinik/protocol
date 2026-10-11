@@ -15,14 +15,15 @@ go run ./tools/generate-access-fixtures --check
 go vet ./...
 go test ./...
 go test -race ./...
-go test -run '^$' -fuzz '^Fuzz' -fuzztime=2s ./framing
-go test -run '^$' -fuzz '^FuzzPublisher$' -fuzztime=2s ./metaserver
-go test -run '^$' -fuzz '^FuzzDirectoryJSON$' -fuzztime=2s ./metaserver
-go test -run '^$' -fuzz '^FuzzGamePublishJSON$' -fuzztime=2s ./metaserver
-go test -run '^$' -fuzz '^FuzzGamePublishJSON$' -fuzztime=2s ./metaserver/v2
-go test -run '^$' -fuzz '^FuzzClassicV3PublishJSON$' -fuzztime=2s ./metaserver/v2
-go test -run '^$' -fuzz '^FuzzDirectoryJSON$' -fuzztime=2s ./metaserver/v2
-go test -run '^$' -fuzz '^FuzzClassicV2PublishJSON$' -fuzztime=2s ./metaserver
+# Use execution budgets to avoid the Go fuzz deadline race (https://go.dev/issue/75804).
+go test -run '^$' -fuzz '^Fuzz' -fuzztime=120000x ./framing
+go test -run '^$' -fuzz '^FuzzPublisher$' -fuzztime=120000x ./metaserver
+go test -run '^$' -fuzz '^FuzzDirectoryJSON$' -fuzztime=120000x ./metaserver
+go test -run '^$' -fuzz '^FuzzGamePublishJSON$' -fuzztime=120000x ./metaserver
+go test -run '^$' -fuzz '^FuzzGamePublishJSON$' -fuzztime=120000x ./metaserver/v2
+go test -run '^$' -fuzz '^FuzzClassicV3PublishJSON$' -fuzztime=120000x ./metaserver/v2
+go test -run '^$' -fuzz '^FuzzDirectoryJSON$' -fuzztime=120000x ./metaserver/v2
+go test -run '^$' -fuzz '^FuzzClassicV2PublishJSON$' -fuzztime=120000x ./metaserver
 
 # Fetch every locked target dependency before the offline graph-policy checks.
 cargo fetch --locked
