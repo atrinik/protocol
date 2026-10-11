@@ -149,8 +149,10 @@ before proposing contract material. The cross-repository roadmap is
 
 ## Reviewed access-token crate candidate
 
-Crate 0.2.0 remains unpublished until the separately authorized registry operation
-succeeds. `policy/rust-crate-candidate.json` records that unpublished status;
+Crate 0.2.0 was published by the separately authorized
+[publication run](https://github.com/atrinik/protocol/actions/runs/38156755961).
+The public API, sparse index and downloaded archive agree on the checksum below.
+`policy/rust-crate-candidate.json` retains its historical preparation declaration;
 `policy/rust-crate-next.json` marks the reviewed artifact `ready-for-publication`
 and pins its prepared source release `v2.8.0`,
 revision `a47537790f5ea8a08adf7e6dffee4fa794cf3665`, asset
@@ -158,8 +160,9 @@ revision `a47537790f5ea8a08adf7e6dffee4fa794cf3665`, asset
 `cda65c3c322993cfab378454fb9b1182df8a000216f4abd1170e53cdfdc3b3bb`.
 The approved preparation [run](https://github.com/atrinik/protocol/actions/runs/37225929702)
 packaged that clean source twice, and an isolated local reproduction matched.
-The immutable published 0.1.0 policy remains unchanged. Ordinary source releases
-omit registry crates; they cannot regenerate or replace these prepared bytes.
+The immutable published 0.1.0 policy remains unchanged. Later source releases omit these historical registry crates; they cannot
+regenerate or replace the prepared bytes. Future reviewed version bumps use
+the automatic publication contract below.
 
 ## Preparing and publishing the reviewed Rust crate
 
@@ -171,7 +174,7 @@ operations run only on main in repository ID 1327106950; checkout uses the fixed
 workflow-run revision, while packaging uses the separately pinned source release.
 Never package activation HEAD as a substitute for the prepared source.
 
-Before publication, separately authorize attaching the exact prepared archive to
+The one-time publication attached the exact prepared archive to
 [v2.8.0](https://github.com/atrinik/protocol/releases/tag/v2.8.0), then verify its
 public asset digest. The verifier refuses a missing or mismatched asset; it cannot
 substitute an Actions artifact. GitHub reports the source release as mutable, so
@@ -187,14 +190,15 @@ job. An already published identical version is an idempotent success; different
 bytes or an indeterminate registry state stop without upload.
 
 The publication job requires `operation=publish`, that successful preflight and
-the `crates-io-release` environment. The proposed environment is main-only with
-owner review and no secrets or variables; the owner may review their own run.
+the `crates-io-release` environment. The automatic environment is main-only with zero required reviewers, zero wait
+time, and no registry secrets or variables. Reviewed merges and successful
+checks authorize each release after one-time owner setup.
 Environment and crates.io Trusted Publisher setup are separately authorized owner
 operations, tracked in [github-settings#86](https://github.com/atrinik/github-settings/pull/86).
 Trusted Publishing binds `atrinik/protocol`, `publish-crate.yml` and that exact
 environment. Only this job grants `id-token: write`, which gives every step OIDC
 request authority. It never installs a toolchain or runs Cargo, package builds,
-proc macros or dependency code. After environment review, `verify-upload` fetches
+proc macros or dependency code. After environment admission, `verify-upload` fetches
 the exact public release archive as inert bytes and checks its reviewed digest,
 inventory and provenance. It freshly checks the workflow checkout, pinned source
 ancestry, public tag/release, complete release inventory, owner and registry state
@@ -219,3 +223,68 @@ This source workflow is not evidence that the environment, Trusted Publisher,
 release asset or registry publication has been configured or executed. Consumers
 still need the actual registry release and normal dependency-lock validation.
 See the [official token action](https://github.com/rust-lang/crates-io-auth-action).
+
+
+## Automatic Rust library releases
+
+After one-time Trusted Publishing setup, a reviewed Cargo version bump publishes
+without a second release approval. Repository semantic-release versions remain
+independent. `policy/crate-release.json` defines the public crate allowlist,
+required source checks, workflow/environment identity and historical pins.
+`policy/rust-crate-candidate.json` accompanies a new source version in the same PR;
+future candidates use `reviewed-automatic-publication`. No post-release policy PR
+is needed to copy a checksum back into source.
+
+The read-only source job plans the next repository version, runs the aggregate,
+packages the public crate graph twice and builds the extracted archives. It emits
+`crate-release.json` with actual source revision, source tag, inventory, registry
+metadata, archive SHA-256 and a content checksum excluding only VCS metadata.
+Changed package content with a reused Cargo version fails. Historical 0.1.0 and
+0.2.0 retain their original bytes; unchanged versions are omitted from subsequent
+source releases. A pending publish set forces at least a patch source release
+even when ordinary commit rules would otherwise skip it.
+
+A separate write-enabled job reanalyzes the repository release and verifies the
+complete prebuilt payload with the inert finalizer before publishing it. Source
+releases must have owner-enforced immutability enabled before any new crate
+tag is created. The finalizer checks the live setting and fails before publication
+if setup is incomplete. The pinned GitHub release plugin creates a draft, uploads
+the complete asset inventory, and only then makes it public. Semantic-release
+then explicitly dispatches `publish-crate.yml` with `operation=automatic`, exact
+`source_release_id`, `source_revision` and `manifest_sha256`. This avoids GitHub's
+suppression of release events created with `GITHUB_TOKEN`, and crates.io's rejection
+of `workflow_run` OIDC exchanges.
+
+The registry workflow checks protected-main ancestry, the exact source workflow
+and required checks, complete release checksums, safe archive inventory and
+metadata. Its fresh upload job runs no Cargo or package code. It exchanges OIDC
+immediately before sending exact verified archive bytes. Internal dependencies
+publish first; API, sparse-index and downloaded checksums must agree before the
+next crate proceeds. Matching existing versions are skipped, conflicting bytes
+or yanked versions fail, and an uncertain PUT is followed only by bounded reads.
+Hourly reconciliation dispatches one incomplete source release through these same
+gates. It does not change versions, overwrite artifacts, yank crates or merge PRs.
+
+Local candidate verification is credential-free:
+
+```sh
+python3 tools/crate_prepare.py check-version --base BASE_COMMIT
+python3 tools/crate_prepare.py prepare --dry-run --source-tag v0.0.0 --output /tmp/crate-proof
+python3 -m unittest tools.test_crate_release
+```
+
+The dry-run manifest is preparation evidence only. Live publication requires a
+clean reviewed revision, complete immutable source release and configured identity.
+New crate names in other families need a one-time first publication before crates.io
+Trusted Publishing can be registered; this does not introduce per-version approval.
+
+The shared `bootstrap` helper is only for these previously absent library names.
+An owner runs it from an interactive terminal on a clean reviewed main revision,
+with exact `--release-id`, `--revision`, `--manifest-sha256`, `--expected-owner`
+and `--expected-owner-id` arguments. It verifies the same immutable source and
+registry evidence, requires a typed owner confirmation, and prompts privately for
+a short-lived publish-new token. Create that token in the named owner's crates.io
+account; the API cannot introspect its identity. Never put it in chat, shell
+arguments, environment variables or GitHub secrets. The helper checks ownership
+after each confirmed first publication. Revoke the token and register Trusted
+Publishing once the names exist. Established protocol names cannot use this path.

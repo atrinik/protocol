@@ -6,7 +6,7 @@ on:
       operation:
         description: Prepare evidence or explicitly publish reviewed bytes
         type: choice
-        options: [prepare, publish]
+        options: [prepare, publish, automatic]
         default: prepare
         required: true
       source_tag:
@@ -19,6 +19,14 @@ on:
         type: string
         default: a47537790f5ea8a08adf7e6dffee4fa794cf3665
         required: true
+      source_release_id:
+        description: Automatic source release ID
+        type: string
+        required: false
+      manifest_sha256:
+        description: Exact automatic release manifest digest
+        type: string
+        required: false
 
 permissions:
   contents: read
@@ -120,3 +128,56 @@ jobs:
         run: python3 tools/crate_upload.py --crate "$RUNNER_TEMP/crate-verified/atrinik-protocol-0.2.0.crate"
       - if: ${{ !cancelled() && (steps.upload.outcome == 'success' || steps.upload.outcome == 'failure') }}
         run: python3 tools/crate_publication.py verify-registry
+
+  automatic-verify:
+    if: github.repository == 'atrinik/protocol' && github.repository_id == '1327106950' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.operation == 'automatic'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      GH_READ_TOKEN: ${{ github.token }}
+      SOURCE_RELEASE_ID: ${{ inputs.source_release_id }}
+      SOURCE_REVISION: ${{ inputs.source_revision }}
+      MANIFEST_SHA256: ${{ inputs.manifest_sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - run: >-
+          python3 tools/crate_release.py verify --release-id "$SOURCE_RELEASE_ID"
+          --revision "$SOURCE_REVISION" --manifest-sha256 "$MANIFEST_SHA256"
+
+  automatic-publish:
+    needs: automatic-verify
+    if: github.repository == 'atrinik/protocol' && github.repository_id == '1327106950' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.operation == 'automatic'
+    environment: crates-io-release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      GH_READ_TOKEN: ${{ github.token }}
+      SOURCE_RELEASE_ID: ${{ inputs.source_release_id }}
+      SOURCE_REVISION: ${{ inputs.source_revision }}
+      MANIFEST_SHA256: ${{ inputs.manifest_sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - run: >-
+          python3 tools/crate_release.py verify --release-id "$SOURCE_RELEASE_ID"
+          --revision "$SOURCE_REVISION" --manifest-sha256 "$MANIFEST_SHA256"
+      - id: auth
+        uses: rust-lang/crates-io-auth-action@c6f97d42243bad5fab37ca0427f495c86d5b1a18 # v1.0.5
+      - id: upload
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+        run: >-
+          python3 tools/crate_release.py upload --release-id "$SOURCE_RELEASE_ID"
+          --revision "$SOURCE_REVISION" --manifest-sha256 "$MANIFEST_SHA256"
+      - if: ${{ !cancelled() && (steps.upload.outcome == 'success' || steps.upload.outcome == 'failure') }}
+        run: >-
+          python3 tools/crate_release.py confirm --release-id "$SOURCE_RELEASE_ID"
+          --revision "$SOURCE_REVISION" --manifest-sha256 "$MANIFEST_SHA256"

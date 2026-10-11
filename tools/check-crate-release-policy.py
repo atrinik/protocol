@@ -16,11 +16,11 @@ RELEASE_POLICY = ROOT / "policy" / "rust-crate-release.json"
 WORKFLOWS = ROOT / ".github" / "workflows"
 PUBLISH_WORKFLOW = WORKFLOWS / "publish-crate.yml"
 BOOTSTRAP_CHECK = ROOT / "tools" / "check-crate-publication.py"
-EXPECTED_PUBLICATION_WORKFLOW_SHA256 = "d1ecb1d59358813f2c980374dfe9a1b5cf2bea813704dac2d18e554b34ea7eda"
-EXPECTED_WORKFLOWS = {"pr-title.yml", "release.yml", "validate.yml", "publish-crate.yml"}
+EXPECTED_PUBLICATION_WORKFLOW_SHA256 = "57249e4cbce10489e9632f5d3140cb3d0adbbbbb4b76037626d3390f5b5c3b78"
+EXPECTED_WORKFLOWS = {"pr-title.yml", "release.yml", "validate.yml", "publish-crate.yml", "crate-release-reconcile.yml"}
 
 EXPECTED_FUTURE_POLICY = {
-    "status": "reviewed-manual-publication",
+    "status": "reviewed-automatic-publication",
     "authentication": "trusted-publishing",
     "repository_owner": "atrinik",
     "repository": "protocol",
@@ -58,7 +58,7 @@ def main() -> None:
         expected_candidate = {
             "schema_version": 1, "name": release["name"],
             "version": workspace_version, "base_published_version": release["version"],
-            "status": "unpublished", "publication": "reviewed-manual-publication",
+            "status": "unpublished", "publication": ("reviewed-manual-publication" if workspace_version == "0.2.0" else "reviewed-automatic-publication"),
         }
         if candidate != expected_candidate or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", workspace_version):
             raise SystemExit("unpublished crate candidate policy changed")
@@ -89,7 +89,7 @@ def main() -> None:
 
     next_policy = load_json(ROOT / "policy/rust-crate-next.json")
     expected_next = {"schema_version": 1, "name": release["name"],
-                     "version": workspace_version, "status": "ready-for-publication",
+                     "version": "0.2.0", "status": "ready-for-publication",
                      "artifact": {
                          "repository_release": "2.8.0",
                          "revision": "a47537790f5ea8a08adf7e6dffee4fa794cf3665",

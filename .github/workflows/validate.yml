@@ -19,6 +19,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
+      CRATE_BASE_REVISION: ${{ github.event.pull_request.base.sha || github.event.before }}
+      PYTHONDONTWRITEBYTECODE: "1"
       BUF_CACHE_DIR: /tmp/atrinik-protocol-buf-cache
       CARGO_HOME: /tmp/atrinik-protocol-cargo
       CARGO_TARGET_DIR: /tmp/atrinik-protocol-target

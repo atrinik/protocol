@@ -4,6 +4,7 @@ set -euo pipefail
 repository=$(git rev-parse --show-toplevel)
 cd "${repository}"
 
+python3 tools/crate_prepare.py check-version --base "${CRATE_BASE_REVISION:-$(git rev-parse HEAD)}"
 tools/generate.sh
 buf breaking --against compatibility/baseline.binpb
 git diff --exit-code -- proto gen crates/atrinik-protocol/src/generated
@@ -33,7 +34,7 @@ cmp LICENSE crates/atrinik-protocol/LICENSE
 tools/check-dependencies.sh
 tools/test-check-dependencies.sh
 python3 tools/check-crate-release-policy.py
-python3 -m unittest tools/test_crate_release_policy.py tools/test_access_route_schema.py tools/test_crate_publication.py tools/test_crate_upload.py
+python3 -m unittest tools/test_crate_release_policy.py tools/test_access_route_schema.py tools/test_crate_publication.py tools/test_crate_upload.py tools/test_crate_release.py
 jq empty \
   fixtures/access-tokens-v1.json \
   fixtures/access-routes-v1.json \
@@ -115,11 +116,14 @@ jq -e --slurpfile policy policy/rust-crate-release.json '
     included: false
   }
 ' "${release_output}/provenance.json" >/dev/null
-test ! -e "${release_output}/${protocol_crate_asset}"
-if grep -Fq "  ${protocol_crate_asset}" "${release_output}/SHA256SUMS"; then
-  echo "Non-owning repository release unexpectedly contains Rust crate." >&2
-  exit 1
-fi
+test -s "${release_output}/${protocol_crate_asset}"
+python3 - "${release_output}/crate-release.json" <<'PYTHON'
+import json
+import sys
+value = json.load(open(sys.argv[1]))
+assert value["source_tag"] == "v0.0.0"
+assert value["crates"][0]["name"] == "atrinik-protocol"
+PYTHON
 
 # Published artifact policy remains immutable while source advances a
 # separately validated, explicitly unpublished candidate.
