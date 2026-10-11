@@ -80,6 +80,16 @@ def row():
             'metadata': R.metadata(contents, 'example', '0.1.0')}, data
 
 
+class ApiEndpointTests(unittest.TestCase):
+    def test_repository_root_has_no_trailing_slash(self):
+        with patch.object(R, 'get', return_value=b'{}') as get:
+            R.api(CONFIG, '')
+            get.assert_called_once_with('https://api.github.com/repos/atrinik/example')
+        with patch.object(R, 'get', return_value=b'{}') as get:
+            R.api(CONFIG, 'releases/123')
+            get.assert_called_once_with('https://api.github.com/repos/atrinik/example/releases/123')
+
+
 class MetadataTests(unittest.TestCase):
     def test_full_dependency_mapping(self):
         value = R.metadata(files(), 'example', '0.1.0')
