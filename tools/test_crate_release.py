@@ -191,6 +191,22 @@ class RegistryTests(unittest.TestCase):
             with self.subTest(api=api, index=index), patch.object(R, 'get', side_effect=self.observations(entry, data, api, index)):
                 self.assertEqual(R.registry_state(entry), state)
 
+    def test_registry_archive_uses_exact_canonical_cdn_url(self):
+        entry, data = row()
+        with patch.object(R, 'get', side_effect=self.observations(entry, data)) as get:
+            self.assertEqual(R.registry_state(entry), 'present')
+        self.assertEqual(get.call_args_list[-1].args,
+                         ('https://static.crates.io/crates/example/example-0.1.0.crate',))
+        self.assertEqual(get.call_args_list[-1].kwargs, {'maximum': R.MAX_BYTES})
+
+    def test_cdn_wrong_archive_or_json_response_cannot_confirm_publication(self):
+        entry, _ = row()
+        for data in (b'changed archive', R.canonical({
+                'url': 'https://static.crates.io/crates/example/example-0.1.0.crate'})):
+            with self.subTest(data=data), patch.object(R, 'get', side_effect=self.observations(entry, data)):
+                with self.assertRaisesRegex(ValueError, 'registry download mismatch'):
+                    R.registry_state(entry)
+
     def test_conflicting_checksum_yanked_or_download_mismatch_fail(self):
         entry, data = row()
         for observations in [self.observations(entry, data, checksum='0' * 64),
