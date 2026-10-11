@@ -24,6 +24,8 @@ go test -run '^$' -fuzz '^FuzzClassicV3PublishJSON$' -fuzztime=2s ./metaserver/v
 go test -run '^$' -fuzz '^FuzzDirectoryJSON$' -fuzztime=2s ./metaserver/v2
 go test -run '^$' -fuzz '^FuzzClassicV2PublishJSON$' -fuzztime=2s ./metaserver
 
+# Fetch every locked target dependency before the offline graph-policy checks.
+cargo fetch --locked
 cargo fmt --all --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace --all-targets
@@ -34,9 +36,10 @@ cmp LICENSE crates/atrinik-protocol/LICENSE
 tools/check-dependencies.sh
 tools/test-check-dependencies.sh
 python3 tools/check-crate-release-policy.py
-python3 -m unittest tools/test_crate_release_policy.py tools/test_access_route_schema.py tools/test_crate_publication.py tools/test_crate_upload.py tools/test_crate_release.py
+python3 -m unittest tools/test_crate_release_policy.py tools/test_access_route_schema.py tools/test_crate_publication.py tools/test_crate_upload.py tools/test_crate_release.py tools/test_rendezvous_admission.py
 jq empty \
   fixtures/access-tokens-v1.json \
+  fixtures/rendezvous-admission-v1.json \
   fixtures/access-routes-v1.json \
   fixtures/access-route-bounds-v1.json \
   fixtures/access-route-state-v1.json \
