@@ -112,12 +112,10 @@ Git revision.
 
 ## Rust registry publication
 
-The unpublished 0.2.0 candidate is prepared for a future registry release. Its
-manifest allows only crates.io so the next reviewed source release can produce
-its final publishable bytes. This is not an upload authorization: the manual
-workflow has no OIDC permission, registry token, or upload command.
-`policy/rust-crate-next.json` contains no invented revision or checksum; it
-remains `awaiting-source-release` until actual artifacts receive separate review.
+Registry publication follows the reviewed manual workflow described below.
+The [0.2.0 candidate](#reviewed-access-token-crate-candidate) has reviewed source
+and artifact pins, but remains unpublished until a separately authorized
+publication succeeds. Its manifest allows only crates.io.
 
 Crate `atrinik-protocol` version `0.1.0` is registered on crates.io with
 SHA-256
@@ -139,16 +137,11 @@ records future publication as `reviewed-manual-publication`. Publishing is
 permanent and is never implied by merging ordinary protocol changes or by the
 semantic-release workflow.
 
-A future crate version requires a separate reviewed activation after its
-policy-owned repository release exists. The crates.io owner must configure
-Trusted Publishing for GitHub repository `atrinik/protocol`, workflow filename
-`publish-crate.yml`, and protected environment `crates-io-release`. That change
-must add a workflow pinned to the immutable release revision and digest, grant
-`id-token: write` only to its publish job, expose the exchanged short-lived
-token only to the upload step, require environment review, reproduce the crate
-bytes before authorization, and verify the public checksum afterward. No
-long-lived crates.io token or repository secret is permitted. Activation also
-updates the machine-readable policy and its fail-closed validation together.
+The source workflow and fail-closed policy validation are present. Environment
+and Trusted Publisher setup, release-asset attachment with its complete checksum
+inventory, and publication dispatch each require separate authorization; merging
+this source does not authorize those operations. See
+[the preparation and publication procedure](#preparing-and-publishing-the-reviewed-rust-crate).
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) and [PROVENANCE.md](PROVENANCE.md)
 before proposing contract material. The cross-repository roadmap is
@@ -157,7 +150,9 @@ before proposing contract material. The cross-repository roadmap is
 ## Reviewed access-token crate candidate
 
 Crate 0.2.0 remains unpublished until the separately authorized registry operation
-succeeds. `policy/rust-crate-next.json` pins its prepared source release `v2.8.0`,
+succeeds. `policy/rust-crate-candidate.json` records that unpublished status;
+`policy/rust-crate-next.json` marks the reviewed artifact `ready-for-publication`
+and pins its prepared source release `v2.8.0`,
 revision `a47537790f5ea8a08adf7e6dffee4fa794cf3665`, asset
 `atrinik-protocol-0.2.0.crate` and SHA-256
 `cda65c3c322993cfab378454fb9b1182df8a000216f4abd1170e53cdfdc3b3bb`.
@@ -207,10 +202,12 @@ sends those exact archive bytes using the documented
 [Cargo registry publish API](https://doc.rust-lang.org/cargo/reference/registry-web-api.html#publish).
 It does not invoke `cargo publish`, which would repackage the source. The request
 uses a fixed HTTPS endpoint, refuses redirects, never retries an uncertain write,
-and never logs the token or response body. Afterward the credential-free verifier
-checks public package/owner identity and agreement between the registry API and
-sparse-index checksum. An uncertain result requires inspection before another
-separately authorized publication attempt.
+and never logs the token or response body. After an attempted upload, the
+credential-free verifier checks public package/owner identity and agreement
+between the registry API and sparse-index checksum, including when the uploader
+fails. It skips cancelled runs and skipped uploads; a matching checksum does not
+turn a failed upload step into workflow success. An uncertain result requires
+inspection before another separately authorized publication attempt.
 
 This source workflow is not evidence that the environment, Trusted Publisher,
 release asset or registry publication has been configured or executed. Consumers
