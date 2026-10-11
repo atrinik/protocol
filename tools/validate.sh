@@ -33,7 +33,7 @@ cmp LICENSE crates/atrinik-protocol/LICENSE
 tools/check-dependencies.sh
 tools/test-check-dependencies.sh
 python3 tools/check-crate-release-policy.py
-python3 -m unittest tools/test_crate_release_policy.py tools/test_access_route_schema.py tools/test_crate_publication.py
+python3 -m unittest tools/test_crate_release_policy.py tools/test_access_route_schema.py tools/test_crate_publication.py tools/test_crate_upload.py
 jq empty \
   fixtures/access-tokens-v1.json \
   fixtures/access-routes-v1.json \

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Credential-free preparation and verification; this program never uploads."""
+"""Isolated preparation and inert publication verification; never uploads."""
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
+import io
 import os
 from pathlib import Path
 import re
@@ -112,8 +113,36 @@ def release_asset(value, tag, name):
     return data
 
 
+def verify_release_inventory(value, tag):
+    assets = value['assets']
+    require(isinstance(assets, list) and 1 <= len(assets) <= 128,
+            'release asset inventory exceeds bound')
+    expected = {}
+    for asset in assets:
+        name = asset['name']
+        require(re.fullmatch(r'[A-Za-z0-9_.+-]+', name) is not None and
+                name not in expected and asset.get('state') == 'uploaded' and
+                isinstance(asset.get('size'), int) and 0 < asset['size'] <= MAX_BYTES,
+                'unsafe or duplicate release asset')
+        digest = asset.get('digest', '')
+        require(re.fullmatch(r'sha256:[0-9a-f]{64}', digest) is not None,
+                'release asset digest is missing')
+        expected[name] = digest[7:]
+    manifest = release_asset(value, tag, 'SHA256SUMS')
+    require(len(manifest) <= 32768, 'release checksum manifest exceeds bound')
+    listed = {}
+    for line in manifest.decode('ascii').splitlines():
+        match = re.fullmatch(r'([0-9a-f]{64})  ([A-Za-z0-9_.+-]+)', line)
+        require(match is not None, 'malformed release checksum entry')
+        digest, name = match.groups()
+        require(name not in listed and name != 'SHA256SUMS', 'duplicate or recursive release checksum')
+        listed[name] = digest
+    del expected['SHA256SUMS']
+    require(listed == expected, 'release checksums do not cover exact asset inventory')
+
+
 def verify_crate(path, revision, inventory):
-    with tarfile.open(path, 'r:gz') as archive:
+    with (tarfile.open(fileobj=io.BytesIO(path), mode='r:gz') if isinstance(path, bytes) else tarfile.open(path, 'r:gz')) as archive:
         members = []
         total = 0
         for member in archive:
@@ -153,13 +182,30 @@ def verify_crate(path, revision, inventory):
                 require(package.get('source') == 'registry+https://github.com/rust-lang/crates.io-index', 'unapproved locked dependency source')
 
 
+def verify_registry_identity():
+    package = json.loads(download(f'https://crates.io/api/v1/crates/{NAME}'))['crate']
+    require(package.get('id') == NAME and package.get('name') == NAME and
+            package.get('repository') == 'https://github.com/atrinik/protocol',
+            'public registry package identity changed')
+    owners = json.loads(download(f'https://crates.io/api/v1/crates/{NAME}/owners'))['users']
+    require(isinstance(owners, list) and 1 <= len(owners) <= 100 and any(
+        owner.get('kind') == 'user' and owner.get('id') == 437663 and
+        owner.get('login') == 'zoeyrose' and owner.get('github_username_matches') is True
+        for owner in owners), 'public registry owner identity changed')
+
+
 def registry_state(digest):
     api = download(f'https://crates.io/api/v1/crates/{NAME}/{VERSION}', absent=True)
     index = download(f'https://index.crates.io/at/ri/{NAME}', absent=True)
-    api_digest = None if api is None else json.loads(api)['version']['checksum']
+    version = None if api is None else json.loads(api)['version']
+    if version is not None:
+        require(version.get('crate') == NAME and version.get('num') == VERSION and
+                version.get('yanked') is False, 'registry version identity or availability changed')
+    api_digest = None if version is None else version['checksum']
     entries = [] if index is None else [json.loads(line) for line in index.splitlines() if line]
     matches = [entry for entry in entries if entry['vers'] == VERSION]
     require(len(matches) <= 1, 'duplicate registry index version')
+    require(not matches or (matches[0].get('name') == NAME and matches[0].get('yanked') is False), 'registry index identity or availability changed')
     index_digest = None if not matches else matches[0]['cksum']
     require(all(value in (None, digest) for value in (api_digest, index_digest)), 'registry checksum conflict; never republish')
     if api_digest == digest and index_digest == digest:
@@ -170,6 +216,10 @@ def registry_state(digest):
 
 
 def prepare(tag, revision, output, policy, publishing=False):
+    execution_boundary()
+    require(not any(os.environ.get(key) for key in
+                    ('ACTIONS_ID_TOKEN_REQUEST_URL', 'ACTIONS_ID_TOKEN_REQUEST_TOKEN')),
+            'packaging must run without OIDC request authority')
     require(not any(char in str(output) for char in '\r\n'), 'invalid output path')
     require(not output.exists() and not output.is_relative_to(ROOT), 'output must be absent and outside source checkout')
     value = release(tag, revision)
@@ -197,6 +247,8 @@ def prepare(tag, revision, output, policy, publishing=False):
     if publishing:
         require(artifact == policy['artifact'], 'reproduced artifact differs from reviewed pins')
         require(release_asset(value, tag, ASSET) == first, 'published release asset differs from reproduced crate')
+        verify_release_inventory(value, tag)
+        verify_registry_identity()
         state = registry_state(digest)
         require(state != 'indeterminate', 'registry result indeterminate; re-read before any retry')
         ready = state == 'absent'
@@ -205,6 +257,7 @@ def prepare(tag, revision, output, policy, publishing=False):
     require(current['id'] == value['id'], 'release identity changed during preparation')
     if publishing:
         require(release_asset(current, tag, ASSET) == first, 'release asset changed during preparation')
+        verify_release_inventory(current, tag)
     shutil.copyfile(packages[0], output / ASSET)
     (output / 'artifact.json').write_text(json.dumps(artifact, indent=2) + '\n')
     if os.environ.get('GITHUB_OUTPUT'):
@@ -213,9 +266,58 @@ def prepare(tag, revision, output, policy, publishing=False):
     print(json.dumps({'artifact': artifact, 'ready_for_upload': ready, 'github_release_immutable': current.get('immutable', False)}))
 
 
+def verify_upload_boundary(policy_path, policy):
+    """Only reviewed workflow code and inert source data may run with OIDC."""
+    execution_boundary()
+    require(os.environ.get('GITHUB_ACTIONS') == 'true', 'protected verification requires Actions')
+    require(policy_path.resolve() == ROOT / 'policy/rust-crate-next.json', 'unexpected publication policy path')
+    sha = os.environ.get('GITHUB_SHA', '')
+    require(re.fullmatch(r'[0-9a-f]{40}', sha) is not None and
+            os.environ.get('GITHUB_WORKFLOW_SHA') == sha, 'unexpected workflow revision')
+    require(git('rev-parse', 'HEAD') == sha and not git('status', '--porcelain') and
+            load_policy(policy_path) == policy, 'publication checkout or policy changed')
+
+
+def verify_upload(tag, revision, output, policy, policy_path):
+    """Recheck public evidence after approval without executing package code.
+
+    Git reads pinned objects only. Never create a source worktree, install a
+    toolchain, run Cargo, or extract/execute archive members in the OIDC job.
+    """
+    verify_upload_boundary(policy_path, policy)
+    require(not any(char in str(output) for char in '\r\n'), 'invalid output path')
+    require(not output.exists() and not output.is_relative_to(ROOT), 'output must be absent and outside source checkout')
+    artifact = policy['artifact']
+    value = release(tag, revision)
+    data = release_asset(value, tag, artifact['asset'])
+    require(hashlib.sha256(data).hexdigest() == artifact['sha256'], 'release archive differs from reviewed pins')
+    inventory = git('show', revision + ':policy/rust-crate-files.txt').splitlines()
+    verify_crate(data, revision, inventory)
+    verify_release_inventory(value, tag)
+    # Re-read the mutable source release; validate the same in-memory snapshot
+    # that is written for the uploader, whose own digest check runs again.
+    current = release(tag, revision)
+    require(current['id'] == value['id'], 'release identity changed during verification')
+    require(release_asset(current, tag, artifact['asset']) == data, 'release asset changed during verification')
+    verify_release_inventory(current, tag)
+    verify_upload_boundary(policy_path, policy)
+    verify_registry_identity()
+    state = registry_state(artifact['sha256'])
+    require(state != 'indeterminate', 'registry result indeterminate; re-read before any retry')
+    ready = state == 'absent'
+    output.mkdir(parents=True)
+    with (output / ASSET).open('xb') as stream:
+        stream.write(data)
+    if os.environ.get('GITHUB_OUTPUT'):
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as stream:
+            stream.write(f'ready_for_upload={str(ready).lower()}\n')
+    print(json.dumps({'artifact': artifact, 'ready_for_upload': ready,
+                      'github_release_immutable': current.get('immutable', False)}))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('operation', choices=('prepare', 'verify-publish', 'verify-registry'))
+    parser.add_argument('operation', choices=('prepare', 'verify-publish', 'verify-upload', 'verify-registry'))
     parser.add_argument('--policy', type=Path, default=ROOT / 'policy/rust-crate-next.json')
     parser.add_argument('--source-tag')
     parser.add_argument('--source-revision')
@@ -229,11 +331,16 @@ def main():
     else:
         require(policy['status'] == 'ready-for-publication', 'publication disabled until actual source-release artifact pins are reviewed')
         artifact = policy['artifact']
-        if args.operation == 'verify-publish':
+        if args.operation in ('verify-publish', 'verify-upload'):
             require(args.output is not None, 'verification output required')
-            prepare('v' + artifact['repository_release'], artifact['revision'], args.output.resolve(), policy, True)
+            require(args.source_tag == 'v' + artifact['repository_release'] and args.source_revision == artifact['revision'], 'publication inputs differ from reviewed artifact pins')
+            if args.operation == 'verify-publish':
+                prepare(args.source_tag, args.source_revision, args.output.resolve(), policy, True)
+            else:
+                verify_upload(args.source_tag, args.source_revision, args.output.resolve(), policy, args.policy)
         else:
             for attempt in range(6):
+                verify_registry_identity()
                 if registry_state(artifact['sha256']) == 'present':
                     print('Public registry API and sparse-index checksums match reviewed artifact')
                     return
