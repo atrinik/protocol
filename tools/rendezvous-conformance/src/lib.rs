@@ -3,9 +3,10 @@
 
 #[cfg(test)]
 mod tests {
-    use hmac::{Hmac, Mac};
-    use serde_json::Value;
+    use hmac::{Hmac, KeyInit, Mac};
     use sha2::{Digest, Sha256};
+    use std::collections::HashMap;
+    use tinyjson::JsonValue as Value;
 
     const MAX_SECONDS: u64 = 253402300799;
     const SCHEMA: &str = "atrinik-rendezvous-admission-v1";
@@ -23,8 +24,14 @@ mod tests {
             .map(|p| u8::from_str_radix(std::str::from_utf8(p).unwrap(), 16).unwrap())
             .collect()
     }
+    fn field<'a>(value: &'a Value, key: &str) -> Option<&'a Value> {
+        value.get::<HashMap<String, Value>>()?.get(key)
+    }
+    fn string<'a>(value: &'a Value, key: &str) -> Option<&'a str> {
+        field(value, key)?.get::<String>().map(String::as_str)
+    }
     fn text<'a>(value: &'a Value, key: &str) -> &'a str {
-        value[key].as_str().unwrap()
+        string(value, key).unwrap()
     }
     fn token_fields(token: &str) -> Option<(Vec<&str>, u64)> {
         let fields: Vec<_> = token.split('.').collect();
@@ -101,10 +108,10 @@ mod tests {
         if raw.len() > 256 {
             return false;
         }
-        let Ok(v) = serde_json::from_str::<Value>(raw) else {
+        let Ok(v) = raw.parse::<Value>() else {
             return false;
         };
-        let Some(hash) = v["ticketHash"].as_str() else {
+        let Some(hash) = string(&v, "ticketHash") else {
             return false;
         };
         lower_hex(hash, 64) && raw == format!(r#"{{"schema":"{SCHEMA}","ticketHash":"{hash}"}}"#)
@@ -113,10 +120,10 @@ mod tests {
         if raw.len() > 512 {
             return false;
         }
-        let Ok(v) = serde_json::from_str::<Value>(raw) else {
+        let Ok(v) = raw.parse::<Value>() else {
             return false;
         };
-        let (Some(token), Some(expiry)) = (v["challenge"].as_str(), v["expiresAt"].as_str()) else {
+        let (Some(token), Some(expiry)) = (string(&v, "challenge"), string(&v, "expiresAt")) else {
             return false;
         };
         let Some((_, issued)) = token_fields(token) else {
@@ -130,11 +137,10 @@ mod tests {
     }
     #[test]
     fn independent_shared_admission_fixtures() {
-        let f: Value = serde_json::from_str(include_str!(
-            "../../../fixtures/rendezvous-admission-v1.json"
-        ))
-        .unwrap();
-        assert_eq!(f["synthetic"], true);
+        let f: Value = include_str!("../../../fixtures/rendezvous-admission-v1.json")
+            .parse()
+            .unwrap();
+        assert_eq!(f["synthetic"], Value::Boolean(true));
         let key = binary(text(&f, "keyHex"));
         assert_eq!(key.len(), 32);
         assert_eq!(
@@ -162,38 +168,40 @@ mod tests {
         let input = work(text(&f, "token"), text(&f, "solution"));
         assert_eq!(hex(&input), text(&f, "workInputHex"));
         assert_eq!(hex(&Sha256::digest(input)), text(&f, "workDigest"));
-        for c in f["cases"].as_array().unwrap() {
+        for c in f["cases"].get::<Vec<Value>>().unwrap() {
             let mut v = f.clone();
-            if let Some(overrides) = c["override"].as_object() {
+            if let Some(overrides) =
+                field(c, "override").and_then(|v| v.get::<HashMap<String, Value>>())
+            {
                 for (k, value) in overrides {
-                    v[k] = value.clone();
+                    v[k.as_str()] = value.clone();
                 }
             }
             assert_eq!(
                 verify(
                     &v,
-                    c["now"].as_u64().unwrap(),
-                    c["keyRole"].as_str().unwrap_or("current"),
+                    c["now"].get::<f64>().unwrap().to_string().parse().unwrap(),
+                    string(c, "keyRole").unwrap_or("current"),
                     text(&f, "keyId"),
                     &key
                 ),
-                c["accepted"].as_bool().unwrap(),
+                *c["accepted"].get::<bool>().unwrap(),
                 "{}",
                 text(c, "name")
             );
         }
-        for c in f["requestCases"].as_array().unwrap() {
+        for c in f["requestCases"].get::<Vec<Value>>().unwrap() {
             assert_eq!(
                 request(text(c, "raw")),
-                c["accepted"].as_bool().unwrap(),
+                *c["accepted"].get::<bool>().unwrap(),
                 "{}",
                 text(c, "name")
             );
         }
-        for c in f["responseCases"].as_array().unwrap() {
+        for c in f["responseCases"].get::<Vec<Value>>().unwrap() {
             assert_eq!(
                 response(text(c, "raw")),
-                c["accepted"].as_bool().unwrap(),
+                *c["accepted"].get::<bool>().unwrap(),
                 "{}",
                 text(c, "name")
             );
