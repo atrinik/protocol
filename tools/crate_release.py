@@ -181,16 +181,83 @@ def verifier_environment(directory):
             'GH_NO_UPDATE_NOTIFIER': '1', 'NO_COLOR': '1', 'LANG': 'C.UTF-8'}
 
 
+def decode_snappy(raw):
+    """Bounded Snappy raw block, as served by GitHub's attestation storage."""
+    require(0 < len(raw) <= MAX_JSON, 'compressed attestation bound')
+    size, shift, position = 0, 0, 0
+    while True:
+        require(position < len(raw) and shift <= 28, 'Snappy length header')
+        byte = raw[position]; position += 1
+        size |= (byte & 127) << shift
+        if byte < 128:
+            break
+        shift += 7
+    require(0 < size <= MAX_JSON and position == (size.bit_length() + 6) // 7, 'expanded attestation bound')
+    output = bytearray()
+    while position < len(raw):
+        tag = raw[position]; position += 1
+        kind, length = tag & 3, tag >> 2
+        if kind == 0:
+            if length >= 60:
+                count = length - 59
+                require(position + count <= len(raw), 'Snappy literal length')
+                length = int.from_bytes(raw[position:position + count], 'little')
+                position += count
+            length += 1
+            require(position + length <= len(raw) and len(output) + length <= size, 'Snappy literal bound')
+            output.extend(raw[position:position + length]); position += length
+        else:
+            count = {1: 1, 2: 2, 3: 4}[kind]
+            require(position + count <= len(raw), 'Snappy copy offset')
+            offset = int.from_bytes(raw[position:position + count], 'little')
+            position += count
+            if kind == 1:
+                offset |= (tag & 224) << 3
+                length = 4 + ((tag >> 2) & 7)
+            else:
+                length += 1
+            require(0 < offset <= len(output) and len(output) + length <= size, 'Snappy copy bound')
+            while length:
+                chunk = min(offset, length)
+                output.extend(output[len(output) - offset:len(output) - offset + chunk])
+                length -= chunk
+    require(len(output) == size, 'Snappy decoded length mismatch')
+    return bytes(output)
+
+
+def attestation_bundle(config, item):
+    require(str(item.get('repository_id', config['repository_id'])) == config['repository_id'],
+            'attestation repository mismatch')
+    if item.get('bundle_url'):
+        url = urllib.parse.urlparse(item['bundle_url'])
+        require(url.scheme == 'https' and url.netloc == 'tmaproduction.blob.core.windows.net'
+            and not url.fragment and re.fullmatch(r'/attestations/' + config['repository_id']
+                + r'/[0-9]{4}/[0-9]{2}/[0-9]{2}/[1-9][0-9]*\.json\.sn', url.path),
+            'attestation storage URL refused')
+        # GitHub credentials are sent only to api.github.com by get().
+        value = json.loads(decode_snappy(get(item['bundle_url'], maximum=MAX_JSON)))
+    else:
+        value = item.get('bundle')
+    require(isinstance(value, dict) and 0 < len(canonical(value)) <= MAX_JSON, 'attestation bundle bound')
+    return value
+
+
 def verified_attestation(config, raw, revision):
     """Verify signatures with the preinstalled official CLI, then certificate policy."""
-    envelope = api(config, 'attestations/sha256:' + digest(raw) + '?per_page=30')
+    envelope = api(config, 'attestations/sha256:' + digest(raw)
+                   + '?per_page=30&predicate_type=https%3A%2F%2Fslsa.dev%2Fprovenance%2Fv1')
     bundles = envelope.get('attestations', [])
     require(isinstance(bundles, list) and 0 < len(bundles) <= 30, 'attestation inventory bound')
     with tempfile.TemporaryDirectory(prefix='atrinik-crate-attestation-') as temporary:
         directory = Path(temporary)
         manifest_path, bundle_path, output_path = (directory / name for name in ('crate-release.json', 'bundles.jsonl', 'verified.json'))
         manifest_path.write_bytes(raw)
-        bundle_path.write_bytes(b''.join(canonical(item['bundle']) + b'\n' for item in bundles))
+        encoded_bundles = bytearray()
+        for item in bundles:
+            encoded = canonical(attestation_bundle(config, item)) + b'\n'
+            require(len(encoded_bundles) + len(encoded) <= MAX_JSON, 'combined attestation bundle bound')
+            encoded_bundles.extend(encoded)
+        bundle_path.write_bytes(encoded_bundles)
         version = subprocess.run(['gh', 'version'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
             env=verifier_environment(directory), timeout=10)
         parsed_version = re.match(rb'gh version ([0-9]+)\.([0-9]+)\.([0-9]+)', version.stdout)

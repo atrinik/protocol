@@ -298,6 +298,35 @@ class AttestationTests(unittest.TestCase):
         self.assertIn('--bundle', calls[-1][0])
         self.assertIn('--deny-self-hosted-runners', calls[-1][0])
 
+    def test_snappy_all_copy_types_overlap_and_malformed_bounds(self):
+        # Literal abc, COPY_1 adds abcabc, COPY_2 adds abc, COPY_4 adds abc.
+        encoded = bytes([15, 8]) + b'abc' + bytes([9, 3, 10, 3, 0, 11, 3, 0, 0, 0])
+        self.assertEqual(R.decode_snappy(encoded), b'abcabcabcabcabc')
+        self.assertEqual(R.decode_snappy(bytes([70, 240, 69]) + b'a' * 70), b'a' * 70)
+        for raw in [b'', bytes([129, 0, 0, 97]), bytes([128]) * 6, bytes([128, 128, 128, 1]),
+                    bytes([1, 240]), bytes([1, 4, 97]), bytes([1, 1]), bytes([1, 2, 0]),
+                    bytes([1, 3, 0, 0]), bytes([5, 0, 97, 1, 0]), bytes([5, 0, 97, 1, 2]),
+                    bytes([4, 0, 97, 1, 1]), bytes([1, 0, 97, 0, 98]), bytes([2, 0, 97])]:
+            with self.subTest(raw=raw), self.assertRaises(ValueError):
+                R.decode_snappy(raw)
+
+    def test_current_storage_bundle_is_bounded_and_host_restricted(self):
+        raw = b'{"mediaType":"test"}'
+        compressed = bytes([len(raw), (len(raw) - 1) << 2]) + raw
+        url = 'https://tmaproduction.blob.core.windows.net/attestations/123/2026/10/11/42.json.sn?sig=public'
+        item = {'repository_id': 123, 'bundle': None, 'bundle_url': url}
+        with patch.object(R, 'get', return_value=compressed) as fetch:
+            self.assertEqual(R.attestation_bundle(CONFIG, item), {'mediaType': 'test'})
+            fetch.assert_called_once_with(url, maximum=R.MAX_JSON)
+        for other in [url.replace('https:', 'http:'), url.replace('.net/', '.net:443/'),
+                      url.replace('.net/', '.net.evil/'), url.replace('//tma', '//user@tma'),
+                      url.replace('/123/', '/456/'), url + '#fragment']:
+            with patch.object(R, 'get') as fetch, self.assertRaises(ValueError):
+                R.attestation_bundle(CONFIG, dict(item, bundle_url=other))
+            fetch.assert_not_called()
+        with self.assertRaises(ValueError):
+            R.attestation_bundle(CONFIG, dict(item, repository_id=456))
+
     def test_missing_or_failed_signature_verification_fails_closed(self):
         with patch.object(R, 'api', return_value={'attestations': []}), self.assertRaises(ValueError):
             R.verified_attestation(CONFIG, b'forged-manifest', REVISION)

@@ -273,12 +273,12 @@ constitute artifact drift. Its fresh upload job runs no Cargo or package code. I
 immediately before sending exact verified archive bytes. Internal dependencies
 publish first; API, sparse-index and downloaded checksums must agree before the
 next crate proceeds. Matching existing versions are skipped and conflicting bytes
-or yanked versions fail. Before each PUT, the inert upload job uses repository contents-write authority, restricted in this helper
-to intent commits and the fixed tag namespace, to create an intent commit and atomically
-reserve `refs/tags/crate-upload-intent/<crate>/<version>`. The typed intent records
+or yanked versions fail. Before each PUT, the inert upload job uses repository
+contents-write authority to create an intent commit and atomically reserve `refs/tags/crate-upload-intent/<crate>/<version>`. The typed intent records
 source/manifest/archive digests, producing run and a random nonce. Only an acknowledged
 201 ref creation followed by matching readback permits the first PUT. This separate
-tag namespace never edits main or creates an application release.
+tag namespace never edits main or creates an application release. The helper
+restricts its GitHub writes to intent commits and this fixed namespace.
 
 An existing reservation blocks every later PUT for that coordinate, including a
 new workflow, source release or changed digest. A lost reservation response, a
