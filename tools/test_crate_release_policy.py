@@ -117,6 +117,10 @@ class CrateReleasePolicyTests(unittest.TestCase):
             ("ref: ${{ github.sha }}", "ref: main"),
             ("c6f97d42243bad5fab37ca0427f495c86d5b1a18", "v1"),
             ("contents: read", "contents: write"),
+            ("id: upload", "id: other-upload"),
+            ("!cancelled() && (steps.upload.outcome == 'success' || steps.upload.outcome == 'failure')", "success()"),
+            ("!cancelled() && (steps.upload.outcome == 'success' || steps.upload.outcome == 'failure')", "always()"),
+            ("id: upload", "id: upload\n        continue-on-error: true"),
         ):
             with self.subTest(old=old):
                 self.assertIn(old, original)

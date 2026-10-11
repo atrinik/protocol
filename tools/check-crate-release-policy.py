@@ -16,7 +16,7 @@ RELEASE_POLICY = ROOT / "policy" / "rust-crate-release.json"
 WORKFLOWS = ROOT / ".github" / "workflows"
 PUBLISH_WORKFLOW = WORKFLOWS / "publish-crate.yml"
 BOOTSTRAP_CHECK = ROOT / "tools" / "check-crate-publication.py"
-EXPECTED_PUBLICATION_WORKFLOW_SHA256 = "94bb1b7795cafdc35dbe0e9d1741d73a946fd32a53475e85205f33ea53b316b9"
+EXPECTED_PUBLICATION_WORKFLOW_SHA256 = "6e512d82777b2441587b658fb4176d61ef58c4607d2452d3dcd57728921fc20a"
 EXPECTED_WORKFLOWS = {"pr-title.yml", "release.yml", "validate.yml", "publish-crate.yml"}
 
 EXPECTED_FUTURE_POLICY = {
