@@ -152,3 +152,9 @@
   adapters are not available yet; do not route GP1 through classic protocol
   code. Commits/PR titles use Conventional Commits and semantic-release owns
   publication.
+- `Dependency review` is nonblocking advisory feedback for PRs to `main` across
+  runtime, development, and unknown dependency scopes at every severity.
+  Implementing agents must read its PR comment or job summary and fix actionable
+  introduced risks, or record an explicit maintainer acceptance of existing risk,
+  before merge. This adds no required human approval gate; preserve all other
+  validation and security checks.
