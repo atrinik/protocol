@@ -26,10 +26,10 @@ under the [provenance policy](PROVENANCE.md). See
 for the wider technical and authorship context.
 
 The Go and Rust bindings in this repository are deterministic outputs of the
-Protobuf toolchain, not generative AI output. Protocol message instances can
-carry or refer to maps, quests, lore, dialogue, art, audio, and other game-world
-content created by people. The schemas and deterministic bindings define how
-those values are represented; they do not create or author the game world.
+Protobuf toolchain. Protocol message instances can carry or refer to maps,
+quests, lore, dialogue, art, audio, and other game-world content. The schemas
+and bindings define how those values are represented; they do not author the
+game world.
 
 ## Repository contract
 
