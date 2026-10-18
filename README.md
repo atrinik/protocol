@@ -309,6 +309,11 @@ python3 tools/crate_prepare.py prepare --dry-run --source-tag v0.0.0 --output /t
 python3 -m unittest tools.test_crate_release
 ```
 
+`check-version` counts a `Cargo.lock`-only change as package content only when it
+changes the locked graph reachable from a published crate, so dependency updates
+confined to unpublished workspace tools need no crate version bump. Preparation
+still compares the complete packaged content with the owning archive.
+
 The dry-run manifest is preparation evidence only. Live publication requires a
 clean reviewed revision, complete immutable source release and configured identity.
 New crate names in other families need a one-time first publication before crates.io
