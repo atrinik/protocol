@@ -74,7 +74,7 @@ def make_archive(members=None, special=None):
 CRATES_IO = 'registry+https://github.com/rust-lang/crates.io-index'
 
 
-def lockfile(sha2=('0.11.0',), bytes_version='1.12.1', example_dependencies=('prost',), version=4):
+def lockfile(sha2=('0.11.0',), bytes_version='1.12.1', example_dependencies=('prost',), version=4, metadata=''):
     """Workspace lock with a published crate and an unpublished conformance tool."""
     def package(name, package_version, dependencies=(), registry=True):
         lines = ['[[package]]', f'name = "{name}"', f'version = "{package_version}"']
@@ -87,7 +87,7 @@ def lockfile(sha2=('0.11.0',), bytes_version='1.12.1', example_dependencies=('pr
                 package('rendezvous-conformance', '0.0.0', ('hmac', 'sha2'), registry=False),
                 package('prost', '0.14.4', ('bytes',)), package('bytes', bytes_version),
                 package('hmac', '0.13.0')] + [package('sha2', item) for item in sha2]
-    return f'version = {version}\n\n' + '\n\n'.join(packages) + '\n'
+    return f'version = {version}\n\n' + '\n\n'.join(packages) + '\n' + metadata
 
 
 def row():
@@ -589,7 +589,8 @@ class BoundaryTests(unittest.TestCase):
         for case, current in (
                 ('transitive dependency', lockfile(bytes_version='1.12.2')),
                 ('new dependency edge', lockfile(example_dependencies=('prost', 'sha2'))),
-                ('lockfile format', lockfile(version=5))):
+                ('lockfile format', lockfile(version=5)),
+                ('top-level metadata', lockfile(metadata='\n[metadata]\nnote = "preserved"\n'))):
             with self.subTest(case=case):
                 with self.assertRaisesRegex(ValueError, 'without reviewed version bump'):
                     self.check_lockfile_change(current)

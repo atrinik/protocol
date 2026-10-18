@@ -75,7 +75,8 @@ def locked_dependencies(lock_text, name):
 
     Cargo trims a packaged crate's Cargo.lock to this graph. The workspace graph
     also follows the crate's dev-dependency edges and optional features enabled
-    by other members, so it can only over-approximate the packaged lock.
+    by other members, so it can only over-approximate the packaged lock. All
+    top-level sections other than the package list are compared verbatim.
     """
     lock = tomllib.loads(lock_text)
     packages = lock.get('package', [])
@@ -103,7 +104,9 @@ def locked_dependencies(lock_text, name):
         if key not in graph:
             graph[key] = entry
             pending.extend(resolve(reference) for reference in entry.get('dependencies', []))
-    return lock.get('version'), sorted(graph)
+    # Keep every other top-level section (format version, [metadata] and future
+    # tables) so lockfile data Cargo may carry into the package still counts.
+    return R.canonical({key: value for key, value in lock.items() if key != 'package'}), sorted(graph)
 
 
 def check_version(config, base):
