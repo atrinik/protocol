@@ -71,6 +71,25 @@ def make_archive(members=None, special=None):
     return output.getvalue()
 
 
+CRATES_IO = 'registry+https://github.com/rust-lang/crates.io-index'
+
+
+def lockfile(sha2=('0.11.0',), bytes_version='1.12.1', example_dependencies=('prost',), version=4, metadata=''):
+    """Workspace lock with a published crate and an unpublished conformance tool."""
+    def package(name, package_version, dependencies=(), registry=True):
+        lines = ['[[package]]', f'name = "{name}"', f'version = "{package_version}"']
+        if registry:
+            lines += [f'source = "{CRATES_IO}"', f'checksum = "{R.digest(f"{name}@{package_version}".encode())}"']
+        if dependencies:
+            lines.append('dependencies = [' + ', '.join(f'"{item}"' for item in dependencies) + ']')
+        return '\n'.join(lines)
+    packages = [package('example', '0.1.0', example_dependencies, registry=False),
+                package('rendezvous-conformance', '0.0.0', ('hmac', 'sha2'), registry=False),
+                package('prost', '0.14.4', ('bytes',)), package('bytes', bytes_version),
+                package('hmac', '0.13.0')] + [package('sha2', item) for item in sha2]
+    return f'version = {version}\n\n' + '\n\n'.join(packages) + '\n' + metadata
+
+
 def row():
     data = make_archive()
     contents = R.archive(data, 'example', '0.1.0')
@@ -545,6 +564,45 @@ class BoundaryTests(unittest.TestCase):
                     P.check_version(config, REVISION)
                 with patch.object(P, 'versions', return_value={'example': '0.1.1'}):
                     P.check_version(config, REVISION)
+
+    def check_lockfile_change(self, current, version='0.1.0'):
+        def git(*args):
+            if args[0] == 'diff': return 'Cargo.lock'
+            if args[0] == 'cat-file': return ''
+            if args[1].endswith(':policy/crate-release.json'): return json.dumps(CONFIG)
+            if args[1] == REVISION + ':Cargo.toml': return '[workspace.package]\nversion="0.1.0"\n'
+            if args[1] == REVISION + ':Cargo.lock': return lockfile().strip()
+            return '[package]\nversion="0.1.0"\n'
+        with tempfile.TemporaryDirectory() as temporary, patch.object(P, 'ROOT', Path(temporary)), \
+             patch.object(P, 'git', side_effect=git), patch.object(P.subprocess, 'run') as command, \
+             patch.object(P, 'versions', return_value={'example': version}):
+            (Path(temporary) / 'Cargo.lock').write_text(current)
+            command.return_value.returncode = 0
+            P.check_version(CONFIG, REVISION)
+
+    def test_version_gate_ignores_lockfile_changes_outside_published_crate_graph(self):
+        # Mirrors a dev-only sha2 update in an unpublished workspace member.
+        self.check_lockfile_change(lockfile(sha2=('0.11.1',)))
+        self.check_lockfile_change(lockfile())
+
+    def test_version_gate_counts_lockfile_changes_inside_published_crate_graph(self):
+        for case, current in (
+                ('transitive dependency', lockfile(bytes_version='1.12.2')),
+                ('new dependency edge', lockfile(example_dependencies=('prost', 'sha2'))),
+                ('lockfile format', lockfile(version=5)),
+                ('top-level metadata', lockfile(metadata='\n[metadata]\nnote = "preserved"\n'))):
+            with self.subTest(case=case):
+                with self.assertRaisesRegex(ValueError, 'without reviewed version bump'):
+                    self.check_lockfile_change(current)
+                self.check_lockfile_change(current, version='0.1.1')
+
+    def test_version_gate_rejects_unresolvable_lockfile_graph(self):
+        for case, current in (
+                ('ambiguous bare reference', lockfile(sha2=('0.10.9', '0.11.1'), example_dependencies=('prost', 'sha2'))),
+                ('missing package', lockfile(example_dependencies=('prost', 'absent'))),
+                ('missing published crate', lockfile().replace('name = "example"', 'name = "renamed"'))):
+            with self.subTest(case=case), self.assertRaisesRegex(ValueError, 'exactly one'):
+                self.check_lockfile_change(current, version='0.1.1')
 
     def test_actions_source_ref_cannot_be_overridden_and_read_token_not_in_build(self):
         with patch.dict(os.environ, {'GITHUB_ACTIONS': 'true', 'GITHUB_REF': 'refs/heads/1.0.x',

@@ -70,6 +70,45 @@ def pending(config):
     return any((name, version) not in existing for name, version in versions(config).items())
 
 
+def locked_dependencies(lock_text, name):
+    """Return the Cargo.lock graph reachable from one workspace crate.
+
+    Cargo trims a packaged crate's Cargo.lock to this graph. The workspace graph
+    also follows the crate's dev-dependency edges and optional features enabled
+    by other members, so it can only over-approximate the packaged lock. All
+    top-level sections other than the package list are compared verbatim.
+    """
+    lock = tomllib.loads(lock_text)
+    packages = lock.get('package', [])
+    R.require(isinstance(packages, list) and all(isinstance(entry, dict) for entry in packages), 'Cargo.lock package list')
+
+    def resolve(reference):
+        R.require(isinstance(reference, str), 'Cargo.lock dependency reference')
+        parts = reference.split(' ', 2)
+        source = None
+        if len(parts) == 3:
+            R.require(parts[2].startswith('(') and parts[2].endswith(')'), 'Cargo.lock dependency source')
+            source = parts[2][1:-1]
+        found = [entry for entry in packages if entry.get('name') == parts[0]
+                 and (len(parts) == 1 or entry.get('version') == parts[1])
+                 and (source is None or entry.get('source') == source)]
+        R.require(len(found) == 1, 'Cargo.lock dependency must resolve to exactly one package')
+        return found[0]
+
+    roots = [entry for entry in packages if entry.get('name') == name and 'source' not in entry]
+    R.require(len(roots) == 1, 'published crate must be exactly one Cargo.lock workspace package')
+    graph, pending = {}, roots
+    while pending:
+        entry = pending.pop()
+        key = R.canonical(entry)
+        if key not in graph:
+            graph[key] = entry
+            pending.extend(resolve(reference) for reference in entry.get('dependencies', []))
+    # Keep every other top-level section (format version, [metadata] and future
+    # tables) so lockfile data Cargo may carry into the package still counts.
+    return R.canonical({key: value for key, value in lock.items() if key != 'package'}), sorted(graph)
+
+
 def check_version(config, base):
     R.require(R.SHA.fullmatch(base), 'base must be immutable revision')
     git('cat-file', '-e', base + '^{commit}')
@@ -83,6 +122,10 @@ def check_version(config, base):
     current_versions = versions(config)
     changed = set(git('diff', '--name-only', base, '--').splitlines())
     old_workspace = tomllib.loads(git('show', base + ':Cargo.toml')).get('workspace', {}).get('package', {})
+    # A lockfile-only change matters when it reaches a published crate's graph;
+    # preparation still compares complete packaged content with the owning archive.
+    old_lock = git('show', base + ':Cargo.lock') if 'Cargo.lock' in changed else None
+    new_lock = (ROOT / 'Cargo.lock').read_text() if 'Cargo.lock' in changed else None
     for row in config['crates']:
         if row['name'] not in previous_names:
             continue
@@ -95,7 +138,9 @@ def check_version(config, base):
         R.require(tuple(map(int, version.split('.'))) >= tuple(map(int, old_version.split('.'))), 'crate version moved backward')
         package_changed = (row['path'] != prior['path'] or config['toolchain'] != previous['toolchain']
             or any(path.startswith((row['path'] + '/', prior['path'] + '/', '.cargo/')) for path in changed)
-            or bool(changed & {'Cargo.toml', 'Cargo.lock', 'rust-toolchain', 'rust-toolchain.toml'}))
+            or bool(changed & {'Cargo.toml', 'rust-toolchain', 'rust-toolchain.toml'})
+            or (new_lock is not None
+                and locked_dependencies(old_lock, prior['name']) != locked_dependencies(new_lock, row['name'])))
         R.require(not package_changed or version != old_version, 'package content changed without reviewed version bump')
 
 
