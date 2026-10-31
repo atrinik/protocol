@@ -18,7 +18,7 @@ PUBLISH_WORKFLOW = WORKFLOWS / "publish-crate.yml"
 BOOTSTRAP_CHECK = ROOT / "tools" / "check-crate-publication.py"
 SOURCE_WORKFLOW = WORKFLOWS / "release.yml"
 EXPECTED_SOURCE_WORKFLOW_SHA256 = "13b592fd367f87ebc8c4926a514f110faadf4804206b8a2fd1e19c57b07d17c9"
-EXPECTED_PUBLICATION_WORKFLOW_SHA256 = "b21e9b715650b5f0b3f5b77eb563a4b78a0e5dbe9f07c09953fc64c6fe3f3c41"
+EXPECTED_PUBLICATION_WORKFLOW_SHA256 = "e1e02758989a4c8432dbcf8422e440041c7604980bb99fb04c003cfb01524a3b"
 EXPECTED_WORKFLOWS = {
     "dependency-review.yml", "pr-title.yml", "release.yml", "validate.yml",
     "publish-crate.yml", "crate-release-reconcile.yml",

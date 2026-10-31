@@ -118,7 +118,7 @@ class CrateReleasePolicyTests(unittest.TestCase):
             ("needs.verify.outputs.ready == 'true'", "always()"),
             ("persist-credentials: false", "persist-credentials: true"),
             ("ref: ${{ github.sha }}", "ref: main"),
-            ("c6f97d42243bad5fab37ca0427f495c86d5b1a18", "v1"),
+            ("3268eb413133e2960fa4ae0e963ca76380c54cd9", "v1"),
             ("contents: read", "contents: write"),
             ("id: upload", "id: other-upload"),
             ("!cancelled() && (steps.upload.outcome == 'success' || steps.upload.outcome == 'failure')", "success()"),
