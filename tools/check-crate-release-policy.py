@@ -18,7 +18,7 @@ PUBLISH_WORKFLOW = WORKFLOWS / "publish-crate.yml"
 BOOTSTRAP_CHECK = ROOT / "tools" / "check-crate-publication.py"
 SOURCE_WORKFLOW = WORKFLOWS / "release.yml"
 EXPECTED_SOURCE_WORKFLOW_SHA256 = "13b592fd367f87ebc8c4926a514f110faadf4804206b8a2fd1e19c57b07d17c9"
-EXPECTED_PUBLICATION_WORKFLOW_SHA256 = "e1e02758989a4c8432dbcf8422e440041c7604980bb99fb04c003cfb01524a3b"
+EXPECTED_PUBLICATION_WORKFLOW_SHA256 = "b0491b93c39cb1b58e73afff2ac49a9aea8854a53c1de2df04a66ca639ffe58a"
 EXPECTED_WORKFLOWS = {
     "dependency-review.yml", "pr-title.yml", "release.yml", "validate.yml",
     "publish-crate.yml", "crate-release-reconcile.yml",
@@ -63,7 +63,7 @@ def main() -> None:
         expected_candidate = {
             "schema_version": 1, "name": release["name"],
             "version": workspace_version, "base_published_version": release["version"],
-            "status": "unpublished", "publication": ("reviewed-manual-publication" if workspace_version == "0.2.0" else "reviewed-automatic-publication"),
+            "status": "unpublished", "publication": "reviewed-automatic-publication",
         }
         if candidate != expected_candidate or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", workspace_version):
             raise SystemExit("unpublished crate candidate policy changed")
@@ -92,17 +92,6 @@ def main() -> None:
     if publishing != expected:
         raise SystemExit("reviewed Rust registry policy changed")
 
-    next_policy = load_json(ROOT / "policy/rust-crate-next.json")
-    expected_next = {"schema_version": 1, "name": release["name"],
-                     "version": "0.2.0", "status": "ready-for-publication",
-                     "artifact": {
-                         "repository_release": "2.8.0",
-                         "revision": "a47537790f5ea8a08adf7e6dffee4fa794cf3665",
-                         "asset": "atrinik-protocol-0.2.0.crate",
-                         "sha256": "cda65c3c322993cfab378454fb9b1182df8a000216f4abd1170e53cdfdc3b3bb",
-                     }}
-    if next_policy != expected_next:
-        raise SystemExit("reviewed next-crate artifact pins changed")
     if not PUBLISH_WORKFLOW.is_file():
         raise SystemExit("reviewed publication workflow is required")
     # Fence the complete reviewed job/step/permission graph, not substrings that

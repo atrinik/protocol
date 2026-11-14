@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression tests for the reviewed manual registry boundary."""
+"""Regression tests for the reviewed registry publication boundary."""
 
 from __future__ import annotations
 
@@ -26,7 +26,6 @@ class CrateReleasePolicyTests(unittest.TestCase):
             "Cargo.toml",
             "crates/atrinik-protocol/Cargo.toml",
             "policy/rust-crate-candidate.json",
-            "policy/rust-crate-next.json",
             "README.md",
             "policy/rust-crate-publishing.json",
             "policy/rust-crate-release.json",
@@ -99,23 +98,16 @@ class CrateReleasePolicyTests(unittest.TestCase):
             stream.write("\n# id-token: write\n")
         self.assert_rejected("reviewed publication workflow changed")
 
-    def test_rejects_unreviewed_artifact_pins(self) -> None:
-        path = self.root / "policy/rust-crate-next.json"
-        value = json.loads(path.read_text())
-        value["artifact"] = {"revision": "a" * 40}
-        path.write_text(json.dumps(value))
-        self.assert_rejected("reviewed next-crate artifact pins changed")
-
     def test_rejects_publication_workflow_guard_drift(self) -> None:
         path = self.root / ".github/workflows/publish-crate.yml"
         original = path.read_text()
         for old, new in (
-            ("default: prepare", "default: publish"),
-            ("crate_publication.py verify-upload", "crate_publication.py verify-publish"),
+            ("options: [automatic]", "options: [automatic, publish]"),
+            ("crate_release.py upload", "crate_release.py confirm"),
             ("      - id: auth", "      - run: cargo package --locked\n      - id: auth"),
             ("      - id: auth", "      - run: rustup toolchain install 1.97.1\n      - id: auth"),
             ("environment: crates-io-release", "environment: other"),
-            ("needs.verify.outputs.ready == 'true'", "always()"),
+            ("needs: automatic-verify", "needs: []"),
             ("persist-credentials: false", "persist-credentials: true"),
             ("ref: ${{ github.sha }}", "ref: main"),
             ("3268eb413133e2960fa4ae0e963ca76380c54cd9", "v1"),
