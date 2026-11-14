@@ -141,7 +141,7 @@ def verify_release_inventory(value, tag):
     require(listed == expected, 'release checksums do not cover exact asset inventory')
 
 
-def verify_crate(path, revision, inventory):
+def verify_crate(path, revision, inventory, version=VERSION):
     with (tarfile.open(fileobj=io.BytesIO(path), mode='r:gz') if isinstance(path, bytes) else tarfile.open(path, 'r:gz')) as archive:
         members = []
         total = 0
@@ -149,7 +149,7 @@ def verify_crate(path, revision, inventory):
             total += member.size
             require(len(members) < 256 and total <= MAX_BYTES, 'crate archive exceeds bound')
             members.append(member)
-        prefix = f'{NAME}-{VERSION}/'
+        prefix = f'{NAME}-{version}/'
         names = []
         for member in members:
             require(member.isfile() and member.name.startswith(prefix), 'unexpected archive member')
@@ -163,7 +163,7 @@ def verify_crate(path, revision, inventory):
         require(vcs == {'git': {'sha1': revision}, 'path_in_vcs': 'crates/atrinik-protocol'}, 'crate VCS provenance mismatch')
         manifest = tomllib.loads(read('Cargo.toml').decode())
         package = manifest['package']
-        require(package['name'] == NAME and package['version'] == VERSION and package.get('publish') == ['crates-io'], 'crate is not the publishable reviewed version')
+        require(package['name'] == NAME and package['version'] == version and package.get('publish') == ['crates-io'], 'crate is not the publishable reviewed version')
         def no_source_override(value):
             if isinstance(value, dict):
                 require('path' not in value and 'git' not in value, 'unapproved crate dependency source')
@@ -176,7 +176,7 @@ def verify_crate(path, revision, inventory):
             no_source_override(manifest.get(key, {}))
         lock = tomllib.loads(read('Cargo.lock').decode())
         for package in lock['package']:
-            if package['name'] == NAME and package['version'] == VERSION:
+            if package['name'] == NAME and package['version'] == version:
                 require('source' not in package, 'unexpected root crate source')
             else:
                 require(package.get('source') == 'registry+https://github.com/rust-lang/crates.io-index', 'unapproved locked dependency source')

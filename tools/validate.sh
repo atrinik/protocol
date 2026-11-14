@@ -158,11 +158,11 @@ cargo package --locked --offline --allow-dirty \
   --manifest-path crates/atrinik-protocol/Cargo.toml \
   --target-dir "${protocol_crate_target}"
 test -s "${protocol_crate_target}/package/${protocol_crate_asset}"
-python3 - "${protocol_crate_target}/package/${protocol_crate_asset}" "$(git rev-parse HEAD)" <<'PYTHON'
+python3 - "${protocol_crate_target}/package/${protocol_crate_asset}" "$(git rev-parse HEAD)" "${protocol_crate_version}" <<'PYTHON'
 from pathlib import Path
 import sys
 from tools.crate_publication import verify_crate
-verify_crate(Path(sys.argv[1]), sys.argv[2], Path("policy/rust-crate-files.txt").read_text().splitlines())
+verify_crate(Path(sys.argv[1]), sys.argv[2], Path("policy/rust-crate-files.txt").read_text().splitlines(), sys.argv[3])
 PYTHON
 protocol_crate_listing=$(mktemp /tmp/atrinik-protocol-crate-files.XXXXXX)
 protocol_crate_extract=$(mktemp -d /tmp/atrinik-protocol-crate-extract.XXXXXX)
