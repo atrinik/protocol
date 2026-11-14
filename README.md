@@ -112,10 +112,9 @@ Git revision.
 
 ## Rust registry publication
 
-Protocol 0.2.0 is published. Future reviewed Cargo version bumps use the
-[automatic library release contract](#automatic-rust-library-releases). The
-manual procedure below records the original 0.2.0 publication and its pinned
-artifact; it does not govern later versions. The manifest allows only crates.io.
+Every Cargo version after 0.2.0 is published only through the
+[automatic library release contract](#automatic-rust-library-releases); there is
+no manual publication operation. The manifest allows only crates.io.
 
 Crate `atrinik-protocol` version `0.1.0` is registered on crates.io with
 SHA-256
@@ -143,82 +142,27 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) and [PROVENANCE.md](PROVENANCE.md)
 before proposing contract material. The cross-repository roadmap is
 [atrinik/atrinik#168](https://github.com/atrinik/atrinik/issues/168).
 
-## Reviewed access-token crate candidate
+## Historical 0.2.0 publication
 
-Crate 0.2.0 was published by the separately authorized
-[publication run](https://github.com/atrinik/protocol/actions/runs/38156755961).
-The public API, sparse index and downloaded archive agree on the checksum below.
-`policy/rust-crate-candidate.json` retains its historical preparation declaration;
-`policy/rust-crate-next.json` marks the reviewed artifact `ready-for-publication`
-and pins its prepared source release `v2.8.0`,
-revision `a47537790f5ea8a08adf7e6dffee4fa794cf3665`, asset
-`atrinik-protocol-0.2.0.crate` and SHA-256
+Crate 0.2.0 was published once by a separately authorized manual
+[publication run](https://github.com/atrinik/protocol/actions/runs/38156755961)
+from source release `v2.8.0`, revision
+`a47537790f5ea8a08adf7e6dffee4fa794cf3665`, asset
+`atrinik-protocol-0.2.0.crate`, SHA-256
 `cda65c3c322993cfab378454fb9b1182df8a000216f4abd1170e53cdfdc3b3bb`.
-The approved preparation [run](https://github.com/atrinik/protocol/actions/runs/37225929702)
-packaged that clean source twice, and an isolated local reproduction matched.
-The immutable published 0.1.0 policy remains unchanged. Later source releases omit these historical registry crates; they cannot
-regenerate or replace the prepared bytes. Future reviewed version bumps use
-the automatic publication contract below.
+`policy/crate-release.json` keeps that coordinate as immutable historical
+lineage. The manual `prepare` and `publish` workflow operations and their tooling
+have since been removed; later source releases omit the historical registry
+crates and cannot regenerate or replace their bytes.
 
-## Preparing and publishing the reviewed Rust crate
-
-The manual `publish-crate.yml` workflow has explicit `prepare` and `publish`
-operations. Its default is `prepare`, which requests no OIDC token and only emits
-an Actions artifact. A preparation approval never authorizes publication. Inputs
-for publication must match the exact reviewed tag and revision above. Both
-operations run only on main in repository ID 1327106950; checkout uses the fixed
-workflow-run revision, while packaging uses the separately pinned source release.
-Never package activation HEAD as a substitute for the prepared source.
-
-The one-time publication attached the exact prepared archive to
-[v2.8.0](https://github.com/atrinik/protocol/releases/tag/v2.8.0), then verify its
-public asset digest. The verifier refuses a missing or mismatched asset; it cannot
-substitute an Actions artifact. GitHub reports the source release as mutable, so
-repeated tag, provenance and asset-digest checks detect drift rather than claiming
-GitHub release immutability. Attaching a new asset also requires a separately
-reviewed complete checksum-inventory update; never leave an unchecked extra asset
-or silently alter an existing contract/source archive.
-
-A credential-free `verify` job reproduces the pinned source twice and validates
-its release asset, public package/owner identity and registry API/sparse-index
-state. Missing or conflicting evidence stops before the protected publication
-job. An already published identical version is an idempotent success; different
-bytes or an indeterminate registry state stop without upload.
-
-The publication job requires `operation=publish`, that successful preflight and
-the `crates-io-release` environment. The automatic environment is main-only with zero required reviewers, zero wait
-time, and no registry secrets or variables. Reviewed merges and successful
-checks authorize each release after one-time owner setup.
-Environment and crates.io Trusted Publisher setup are separately authorized owner
-operations, tracked in [github-settings#86](https://github.com/atrinik/github-settings/pull/86).
-Trusted Publishing binds `atrinik/protocol`, `publish-crate.yml` and that exact
-environment. Only this job grants `id-token: write`, which gives every step OIDC
-request authority. It never installs a toolchain or runs Cargo, package builds,
-proc macros or dependency code. After environment admission, `verify-upload` fetches
-the exact public release archive as inert bytes and checks its reviewed digest,
-inventory and provenance. It freshly checks the workflow checkout, pinned source
-ancestry, public tag/release, complete release inventory, owner and registry state
-before token exchange. It writes the same checked archive snapshot for upload.
-All reproduction remains in the credential-free jobs; packaging also refuses
-OIDC request authority at runtime. Only the upload step receives the short-lived
-token from the pinned official action; its post step revokes the token. No long-lived registry credential is allowed.
-
-The bounded uploader verifies the archive snapshot and public state again, then
-sends those exact archive bytes using the documented
-[Cargo registry publish API](https://doc.rust-lang.org/cargo/reference/registry-web-api.html#publish).
-It does not invoke `cargo publish`, which would repackage the source. The request
-uses a fixed HTTPS endpoint, refuses redirects, never retries an uncertain write,
-and never logs the token or response body. After an attempted upload, the
-credential-free verifier checks public package/owner identity and agreement
-between the registry API and sparse-index checksum, including when the uploader
-fails. It skips cancelled runs and skipped uploads; a matching checksum does not
-turn a failed upload step into workflow success. An uncertain result requires
-inspection before another separately authorized publication attempt.
-
-The historical 0.2.0 publication is confirmed by the registry evidence above.
-Consumers still require the production registry release and normal dependency-lock
-validation; source workflow success alone does not establish registry readiness.
-See the [official token action](https://github.com/rust-lang/crates-io-auth-action).
+The `crates-io-release` environment is main-only with zero required reviewers,
+zero wait time, and no registry secrets or variables. Trusted Publishing binds
+`atrinik/protocol`, `publish-crate.yml` and that exact environment; environment
+and Trusted Publisher setup are separately authorized owner operations, tracked
+in [github-settings#86](https://github.com/atrinik/github-settings/pull/86). The
+upload step receives only a short-lived token from the pinned
+[official token action](https://github.com/rust-lang/crates-io-auth-action); no
+long-lived registry credential is allowed.
 
 
 ## Automatic Rust library releases

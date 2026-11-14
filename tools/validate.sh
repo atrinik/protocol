@@ -37,7 +37,7 @@ cmp LICENSE crates/atrinik-protocol/LICENSE
 tools/check-dependencies.sh
 tools/test-check-dependencies.sh
 python3 tools/check-crate-release-policy.py
-python3 -m unittest tools/test_crate_release_policy.py tools/test_access_route_schema.py tools/test_crate_publication.py tools/test_crate_upload.py tools/test_crate_release.py tools/test_rendezvous_admission.py
+python3 -m unittest tools/test_crate_release_policy.py tools/test_access_route_schema.py tools/test_crate_archive.py tools/test_crate_release.py tools/test_rendezvous_admission.py
 jq empty \
   fixtures/access-tokens-v1.json \
   fixtures/rendezvous-admission-v1.json \
@@ -55,7 +55,6 @@ jq empty \
   schema/metaserver-game-publisher-v2.schema.json \
   schema/metaserver-classic-publisher-v3.schema.json \
   policy/rust-crate-candidate.json \
-  policy/rust-crate-next.json \
   fixtures/framing.json \
   fixtures/metaserver-directory-v1.json \
   fixtures/metaserver-directory-v1/*.json \
@@ -161,7 +160,7 @@ test -s "${protocol_crate_target}/package/${protocol_crate_asset}"
 python3 - "${protocol_crate_target}/package/${protocol_crate_asset}" "$(git rev-parse HEAD)" "${protocol_crate_version}" <<'PYTHON'
 from pathlib import Path
 import sys
-from tools.crate_publication import verify_crate
+from tools.crate_archive import verify_crate
 verify_crate(Path(sys.argv[1]), sys.argv[2], Path("policy/rust-crate-files.txt").read_text().splitlines(), sys.argv[3])
 PYTHON
 protocol_crate_listing=$(mktemp /tmp/atrinik-protocol-crate-files.XXXXXX)

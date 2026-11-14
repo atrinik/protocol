@@ -96,8 +96,9 @@
   semantics and milestone gates. Do not copy M1-M6 schedules into this guide.
 - Treat registry publication as an irreversible external operation. Version
   `0.1.0` completed the one-use bootstrap; its workflow, secret and token stay
-  retired. Version 0.2.0 is confirmed in the registry; preserve its separately
-  pinned manual path and original source/archive lineage as historical evidence. Future reviewed version changes publish automatically through
+  retired. Version 0.2.0 is confirmed in the registry; its manual publication
+  path is removed and its source/archive lineage stays pinned in
+  `policy/crate-release.json` as historical evidence. Reviewed version changes publish only through
   Trusted Publishing in the main-only `crates-io-release` environment, without
   required reviewers or wait timers. One-time environment/registration setup
   remains an owner operation, tracked in `github-settings`.
