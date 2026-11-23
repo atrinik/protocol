@@ -30,6 +30,7 @@ class CrateReleasePolicyTests(unittest.TestCase):
             "policy/rust-crate-publishing.json",
             "policy/rust-crate-release.json",
             "tools/check-crate-release-policy.py",
+            "tools/package-release.sh",
         ):
             source = SOURCE_ROOT / relative
             target = self.root / relative
@@ -208,6 +209,32 @@ class CrateReleasePolicyTests(unittest.TestCase):
                 self.assertNotEqual(changed, original)
                 path.write_text(changed, encoding="utf-8")
                 self.assert_rejected(expected)
+
+    def test_release_script_passes_read_token_only_to_crate_preparation(self) -> None:
+        path = self.root / "tools" / "package-release.sh"
+        original = path.read_text(encoding="utf-8")
+        scope = "declare +x catalog_read_token=${GH_READ_TOKEN-}\nunset GH_READ_TOKEN\n"
+        use = "GH_READ_TOKEN=${catalog_read_token} python3 tools/crate_prepare.py prepare "
+        cd = 'cd "${repository}"\n'
+        for case, changed in (
+            ("token left exported", original.replace("unset GH_READ_TOKEN\n", "", 1)),
+            ("holder exported", original.replace("declare +x catalog_read_token", "export catalog_read_token", 1)),
+            ("scope after the first command",
+             original.replace(scope, "", 1).replace(cd, cd + scope, 1)),
+            ("token withheld from crate preparation",
+             original.replace(use, "python3 tools/crate_prepare.py prepare ", 1)),
+            ("token passed to cargo package",
+             original.replace("  cargo package --locked --offline --allow-dirty",
+                              "  GH_READ_TOKEN=${catalog_read_token} cargo package --locked --offline --allow-dirty", 1)),
+            ("token passed to the contract bundle",
+             original.replace("python3 tools/contract_release_bundle.py",
+                              "GH_READ_TOKEN=${catalog_read_token} python3 tools/contract_release_bundle.py", 1)),
+            ("token re-exported", original.replace(use, "export GH_READ_TOKEN=${catalog_read_token}\n" + use, 1)),
+        ):
+            with self.subTest(case=case):
+                self.assertNotEqual(changed, original)
+                path.write_text(changed, encoding="utf-8")
+                self.assert_rejected("package-release.sh must pass the read token only to crate preparation")
 
     def test_rejects_registry_capabilities_in_dependency_review(self) -> None:
         path = self.root / ".github" / "workflows" / "dependency-review.yml"

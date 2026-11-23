@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Only crate preparation reads the release catalog with the read-only job token,
+# and it strips the token again before Cargo runs. No other command below may
+# inherit it (this limits accidental exposure; it is not a barrier against
+# hostile code running as this user). declare +x also drops an inherited export
+# of the holder's own name, so never export the holder.
+declare +x catalog_read_token=${GH_READ_TOKEN-}
+unset GH_READ_TOKEN
+
 repository=$(git rev-parse --show-toplevel)
 cd "${repository}"
 
@@ -130,7 +138,7 @@ prepare_options=()
 if [[ ${version} == *-validation || ${CRATE_RELEASE_DRY_RUN:-0} == 1 ]]; then
   prepare_options+=(--dry-run)
 fi
-python3 tools/crate_prepare.py prepare "${prepare_options[@]}" \
+GH_READ_TOKEN=${catalog_read_token} python3 tools/crate_prepare.py prepare "${prepare_options[@]}" \
   --source-tag "v${version}" --output "$(realpath "${output}")"
 
 (

@@ -179,8 +179,10 @@ The read-only source job plans the next repository version, runs the aggregate,
 packages the public crate graph twice and builds the extracted archives. Only its
 planning and preparation steps receive the job's read-only `GITHUB_TOKEN`
 (`contents: read`), for public release catalog reads: hosted runners share
-addresses whose anonymous GitHub API quota is often exhausted. Preparation strips
-that token before Cargo packages or verifies the crate graph. It emits
+addresses whose anonymous GitHub API quota is often exhausted. In preparation,
+`tools/package-release.sh` unsets it at once and hands it only to
+`crate_prepare.py`, which strips it again before Cargo packages or verifies the
+crate graph. It emits
 `crate-release.json` with actual source revision, source tag, inventory, registry
 metadata, archive SHA-256 and a content checksum excluding only VCS metadata.
 Changed package content with a reused Cargo version fails. Historical 0.1.0 and
