@@ -4,8 +4,8 @@ set -euo pipefail
 # Only crate preparation reads the release catalog with the read-only job token,
 # and it strips the token again before Cargo runs. No other command below may
 # inherit it (this limits accidental exposure; it is not a barrier against
-# hostile code running as this user). declare +x also drops an inherited export
-# of the holder's own name, so never export the holder.
+# hostile code running as this user). declare +x also drops a plain inherited
+# export of the holder's own name, so never export the holder.
 declare +x catalog_read_token=${GH_READ_TOKEN-}
 unset GH_READ_TOKEN
 

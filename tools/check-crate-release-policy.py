@@ -99,10 +99,11 @@ def check_source_read_token(text: str, script: str) -> None:
             or "tojson(github" in expressions or "github[" in expressions):
         raise SystemExit("source catalog reads must use the read-only token in exactly the planning and preparation steps")
     # Scope the token before the script's first command; only the shebang,
-    # set -euo pipefail and comments may precede it.
-    before, scoped, _ = script.partition(PACKAGE_SCRIPT_TOKEN_SCOPE)
+    # set -euo pipefail and comments may precede it. Without the scope lines,
+    # the partition leaves the whole script before them, so it fails too.
+    before = script.partition(PACKAGE_SCRIPT_TOKEN_SCOPE)[0]
     commands = [line for line in before.splitlines() if line.strip() and not line.lstrip().startswith("#")]
-    if (not scoped or commands != ["set -euo pipefail"] or PACKAGE_SCRIPT_TOKEN_USE not in script
+    if (commands != ["set -euo pipefail"] or PACKAGE_SCRIPT_TOKEN_USE not in script
             or script.count("GH_READ_TOKEN") != 3 or script.count("catalog_read_token") != 2):
         raise SystemExit("package-release.sh must pass the read token only to crate preparation")
 

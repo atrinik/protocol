@@ -230,6 +230,16 @@ class CrateReleasePolicyTests(unittest.TestCase):
              original.replace("python3 tools/contract_release_bundle.py",
                               "GH_READ_TOKEN=${catalog_read_token} python3 tools/contract_release_bundle.py", 1)),
             ("token re-exported", original.replace(use, "export GH_READ_TOKEN=${catalog_read_token}\n" + use, 1)),
+            ("holder exported on a later line",
+             original.replace("unset GH_READ_TOKEN\n", "unset GH_READ_TOKEN\nexport catalog_read_token\n", 1)),
+            ("token passed to cargo package through indirect expansion",
+             original.replace("  cargo package --locked --offline --allow-dirty",
+                              "  holder=catalog_read; holder+=_token\n"
+                              "  GH_READ_TOKEN=${!holder} cargo package --locked --offline --allow-dirty", 1)),
+            ("token moved from crate preparation to cargo package",
+             original.replace(use, "python3 tools/crate_prepare.py prepare ", 1).replace(
+                 "  cargo package --locked --offline --allow-dirty",
+                 "  GH_READ_TOKEN=${catalog_read_token} cargo package --locked --offline --allow-dirty", 1)),
         ):
             with self.subTest(case=case):
                 self.assertNotEqual(changed, original)

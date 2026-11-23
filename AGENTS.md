@@ -104,7 +104,8 @@
   remains an owner operation, tracked in `github-settings`.
 - Source packaging runs twice in a read-only job without write credentials, with
   independent extracted-package verification. Only its planning and preparation
-  steps get the read-only job token, for public release catalog reads;
+  steps get the read-only job token in their environment, for public release
+  catalog reads;
   `package-release.sh` passes it only to `crate_prepare.py`, which strips it before
   Cargo. No registry token, OIDC capability or GitHub write credential may reach
   Cargo/build scripts. The write-enabled semantic-release job
