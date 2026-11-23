@@ -17,7 +17,7 @@ WORKFLOWS = ROOT / ".github" / "workflows"
 PUBLISH_WORKFLOW = WORKFLOWS / "publish-crate.yml"
 BOOTSTRAP_CHECK = ROOT / "tools" / "check-crate-publication.py"
 SOURCE_WORKFLOW = WORKFLOWS / "release.yml"
-EXPECTED_SOURCE_WORKFLOW_SHA256 = "f897401133c5d69d73edbafe020cdf80cedcabbe31f76233a9e1a9f52a19ae94"
+EXPECTED_SOURCE_WORKFLOW_SHA256 = "818d6584dc464997c8fb1021243159ceac2096a8d73d186462930fc7fc904d29"
 EXPECTED_PUBLICATION_WORKFLOW_SHA256 = "b0491b93c39cb1b58e73afff2ac49a9aea8854a53c1de2df04a66ca639ffe58a"
 EXPECTED_WORKFLOWS = {
     "dependency-review.yml", "pr-title.yml", "release.yml", "validate.yml",
@@ -33,6 +33,14 @@ EXPECTED_FUTURE_POLICY = {
     "environment": "crates-io-release",
 }
 
+# Shared hosted-runner addresses exhaust GitHub's anonymous API quota, so the
+# source job's release catalog reads carry its read-only token, and only there.
+SOURCE_READ_TOKEN_STEPS = (
+    "Plan the actual source version without write credentials",
+    "Prepare every immutable source and crate asset",
+)
+SOURCE_READ_TOKEN = "\n          GH_READ_TOKEN: ${{ github.token }}\n"
+
 FORBIDDEN_WORKFLOW_FRAGMENTS = (
     "CARGO_REGISTRY_BOOTSTRAP_TOKEN",
     "CARGO_REGISTRY_TOKEN",
@@ -45,6 +53,23 @@ FORBIDDEN_WORKFLOW_FRAGMENTS = (
 
 def load_json(path: Path) -> object:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def check_source_read_token(text: str) -> None:
+    start, end = text.find("\n  package:\n"), text.find("\n  attest:\n")
+    if start < 0 or end < start:
+        raise SystemExit("source package job is missing")
+    job = text[start:end]
+    if "\npermissions:\n  contents: read\n\n" not in text or "permissions:" in job:
+        raise SystemExit("source package job must keep the read-only workflow token")
+    steps = job.split("\n      - ")[1:]
+    carrying = [
+        step.partition("\n")[0].removeprefix("name: ")
+        for step in steps
+        if "\n        env:\n" in step and SOURCE_READ_TOKEN in step
+    ]
+    if carrying != list(SOURCE_READ_TOKEN_STEPS) or job.count("GH_READ_TOKEN") != len(carrying):
+        raise SystemExit("source catalog reads must use the read-only token in exactly the planning and preparation steps")
 
 
 def main() -> None:
@@ -110,6 +135,7 @@ def main() -> None:
     if {path.name for path in workflow_paths} != EXPECTED_WORKFLOWS:
         raise SystemExit("reviewed workflow inventory changed")
 
+    check_source_read_token(SOURCE_WORKFLOW.read_text(encoding="utf-8"))
     for workflow in workflow_paths:
         text = workflow.read_text(encoding="utf-8")
         for fragment in FORBIDDEN_WORKFLOW_FRAGMENTS:
