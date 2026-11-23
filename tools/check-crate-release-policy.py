@@ -17,7 +17,8 @@ WORKFLOWS = ROOT / ".github" / "workflows"
 PUBLISH_WORKFLOW = WORKFLOWS / "publish-crate.yml"
 BOOTSTRAP_CHECK = ROOT / "tools" / "check-crate-publication.py"
 SOURCE_WORKFLOW = WORKFLOWS / "release.yml"
-EXPECTED_SOURCE_WORKFLOW_SHA256 = "f897401133c5d69d73edbafe020cdf80cedcabbe31f76233a9e1a9f52a19ae94"
+PACKAGE_SCRIPT = ROOT / "tools" / "package-release.sh"
+EXPECTED_SOURCE_WORKFLOW_SHA256 = "818d6584dc464997c8fb1021243159ceac2096a8d73d186462930fc7fc904d29"
 EXPECTED_PUBLICATION_WORKFLOW_SHA256 = "b0491b93c39cb1b58e73afff2ac49a9aea8854a53c1de2df04a66ca639ffe58a"
 EXPECTED_WORKFLOWS = {
     "dependency-review.yml", "pr-title.yml", "release.yml", "validate.yml",
@@ -33,6 +34,18 @@ EXPECTED_FUTURE_POLICY = {
     "environment": "crates-io-release",
 }
 
+# Shared hosted-runner addresses exhaust GitHub's anonymous API quota, so the
+# source job's release catalog reads carry its read-only token, and only there.
+SOURCE_READ_TOKEN_STEPS = (
+    "Plan the actual source version without write credentials",
+    "Prepare every immutable source and crate asset",
+)
+SOURCE_READ_TOKEN = "\n          GH_READ_TOKEN: ${{ github.token }}\n"
+# The preparation step runs package-release.sh, which must hand the token only
+# to crate preparation (which strips it before Cargo), not to its other tools.
+PACKAGE_SCRIPT_TOKEN_SCOPE = "\ndeclare +x catalog_read_token=${GH_READ_TOKEN-}\nunset GH_READ_TOKEN\n"
+PACKAGE_SCRIPT_TOKEN_USE = "\nGH_READ_TOKEN=${catalog_read_token} python3 tools/crate_prepare.py prepare "
+
 FORBIDDEN_WORKFLOW_FRAGMENTS = (
     "CARGO_REGISTRY_BOOTSTRAP_TOKEN",
     "CARGO_REGISTRY_TOKEN",
@@ -45,6 +58,54 @@ FORBIDDEN_WORKFLOW_FRAGMENTS = (
 
 def load_json(path: Path) -> object:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def workflow_permissions(text: str) -> list[str] | None:
+    """Entries of the one top-level permissions block; YAML blank lines don't end it."""
+    # splitlines() also splits on CR, NEL, U+2028 and U+2029, which YAML parsers
+    # may treat as line breaks, so a comment cannot hide a further scope.
+    lines = text.splitlines()
+    heads = [index for index, line in enumerate(lines) if line.startswith("permissions:")]
+    if len(heads) != 1 or lines[heads[0]] != "permissions:":
+        return None
+    entries = []
+    for line in lines[heads[0] + 1:]:
+        if line and not line[0].isspace() and not line.startswith("#"):
+            break
+        if line.strip() and not line.strip().startswith("#"):
+            entries.append(line.strip())
+    return entries
+
+
+def check_source_read_token(text: str, script: str) -> None:
+    start, end = text.find("\n  package:\n"), text.find("\n  attest:\n")
+    if start < 0 or end < start:
+        raise SystemExit("source package job is missing")
+    job = text[start:end]
+    if workflow_permissions(text) != ["contents: read"] or "permissions" in job:
+        raise SystemExit("source package job must keep the read-only workflow token")
+    steps = job.split("\n      - ")[1:]
+    carrying = [
+        step.partition("\n")[0].removeprefix("name: ")
+        for step in steps
+        if "\n        env:\n" in step and SOURCE_READ_TOKEN in step
+    ]
+    # Count the credential as well as the name, so no alias, anchor (including
+    # one defined before the job), secret or whole-context dump carries it to
+    # another step. Expressions are case-insensitive and allow whitespace.
+    expressions = "".join(text[:end].lower().split())
+    if (carrying != list(SOURCE_READ_TOKEN_STEPS) or job.count("GH_READ_TOKEN") != len(carrying)
+            or expressions.count("github.token") != len(carrying) or "secrets" in job.lower()
+            or "tojson(github" in expressions or "github[" in expressions):
+        raise SystemExit("source catalog reads must use the read-only token in exactly the planning and preparation steps")
+    # Scope the token before the script's first command; only the shebang,
+    # set -euo pipefail and comments may precede it. Without the scope lines,
+    # the partition leaves the whole script before them, so it fails too.
+    before = script.partition(PACKAGE_SCRIPT_TOKEN_SCOPE)[0]
+    commands = [line for line in before.splitlines() if line.strip() and not line.lstrip().startswith("#")]
+    if (commands != ["set -euo pipefail"] or PACKAGE_SCRIPT_TOKEN_USE not in script
+            or script.count("GH_READ_TOKEN") != 3 or script.count("catalog_read_token") != 2):
+        raise SystemExit("package-release.sh must pass the read token only to crate preparation")
 
 
 def main() -> None:
@@ -110,6 +171,8 @@ def main() -> None:
     if {path.name for path in workflow_paths} != EXPECTED_WORKFLOWS:
         raise SystemExit("reviewed workflow inventory changed")
 
+    check_source_read_token(SOURCE_WORKFLOW.read_text(encoding="utf-8"),
+                            PACKAGE_SCRIPT.read_text(encoding="utf-8"))
     for workflow in workflow_paths:
         text = workflow.read_text(encoding="utf-8")
         for fragment in FORBIDDEN_WORKFLOW_FRAGMENTS:

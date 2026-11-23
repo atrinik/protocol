@@ -54,6 +54,10 @@ jobs:
         run: NODE_PATH="${RUNNER_TEMP}/crate-analysis/node_modules" node scripts/release/test-source-version.mjs
       - name: Plan the actual source version without write credentials
         id: plan
+        env:
+          # Hosted runners share addresses whose anonymous API quota is often
+          # exhausted. This job's token is read-only (workflow contents: read).
+          GH_READ_TOKEN: ${{ github.token }}
         run: |
           NODE_PATH="${RUNNER_TEMP}/crate-analysis/node_modules" \
             node scripts/release/source-version.mjs > "${RUNNER_TEMP}/source-plan.json"
@@ -75,6 +79,7 @@ jobs:
         if: steps.plan.outputs.version != ''
         env:
           SOURCE_VERSION: ${{ steps.plan.outputs.version }}
+          GH_READ_TOKEN: ${{ github.token }}
         run: tools/package-release.sh build/release "${SOURCE_VERSION}"
       - name: Retain the complete verified release payload
         if: steps.plan.outputs.version != ''
