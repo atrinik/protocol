@@ -141,6 +141,11 @@ class CrateReleasePolicyTests(unittest.TestCase):
         prepare = original.index("          SOURCE_VERSION: ${{ steps.plan.outputs.version }}\n")
         placement = "source catalog reads must use the read-only token"
         permission = "source package job must keep the read-only workflow token"
+
+        def validate_env(entry: str) -> str:
+            return original.replace("        run: tools/validate.sh\n",
+                                    "        env:\n          " + entry + "\n        run: tools/validate.sh\n", 1)
+
         for case, changed, expected in (
             ("planning step without token",
              original[:plan] + original[plan:].replace(token, "", 1), placement),
@@ -165,6 +170,19 @@ class CrateReleasePolicyTests(unittest.TestCase):
              original.replace(token, token + "          LEAK: &leak ${{ github.token }}\n", 1).replace(
                  "        run: tools/validate.sh\n", "        env:\n          LEAK: *leak\n        run: tools/validate.sh\n", 1),
              placement),
+            ("token anchored before the package job",
+             original.replace("  group: protocol-semantic-release\n",
+                              "  group: protocol-semantic-release\n  leak: &leak ${{ github.token }}\n", 1).replace(
+                 "        run: tools/validate.sh\n", "        env:\n          LEAK: *leak\n        run: tools/validate.sh\n", 1),
+             placement),
+            ("token in another letter case",
+             validate_env("LEAK: ${{ github.TOKEN }}"), placement),
+            ("secret by index",
+             validate_env("LEAK: ${{ secrets['GITHUB_TOKEN'] }}"), placement),
+            ("whole github context",
+             validate_env("LEAK: ${{ toJSON(github) }}"), placement),
+            ("github context by index",
+             validate_env("LEAK: ${{ github [ 'token' ] }}"), placement),
             ("package job write permission",
              original.replace("    timeout-minutes: 40\n", "    timeout-minutes: 40\n    permissions:\n      contents: write\n", 1),
              permission),
@@ -176,6 +194,15 @@ class CrateReleasePolicyTests(unittest.TestCase):
              permission),
             ("workflow read-all shorthand",
              original.replace("permissions:\n  contents: read\n", "permissions: read-all\n", 1), permission),
+            ("workflow scope hidden by a comment line separator",
+             original.replace("permissions:\n  contents: read\n",
+                              "permissions:\n  contents: read\n  # note\u2028  actions: write\n", 1), permission),
+            ("package job permissions key with a space",
+             original.replace("    timeout-minutes: 40\n", "    timeout-minutes: 40\n    permissions : write-all\n", 1),
+             permission),
+            ("package job quoted permissions key",
+             original.replace("    timeout-minutes: 40\n", '    timeout-minutes: 40\n    "permissions": write-all\n', 1),
+             permission),
         ):
             with self.subTest(case=case):
                 self.assertNotEqual(changed, original)

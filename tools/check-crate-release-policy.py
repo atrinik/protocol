@@ -57,7 +57,9 @@ def load_json(path: Path) -> object:
 
 def workflow_permissions(text: str) -> list[str] | None:
     """Entries of the one top-level permissions block; YAML blank lines don't end it."""
-    lines = text.split("\n")
+    # splitlines() also splits on CR, NEL, U+2028 and U+2029, which YAML parsers
+    # may treat as line breaks, so a comment cannot hide a further scope.
+    lines = text.splitlines()
     heads = [index for index, line in enumerate(lines) if line.startswith("permissions:")]
     if len(heads) != 1 or lines[heads[0]] != "permissions:":
         return None
@@ -75,7 +77,7 @@ def check_source_read_token(text: str) -> None:
     if start < 0 or end < start:
         raise SystemExit("source package job is missing")
     job = text[start:end]
-    if workflow_permissions(text) != ["contents: read"] or "permissions:" in job:
+    if workflow_permissions(text) != ["contents: read"] or "permissions" in job:
         raise SystemExit("source package job must keep the read-only workflow token")
     steps = job.split("\n      - ")[1:]
     carrying = [
@@ -83,10 +85,13 @@ def check_source_read_token(text: str) -> None:
         for step in steps
         if "\n        env:\n" in step and SOURCE_READ_TOKEN in step
     ]
-    # Count the credential as well as the name, so no alias, anchor or secret
-    # carries it to another step.
+    # Count the credential as well as the name, so no alias, anchor (including
+    # one defined before the job), secret or whole-context dump carries it to
+    # another step. Expressions are case-insensitive and allow whitespace.
+    expressions = "".join(text[:end].lower().split())
     if (carrying != list(SOURCE_READ_TOKEN_STEPS) or job.count("GH_READ_TOKEN") != len(carrying)
-            or job.count("github.token") != len(carrying) or "secrets." in job):
+            or expressions.count("github.token") != len(carrying) or "secrets" in job.lower()
+            or "tojson(github" in expressions or "github[" in expressions):
         raise SystemExit("source catalog reads must use the read-only token in exactly the planning and preparation steps")
 
 
