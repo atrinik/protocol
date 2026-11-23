@@ -82,7 +82,7 @@ class CrateReleasePolicyTests(unittest.TestCase):
 
     def test_rejects_reusing_published_version(self) -> None:
         path = self.root / "Cargo.toml"
-        path.write_text(path.read_text().replace('version = "0.2.1"', 'version = "0.1.0"'))
+        path.write_text(path.read_text().replace('version = "0.2.2"', 'version = "0.1.0"'))
         self.assert_rejected("cannot be relabeled")
 
     def test_rejects_policy_drift(self) -> None:
