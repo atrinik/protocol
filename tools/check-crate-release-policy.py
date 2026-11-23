@@ -55,12 +55,27 @@ def load_json(path: Path) -> object:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def workflow_permissions(text: str) -> list[str] | None:
+    """Entries of the one top-level permissions block; YAML blank lines don't end it."""
+    lines = text.split("\n")
+    heads = [index for index, line in enumerate(lines) if line.startswith("permissions:")]
+    if len(heads) != 1 or lines[heads[0]] != "permissions:":
+        return None
+    entries = []
+    for line in lines[heads[0] + 1:]:
+        if line and not line[0].isspace() and not line.startswith("#"):
+            break
+        if line.strip() and not line.strip().startswith("#"):
+            entries.append(line.strip())
+    return entries
+
+
 def check_source_read_token(text: str) -> None:
     start, end = text.find("\n  package:\n"), text.find("\n  attest:\n")
     if start < 0 or end < start:
         raise SystemExit("source package job is missing")
     job = text[start:end]
-    if "\npermissions:\n  contents: read\n\n" not in text or "permissions:" in job:
+    if workflow_permissions(text) != ["contents: read"] or "permissions:" in job:
         raise SystemExit("source package job must keep the read-only workflow token")
     steps = job.split("\n      - ")[1:]
     carrying = [
@@ -68,7 +83,10 @@ def check_source_read_token(text: str) -> None:
         for step in steps
         if "\n        env:\n" in step and SOURCE_READ_TOKEN in step
     ]
-    if carrying != list(SOURCE_READ_TOKEN_STEPS) or job.count("GH_READ_TOKEN") != len(carrying):
+    # Count the credential as well as the name, so no alias, anchor or secret
+    # carries it to another step.
+    if (carrying != list(SOURCE_READ_TOKEN_STEPS) or job.count("GH_READ_TOKEN") != len(carrying)
+            or job.count("github.token") != len(carrying) or "secrets." in job):
         raise SystemExit("source catalog reads must use the read-only token in exactly the planning and preparation steps")
 
 
